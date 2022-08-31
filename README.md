@@ -5,7 +5,7 @@ Initial and base code was developed by Alan and then enhanced by alums Bob Nisco
 Project Description: 
 Browser-based Operating System in TypeScript 
 
-# Contributors 
+# Contributors and Collaborators
 
 - Oliver Wilson <oliver.wilson1@marist.edu>
 - Alan Labouseur <alan.labouseur@marist.edu>
