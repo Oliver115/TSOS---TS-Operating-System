@@ -31,12 +31,6 @@ module TSOS {
                                   "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
 
-            // version
-            sc = new ShellCommand(this.shellVer,
-                                  "version",
-                                  "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
-
             // help
             sc = new ShellCommand(this.shellHelp,
                                   "help",
@@ -88,13 +82,13 @@ module TSOS {
             // whereami
             sc = new ShellCommand(this.shellWhereami,
                                   "whereami",
-                                  "- Show user's current location in the universe");
+                                  "- Show user's current location.");
             this.commandList[this.commandList.length] = sc;
 
             // weather
             sc = new ShellCommand(this.shellWeather,
                                   "weather",
-                                  "- Display weather forecast based on location");
+                                  "- Display weather forecast based on location.");
             this.commandList[this.commandList.length] = sc;
 
             // favprof
@@ -242,9 +236,6 @@ module TSOS {
         public shellVer(args: string[]) {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
         }
-        public shellVersion(args: string[]) {
-            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
-        }
 
         public shellHelp(args: string[]) {
             _StdOut.putText("Commands:");
@@ -277,7 +268,7 @@ module TSOS {
         }
 
         public shellWeather(args: string[]) {
-            _StdOut.putText("Go outside to figure it out")
+            _StdOut.putText("Go outside to figure it out.")
         }
 
         public shellFav_prof(args: string[]) {
@@ -300,7 +291,39 @@ module TSOS {
                     case "help":
                         _StdOut.putText("Help displays a list of (hopefully) valid commands.");
                         break;
-                    // TODO: Make descriptive MANual page entries for the the rest of the shell commands here.
+                    case "ver":
+                        _StdOut.putText("Display project name and version.");
+                        break;
+                    case "shutdown":
+                        _StdOut.putText("Shutdown Revilo OS. Leaves underlying host and hardware simulation running.");
+                        break;
+                    case "cls":
+                        _StdOut.putText("Clears the screen.");
+                        break;
+                    case "trace":
+                        _StdOut.putText("Toggle OS trace. <on | off>");
+                        break;
+                    case "rot13":
+                        _StdOut.putText("Does rot13 obfuscation on a given string.");
+                        break;
+                    case "prompt":
+                        _StdOut.putText("Sets the prompt.");
+                        break;
+                    case "date":
+                        _StdOut.putText("Display today's date.");
+                        break;
+                    case "whereami":
+                        _StdOut.putText("In case you're lost, this will help you orientate yourself");
+                        break;
+                    case "weather":
+                        _StdOut.putText("Going outside? Check the weather.");
+                        break;
+                    case "favprof":
+                        _StdOut.putText("Names Oliver's favourite professor.");
+                        break;
+                    case "lifemeaning":
+                        _StdOut.putText("A question we've all pondered...");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
