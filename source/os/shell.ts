@@ -79,6 +79,36 @@ module TSOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            // date
+            sc = new ShellCommand(this.shellDate,
+                                  "date",
+                                  "- Display today's date.");
+            this.commandList[this.commandList.length] = sc;
+
+            // whereami
+            sc = new ShellCommand(this.shellWhereami,
+                                  "whereami",
+                                  "- Show user's current location in the universe");
+            this.commandList[this.commandList.length] = sc;
+
+            // weather
+            sc = new ShellCommand(this.shellWeather,
+                                  "weather",
+                                  "- Display weather forecast based on location");
+            this.commandList[this.commandList.length] = sc;
+
+            // favprof
+            sc = new ShellCommand(this.shellFav_prof,
+                "favprof",
+                "- Oliver's favourite professor. Note: It will not be Prof. Algozzine...");
+            this.commandList[this.commandList.length] = sc;
+
+            // lifemeaning
+            sc = new ShellCommand(this.shellLifemeaning,
+                "lifemeaning",
+                "- Incredibly! This program managed to calculate the meaning of life. Astonishing!");
+            this.commandList[this.commandList.length] = sc;
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -212,6 +242,9 @@ module TSOS {
         public shellVer(args: string[]) {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
         }
+        public shellVersion(args: string[]) {
+            _StdOut.putText(APP_NAME + " version " + APP_VERSION);
+        }
 
         public shellHelp(args: string[]) {
             _StdOut.putText("Commands:");
@@ -226,6 +259,33 @@ module TSOS {
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
+        }
+
+        // TODO: Add interesting and creative prompts
+        // Weather? 
+        // Favourite Professor?
+        // Meaning of life?
+
+
+        public shellDate(args: string[]) {
+            const today = new Date()
+            _StdOut.putText(today.toUTCString())
+        }
+
+        public shellWhereami(args: string[]) {
+            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way (called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.")
+        }
+
+        public shellWeather(args: string[]) {
+            _StdOut.putText("Go outside to figure it out")
+        }
+
+        public shellFav_prof(args: string[]) {
+            _StdOut.putText("The answer is obvious! Prof. Algozzine!")
+        }
+
+        public shellLifemeaning(args: string[]) {
+            _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.")
         }
 
         public shellCls(args: string[]) {         
@@ -289,6 +349,5 @@ module TSOS {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
         }
-
     }
 }
