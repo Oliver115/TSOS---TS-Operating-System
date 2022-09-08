@@ -34,17 +34,32 @@ module TSOS {
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
             // Check to see if we even want to deal with the key that was pressed.
+
+            /** 
+            if (keyCode >= 187) {
+                if (isShifted === true) {
+                    chr = String.fromCharCode(keyCode - 128);
+                }
+                else {
+                    chr = String.fromCharCode(keyCode);
+                }
+                _KernelInputQueue.enqueue(chr);
+            }
+            */
+
             if ((keyCode >= 65) && (keyCode <= 90)) { // letter
                 if (isShifted === true) { 
                     chr = String.fromCharCode(keyCode); // Uppercase A-Z
-                } else {
+                } 
+                else {
                     chr = String.fromCharCode(keyCode + 32); // Lowercase a-z
                 }
                 // TODO: Check for caps-lock and handle as shifted if so.
                 _KernelInputQueue.enqueue(chr);
-            } else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits
-                        (keyCode == 32)                     ||   // space
-                        (keyCode == 13)) {                       // enter
+            } 
+            else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits 48 - 57
+                      (keyCode == 32)                     ||   // space
+                      (keyCode == 13)) {                       // enter
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
