@@ -36,6 +36,12 @@ h3 {
   cursor: default;
 }
 
+#displayStat {
+  background-color:#ffffff;
+  border: 2px solid red;
+  cursor: default;
+}
+
 .normal_button {
   width: 100px;
 }
