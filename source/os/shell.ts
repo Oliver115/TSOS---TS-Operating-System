@@ -263,8 +263,6 @@ module TSOS {
 
         // TODO: Add interesting and creative prompts
         // Weather? 
-        // Favourite Professor?
-        // Meaning of life?
 
         public shellDate(args: string[]) {
             const today = new Date()
@@ -342,6 +340,7 @@ module TSOS {
                 _StdOut.putText("Usage: man <topic>  Please supply a topic.");
             }
         }
+
 
         public shellTrace(args: string[]) {
             if (args.length > 0) {
