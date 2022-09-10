@@ -17,6 +17,9 @@ module TSOS {
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
+        // Status message
+        public stat_message: string;
+
         constructor() {
         }
 
@@ -101,6 +104,12 @@ module TSOS {
             sc = new ShellCommand(this.shellLifemeaning,
                 "lifemeaning",
                 "- Incredibly! This program managed to calculate the meaning of life. Astonishing!");
+            this.commandList[this.commandList.length] = sc;
+
+            // status
+            sc = new ShellCommand(this.shellStatus,
+                "status",
+                "- Set new status message for the host task bar.");
             this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs
@@ -257,7 +266,6 @@ module TSOS {
         // Favourite Professor?
         // Meaning of life?
 
-
         public shellDate(args: string[]) {
             const today = new Date()
             _StdOut.putText(today.toUTCString())
@@ -319,10 +327,13 @@ module TSOS {
                         _StdOut.putText("Going outside? Check the weather.");
                         break;
                     case "favprof":
-                        _StdOut.putText("Names Oliver's favourite professor.");
+                        _StdOut.putText("Oliver's favourite professor.");
                         break;
                     case "lifemeaning":
                         _StdOut.putText("A question we've all pondered...");
+                        break;
+                    case "status":
+                        _StdOut.putText("Set new status message.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -364,7 +375,19 @@ module TSOS {
                 _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
             }
         }
+        public shellSetMessage() {
+            this.stat_message = "Hello";
+        }
 
+        public shellStatus(args: string) {
+            if (args.length > 0) {
+                _StdOut.putText("New status message added: " + args);
+                this.execute(this.shellSetMessage);
+            } else {
+                _StdOut.putText("Usage: status <message>  Please enter a message.");
+            }
+        }
+        
         public shellPrompt(args: string[]) {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
@@ -374,3 +397,8 @@ module TSOS {
         }
     }
 }
+
+function getNewMessage() {
+    return "Status message goes here.";
+}
+
