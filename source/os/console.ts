@@ -6,7 +6,6 @@
      ------------ */
 
 module TSOS {
-
     export class Console {
 
         constructor(public currentFont = _DefaultFontFamily,

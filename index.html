@@ -17,13 +17,14 @@
    <script type="text/javascript" src="distrib/host/cpu.js"></script>
 
    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+   <script type="text/javascript" src="distrib/os/shell.js"></script>
    <script type="text/javascript" src="distrib/os/interrupt.js"></script>
    <script type="text/javascript" src="distrib/os/canvastext.js"></script>
    <script type="text/javascript" src="distrib/os/console.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriver.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriverKeyboard.js"></script>
    <script type="text/javascript" src="distrib/os/queue.js"></script>
-   <script type="text/javascript" src="distrib/os/shell.js"></script>
+
    <script type="text/javascript" src="distrib/os/shellCommand.js"></script>
    <script type="text/javascript" src="distrib/os/userCommand.js"></script>
    <script type="text/javascript" src="distrib/os/kernel.js"></script>
@@ -83,14 +84,14 @@
               tabindex="4">
       </canvas>
    </div>   
-   <script>
+   <script type="text/javascript">
       var canvas = document.getElementById("displayStat");
       var ctx = canvas.getContext('2d');
       ctx.font = "15px Arial";
       const date_time = new Date();
-      ctx.fillText("Date: " + date_time, 5, 19);
-      setInterval(function () {ctx.clearRect(5, 5, 500, 17); const date_time = new Date(); ctx.fillText("Date: " + date_time, 5, 19)}, 1000);
-      ctx.fillText("Status: {Blank}", 5, 42);
+      ctx.fillText("Date and Time: " + date_time, 5, 19);
+      setInterval(function () {ctx.clearRect(5, 5, 500, 17); const date_time = new Date(); ctx.fillText("Date and Time: " + date_time, 5, 19)}, 1000);
+      ctx.fillText("Status: " + getNewMessage(), 5, 42);
    </script>
 
    <div id="divLog" style="margin-left:520px;">
