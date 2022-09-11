@@ -38,13 +38,13 @@
 
 <body onload="onDocumentLoad()">
 
-<div id="divMain" style="width:100%;">
+<div id="divMain" style="width: 1000px; height: 1000px;">
 
    <div id="divButtonBar" style="margin:4px;">
       <input type="button"
              id = "btnStartOS"
              name="brnStartOS"
-             class="normal_button"
+             class="normal_buttonS"
              value="Start"
              tabindex="0"
              onclick="TSOS.Control.hostBtnStartOS_click(this);">
@@ -52,7 +52,7 @@
       <input type="button"
              id = "btnHaltOS"
              name="brnHaltOS"
-             class="normal_button"
+             class="normal_buttonH"
              disabled="disabled"
              value="Halt"
              tabindex="1"
@@ -61,25 +61,25 @@
       <input type="button"
              id = "btnReset"
              name="brnReset"
-             class="normal_button"
+             class="normal_buttonR"
              disabled="disabled"
              value="Reset"
              tabindex="2"
              onclick="TSOS.Control.hostBtnReset_click(this);">
    </div>
 
-   <div id="divConsole" style="margin:4px; width:500px; height:505px; float:left;">
+   <div id="divConsole" style="margin:4px; width:500px; height:705px; float:left;">
       <canvas id="display"
-              width="500px"
-              height="500px"
+              width="700px"
+              height="700px"
               tabindex="3">
       </canvas>
    </div>
 
    <!-- Status Bar -->
-   <div id="divConsoleStat" style="margin:4px; width:500px; height:5px;">
+   <div id="divConsoleStat" style="margin:4px; height:10px;">
       <canvas id="displayStat"
-              width="500px"
+              width="700px"
               height="50px"
               tabindex="4">
       </canvas>
@@ -94,7 +94,7 @@
       ctx.fillText("Status: " + getNewMessage(), 5, 42);
    </script>
 
-   <div id="divLog" style="margin-left:520px;">
+   <div id="divLog" style="margin-left:720px;">
       <label>
          Host Log
          <br>
@@ -106,7 +106,7 @@
       </label>
    </div>
 
-   <div id="divUserProgramInput" style="margin-left:520px;">
+   <div id="divUserProgramInput" style="margin-left:720px;">
       <label>
          User Program Input
          <br>
@@ -119,13 +119,14 @@
    </div>
 </div>
 
-<p class="footerText" style="clear:both;">
-   <br>
-   Copyright &copy; 2008 - 2019 No Rights Reserved.
-   <br>
-   Reproduction is inhibited without the express written consent of
-   Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
-</p>
-
 </body>
+<footer>
+   <p class="footerText" style="clear:both;">
+      <br>
+      Copyright &copy; 2008 - 2019 No Rights Reserved.
+      <br>
+      Reproduction is inhibited without the express written consent of
+      Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+   </p>
+</footer>
 </html>

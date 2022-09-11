@@ -32,23 +32,67 @@ h3 {
 
 #display {
   background-color:#DFDBC3;
-  border: 2px solid red;
+  border: 2px solid black;
   cursor: default;
 }
 
 #displayStat {
   background-color:#ffffff;
-  border: 2px solid red;
+  border: 2px solid black;
   cursor: default;
 }
 
-.normal_button {
-  width: 100px;
+.normal_buttonS {
+  background-color: white;
+  border: 2px solid #4CAF50;
+  color: rgb(0, 0, 0);
+  padding: 10px 50px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 8px;
+}
+.normal_buttonS:hover {
+  background-color: #4CAF50; 
+  color: white;
+}
+
+.normal_buttonH {
+  background-color: white;
+  border: 2px solid red;
+  color: rgb(0, 0, 0);
+  padding: 10px 50px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 8px;
+}
+.normal_buttonH:hover {
+  background-color: red; 
+  color: white;
+}
+
+.normal_buttonR {
+  background-color: white;
+  border: 2px solid blue;
+  color: rgb(0, 0, 0);
+  padding: 10px 50px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 8px;
+}
+.normal_buttonR:hover {
+  background-color: blue; 
+  color: white;
 }
 
 .footerText {
   color: black;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 8pt;
+  font-size: 1pt;
   text-align: center;
 }
