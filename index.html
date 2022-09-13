@@ -90,8 +90,11 @@
       ctx.font = "15px Arial";
       const date_time = new Date();
       ctx.fillText("Date and Time: " + date_time, 5, 19);
-      setInterval(function () {ctx.clearRect(5, 5, 500, 17); const date_time = new Date(); ctx.fillText("Date and Time: " + date_time, 5, 19)}, 1000);
-      ctx.fillText("Status: " + getNewMessage(), 5, 42);
+      setInterval(function () {ctx.clearRect(5, 5, 550, 50); 
+                               const date_time = new Date(); 
+                               ctx.fillText("Date and Time: " + date_time, 5, 19); 
+                               ctx.fillText("Status: " + getNewMessage(), 5, 42);
+                              },1000);
    </script>
 
    <div id="divLog" style="margin-left:720px;">

@@ -24,9 +24,6 @@ var TSOS;
             // ver
             sc = new TSOS.ShellCommand(this.shellVer, "ver", "- Displays the current version data.");
             this.commandList[this.commandList.length] = sc;
-            // ver
-            sc = new TSOS.ShellCommand(this.shellVer, "version", "- Displays the current version data.");
-            this.commandList[this.commandList.length] = sc;
             // help
             sc = new TSOS.ShellCommand(this.shellHelp, "help", "- This is the help command. Seek help.");
             this.commandList[this.commandList.length] = sc;
@@ -47,6 +44,24 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
+            this.commandList[this.commandList.length] = sc;
+            // date
+            sc = new TSOS.ShellCommand(this.shellDate, "date", "- Display today's date.");
+            this.commandList[this.commandList.length] = sc;
+            // whereami
+            sc = new TSOS.ShellCommand(this.shellWhereami, "whereami", "- Show user's current location.");
+            this.commandList[this.commandList.length] = sc;
+            // weather
+            sc = new TSOS.ShellCommand(this.shellWeather, "weather", "- Display weather forecast based on location.");
+            this.commandList[this.commandList.length] = sc;
+            // favprof
+            sc = new TSOS.ShellCommand(this.shellFav_prof, "favprof", "- Oliver's favourite professor. Note: It will not be Prof. Algozzine...");
+            this.commandList[this.commandList.length] = sc;
+            // lifemeaning
+            sc = new TSOS.ShellCommand(this.shellLifemeaning, "lifemeaning", "- Incredibly! This program managed to calculate the meaning of life. Astonishing!");
+            this.commandList[this.commandList.length] = sc;
+            // status
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", "- Set new status message for the host task bar.");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -185,6 +200,26 @@ var TSOS;
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
         }
+        // TODO: Add interesting and creative prompts
+        // Weather? 
+        // Joke?
+        shellDate(args) {
+            const today = new Date();
+            _StdOut.putText(today.toUTCString());
+        }
+        shellWhereami(args) {
+            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way" +
+                "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.");
+        }
+        shellWeather(args) {
+            _StdOut.putText("Go outside to figure it out.");
+        }
+        shellFav_prof(args) {
+            _StdOut.putText("The answer is obvious! Prof. Algozzine!");
+        }
+        shellLifemeaning(args) {
+            _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.");
+        }
         shellCls(args) {
             _StdOut.clearScreen();
             _StdOut.resetXY();
@@ -196,7 +231,42 @@ var TSOS;
                     case "help":
                         _StdOut.putText("Help displays a list of (hopefully) valid commands.");
                         break;
-                    // TODO: Make descriptive MANual page entries for the the rest of the shell commands here.
+                    case "ver":
+                        _StdOut.putText("Display project name and version.");
+                        break;
+                    case "shutdown":
+                        _StdOut.putText("Shutdown Revilo OS. Leaves underlying host and hardware simulation running.");
+                        break;
+                    case "cls":
+                        _StdOut.putText("Clears the screen.");
+                        break;
+                    case "trace":
+                        _StdOut.putText("Toggle OS trace. <on | off>");
+                        break;
+                    case "rot13":
+                        _StdOut.putText("Does rot13 obfuscation on a given string.");
+                        break;
+                    case "prompt":
+                        _StdOut.putText("Sets the prompt.");
+                        break;
+                    case "date":
+                        _StdOut.putText("Display today's date.");
+                        break;
+                    case "whereami":
+                        _StdOut.putText("In case you're lost, this will help you orientate yourself");
+                        break;
+                    case "weather":
+                        _StdOut.putText("Going outside? Check the weather.");
+                        break;
+                    case "favprof":
+                        _StdOut.putText("Oliver's favourite professor.");
+                        break;
+                    case "lifemeaning":
+                        _StdOut.putText("A question we've all pondered...");
+                        break;
+                    case "status":
+                        _StdOut.putText("Set new status message.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -239,6 +309,17 @@ var TSOS;
                 _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
             }
         }
+        shellStatus(args) {
+            if (args.length > 0) {
+                _StdOut.putText("Status message updated.");
+                // replaceAll() shows an error but works perfeclty fine.
+                stat_message = args.toString();
+                stat_message = stat_message.replaceAll(",", " ");
+            }
+            else {
+                _StdOut.putText("Usage: status <message>  Please enter a message.");
+            }
+        }
         shellPrompt(args) {
             if (args.length > 0) {
                 _OsShell.promptStr = args[0];
@@ -250,4 +331,7 @@ var TSOS;
     }
     TSOS.Shell = Shell;
 })(TSOS || (TSOS = {}));
+function getNewMessage() {
+    return stat_message;
+}
 //# sourceMappingURL=shell.js.map

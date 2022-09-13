@@ -35,7 +35,7 @@ module TSOS {
             var chr = "";
             // Check to see if we even want to deal with the key that was pressed.
 
-            if ((keyCode >= 186) && (keyCode <= 222)){
+            if ((keyCode >= 186) && (keyCode <= 222)) {
                 switch (keyCode) {
                     case 186:
                         if (isShifted === true) { chr = String.fromCharCode(58); } else { chr = String.fromCharCode(59); }
@@ -131,7 +131,12 @@ module TSOS {
                             _KernelInputQueue.enqueue(chr);
                         }                     
             }
-            
+            else if (keyCode == 9) {
+                chr = String.fromCharCode(9);
+                _KernelInputQueue.enqueue(chr);
+                var commands = ["ver", "help", "shutdown", "cls", "man", "trace", 
+                "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status"];
+            }
         }
     }
 }

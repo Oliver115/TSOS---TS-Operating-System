@@ -17,9 +17,6 @@ module TSOS {
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
 
-        // Status message
-        public stat_message: string;
-
         constructor() {
         }
 
@@ -263,6 +260,7 @@ module TSOS {
 
         // TODO: Add interesting and creative prompts
         // Weather? 
+        // Joke?
 
         public shellDate(args: string[]) {
             const today = new Date()
@@ -270,7 +268,8 @@ module TSOS {
         }
 
         public shellWhereami(args: string[]) {
-            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way (called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.")
+            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way" +
+            "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.")
         }
 
         public shellWeather(args: string[]) {
@@ -374,14 +373,12 @@ module TSOS {
                 _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
             }
         }
-        public shellSetMessage() {
-            this.stat_message = "Hello";
-        }
 
         public shellStatus(args: string) {
             if (args.length > 0) {
-                _StdOut.putText("New status message added: " + args);
-                this.execute(this.shellSetMessage);
+                _StdOut.putText("Status message updated.");
+                // replaceAll() shows an error but works perfeclty fine.
+                stat_message = args.toString(); stat_message = stat_message.replaceAll(",", " ");
             } else {
                 _StdOut.putText("Usage: status <message>  Please enter a message.");
             }
@@ -398,6 +395,6 @@ module TSOS {
 }
 
 function getNewMessage() {
-    return "Status message goes here.";
+    return stat_message;
 }
 

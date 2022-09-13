@@ -37,6 +37,9 @@ var TSOS;
                     // ... and reset our buffer.
                     this.buffer = "";
                 }
+                if (chr === String.fromCharCode(9)) {
+                    console.log(this.buffer);
+                }
                 else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...

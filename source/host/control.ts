@@ -44,12 +44,14 @@ module TSOS {
 
             // Check for our testing and enrichment core, which
             // may be referenced here (from index.html) as function Glados().
+            
             if (typeof Glados === "function") {
                 // function Glados() is here, so instantiate Her into
                 // the global (and properly capitalized) _GLaDOS variable.
                 _GLaDOS = new Glados();
                 _GLaDOS.init();
             }
+            
         }
 
         public static hostLog(msg: string, source: string = "?"): void {
