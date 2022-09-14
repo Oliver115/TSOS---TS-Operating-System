@@ -136,11 +136,18 @@ module TSOS {
                 decided to write one function and use the term "text" to connote string or char.
             */
             if (text !== "") {
+
+                // Wrap around text 
+                if (this.currentXPosition > 675) { // 675
+                    this.currentYPosition += 20.64;
+                    this.currentXPosition = 18;
+                }
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
+                
             }
         }
 
@@ -184,7 +191,7 @@ module TSOS {
                 const screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
                 _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
                 _DrawingContext.putImageData(screen, 0, -21);
-                
+
                 this.currentYPosition = 672 - this.currentFontSize;
             }
         }

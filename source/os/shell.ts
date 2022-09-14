@@ -109,6 +109,12 @@ module TSOS {
                 "- Set new status message for the host task bar.");
             this.commandList[this.commandList.length] = sc;
 
+            // load
+            sc = new ShellCommand(this.shellLoad,
+                "load",
+                "- Validate the user code. Only hex digits and spaces are valid.");
+            this.commandList[this.commandList.length] = sc;
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -247,7 +253,11 @@ module TSOS {
             _StdOut.putText("Commands:");
             for (var i in _OsShell.commandList) {
                 _StdOut.advanceLine();
-                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                var help_command_queue = ("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                for(let i = 0; i < help_command_queue.length; i++) {
+                    _StdOut.putText(help_command_queue.charAt(i));
+                }
+                //_StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
         }
 
@@ -334,6 +344,9 @@ module TSOS {
                         break;
                     case "status":
                         _StdOut.putText("Set new status message.");
+                        break;
+                    case "load":
+                        _StdOut.putText("Load and validate user input (Only hex values are accepted)");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
