@@ -64,14 +64,9 @@ module TSOS {
                     var command_location = 0;
 
                     for(let i = 0; i < commands.length; i++) {
-                        console.log(this.buffer);
-                        console.log(commands[i]);
-                        console.log(commands[i].startsWith(this.buffer));
-
                         // Check if two commands start with the same substring
                         if (commands[i].startsWith(this.buffer) == true) { counter += 1; command_location = i}
                     }
-                    console.log(counter);
                     if (counter == 1) {
                         this.buffer = commands[command_location];
 
@@ -179,11 +174,18 @@ module TSOS {
              * Font descent measures from the baseline to the lowest point in the font.
              * Font height margin is extra spacing between the lines.
              */
+
             this.currentYPosition += _DefaultFontSize + 
                                      _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
                                      _FontHeightMargin;
-
             // TODO: Handle scrolling. (iProject 1)
+            if (this.currentYPosition > 672) {
+                const screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
+                _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
+                
+                _DrawingContext.putImageData(screen, 0, -21);
+                this.currentYPosition = 672 - this.currentFontSize;
+            }
         }
     }
  }
