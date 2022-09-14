@@ -340,7 +340,6 @@ module TSOS {
             }
         }
 
-
         public shellTrace(args: string[]) {
             if (args.length > 0) {
                 var setting = args[0];
@@ -377,7 +376,6 @@ module TSOS {
         public shellStatus(args: string) {
             if (args.length > 0) {
                 _StdOut.putText("Status message updated.");
-                // replaceAll() shows an error but works perfeclty fine.
                 stat_message = args.toString(); stat_message = stat_message.replaceAll(",", " ");
             } else {
                 _StdOut.putText("Usage: status <message>  Please enter a message.");

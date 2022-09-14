@@ -12,7 +12,9 @@ module TSOS {
                     public currentFontSize = _DefaultFontSize,
                     public currentXPosition = 0,
                     public currentYPosition = _DefaultFontSize,
-                    public buffer = "") {
+                    public buffer = "",
+                    public commandHistory = [],
+                    public commandCount = -1) {
         }
 
         public init(): void {
@@ -39,14 +41,55 @@ module TSOS {
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
+                    this.commandHistory.push(this.buffer); this.commandCount++;
                     this.buffer = "";
                 } 
+                /*
                 if (chr === String.fromCharCode(9)) {
+                    //var commands = ["ver", "help", "shutdown", "cls", "man", "trace", 
+                                      "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status"];
 
+                    for(let i = 0; i < commands.length; i++) {
 
+                        //console.log(commands[i].startsWith(this.buffer));
 
-                    console.log(this.buffer);
-                } else {
+                        // Check if two commands start with the same substring
+                        var counter = 0;
+
+                        
+                        if (buffer.startsWith(start_of_string) == true) {
+                            counter++;
+                            console.log("Found: " + commands[i])
+                        }
+                        
+                    }
+                    _OsShell.handleInput(this.buffer);
+                    //this.commandList.push(this.buffer); this.commandCount++;
+                    this.buffer = "";
+                }
+                */
+                
+
+                
+                else if (chr === String.fromCharCode(38)) { // 40 is down
+
+                    var command_location = this.commandCount - 1;
+                    
+                    for(let i = 0; i < this.commandHistory[command_location].length; i++) {
+                        this.Delete(this.buffer.charAt(this.buffer.length - i));
+                    }
+                    
+                    if (this.commandCount >= 2) {
+                        _OsShell.handleInput(this.commandHistory[command_location])
+                    }
+                }
+                
+
+                else if (chr === String.fromCharCode(8)) {
+                    this.Delete(this.buffer.charAt(this.buffer.length - 1));
+                    this.buffer = this.buffer.slice(0, -1);
+                }
+                else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
                     this.putText(chr);
@@ -72,7 +115,19 @@ module TSOS {
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
             }
-         }
+        }
+
+        public Delete(text): void {
+            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+            this.currentXPosition = this.currentXPosition - offset;
+
+            var cnv = document.getElementById("display");
+            var ctxt = cnv.getContext("2d");
+            ctxt.beginPath();
+            ctxt.fillStyle = "#DFDBC3";
+            ctxt.fillRect(this.currentXPosition, this.currentYPosition + 5, 15, -20);
+            ctxt.stroke();
+        }
 
         public advanceLine(): void {
             this.currentXPosition = 0;
