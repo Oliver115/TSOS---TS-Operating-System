@@ -179,11 +179,12 @@ module TSOS {
                                      _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
                                      _FontHeightMargin;
             // TODO: Handle scrolling. (iProject 1)
+            // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData
             if (this.currentYPosition > 672) {
                 const screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
                 _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
-                
                 _DrawingContext.putImageData(screen, 0, -21);
+                
                 this.currentYPosition = 672 - this.currentFontSize;
             }
         }

@@ -7,12 +7,14 @@
 var TSOS;
 (function (TSOS) {
     class Console {
-        constructor(currentFont = _DefaultFontFamily, currentFontSize = _DefaultFontSize, currentXPosition = 0, currentYPosition = _DefaultFontSize, buffer = "") {
+        constructor(currentFont = _DefaultFontFamily, currentFontSize = _DefaultFontSize, currentXPosition = 0, currentYPosition = _DefaultFontSize, buffer = "", commandHistory = [], commandCount) {
             this.currentFont = currentFont;
             this.currentFontSize = currentFontSize;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
+            this.commandHistory = commandHistory;
+            this.commandCount = commandCount;
         }
         init() {
             this.clearScreen();
@@ -35,10 +37,73 @@ var TSOS;
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
+                    if (this.commandHistory.length > 7) {
+                        this.commandHistory.pop();
+                        this.commandHistory.push(this.buffer);
+                    }
+                    else {
+                        this.commandHistory.push(this.buffer);
+                    }
                     this.buffer = "";
+                    this.commandCount = this.commandHistory.length;
                 }
-                if (chr === String.fromCharCode(9)) {
-                    console.log(this.buffer);
+                /* TAB
+                Approach: If two commands start with the same letter such as 'shutdown' and 'status,' and the user inputs the letter s
+                and presses Tab, nothing will happen. The user will have to enter as a minimum 'sh' for shutdown and 'st' for status.
+                Same logic applies for any similar commands.
+
+                */
+                else if (chr === String.fromCharCode(9)) {
+                    var commands = ["ver", "help", "shutdown", "cls", "man", "trace",
+                        "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status"];
+                    var counter = 0;
+                    var command_location = 0;
+                    for (let i = 0; i < commands.length; i++) {
+                        // Check if two commands start with the same substring
+                        if (commands[i].startsWith(this.buffer) == true) {
+                            counter += 1;
+                            command_location = i;
+                        }
+                    }
+                    if (counter == 1) {
+                        this.buffer = commands[command_location];
+                        this.deleteLine();
+                        for (let k = 0; k < commands[command_location].length; k++) {
+                            this.putText(commands[command_location].charAt(k));
+                        }
+                        _OsShell.handleInput(this.buffer);
+                        this.commandHistory.push(this.buffer);
+                        this.buffer = "";
+                    }
+                }
+                // UP arrow key
+                else if (chr === String.fromCharCode(17)) {
+                    if (this.commandCount - 1 >= 2) {
+                        this.commandCount--;
+                        this.deleteLine();
+                        for (let i = 0; i < this.commandHistory[this.commandCount].length; i++) {
+                            this.putText(this.commandHistory[this.commandCount].charAt(i));
+                        }
+                        this.buffer = this.commandHistory[this.commandCount];
+                    }
+                }
+                else if (chr === String.fromCharCode(18)) {
+                    if (this.commandCount + 1 < this.commandHistory.length) {
+                        this.commandCount++;
+                        this.deleteLine();
+                        for (let i = 0; i < this.commandHistory[this.commandCount].length; i++) {
+                            this.putText(this.commandHistory[this.commandCount].charAt(i));
+                        }
+                        this.buffer = this.commandHistory[this.commandCount];
+                    }
+                    else {
+                        this.deleteLine();
+                        this.buffer = "";
+                    }
+                }
+                else if (chr === String.fromCharCode(8)) {
+                    this.delete(this.buffer.charAt(this.buffer.length - 1));
+                    this.buffer = this.buffer.slice(0, -1);
                 }
                 else {
                     // This is a "normal" character, so ...
@@ -66,6 +131,27 @@ var TSOS;
                 this.currentXPosition = this.currentXPosition + offset;
             }
         }
+        delete(text) {
+            if (text !== "") {
+                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                this.currentXPosition = this.currentXPosition - offset;
+                var cnv = document.getElementById("display");
+                var ctxt = cnv.getContext("2d");
+                ctxt.beginPath();
+                ctxt.fillStyle = "#DFDBC3";
+                ctxt.fillRect(this.currentXPosition, this.currentYPosition + 5, 15, -20);
+                ctxt.stroke();
+            }
+        }
+        deleteLine() {
+            var cnv = document.getElementById("display");
+            var ctxt = cnv.getContext("2d");
+            ctxt.beginPath();
+            ctxt.fillStyle = "#DFDBC3";
+            ctxt.fillRect(12, this.currentYPosition + 5, 200, -20);
+            ctxt.stroke();
+            this.currentXPosition = 12;
+        }
         advanceLine() {
             this.currentXPosition = 0;
             /*
@@ -77,6 +163,13 @@ var TSOS;
                 _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
                 _FontHeightMargin;
             // TODO: Handle scrolling. (iProject 1)
+            // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData
+            if (this.currentYPosition > 672) {
+                const screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
+                _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
+                _DrawingContext.putImageData(screen, 0, -21);
+                this.currentYPosition = 672 - this.currentFontSize;
+            }
         }
     }
     TSOS.Console = Console;

@@ -208,7 +208,7 @@ var TSOS;
             _StdOut.putText(today.toUTCString());
         }
         shellWhereami(args) {
-            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way" +
+            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
                 "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.");
         }
         shellWeather(args) {
@@ -312,7 +312,6 @@ var TSOS;
         shellStatus(args) {
             if (args.length > 0) {
                 _StdOut.putText("Status message updated.");
-                // replaceAll() shows an error but works perfeclty fine.
                 stat_message = args.toString();
                 stat_message = stat_message.replaceAll(",", " ");
             }

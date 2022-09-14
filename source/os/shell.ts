@@ -259,7 +259,6 @@ module TSOS {
         }
 
         // TODO: Add interesting and creative prompts
-        // Weather? 
         // Joke?
 
         public shellDate(args: string[]) {
@@ -268,7 +267,7 @@ module TSOS {
         }
 
         public shellWhereami(args: string[]) {
-            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way" +
+            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
             "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.")
         }
 
@@ -282,6 +281,10 @@ module TSOS {
 
         public shellLifemeaning(args: string[]) {
             _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.")
+        }
+
+        public shellLoad(args: string[]) {
+            _StdOut.putText("Validate the user code. Only hex digits and spaces are valid.");
         }
 
         public shellCls(args: string[]) {         
