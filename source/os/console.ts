@@ -39,7 +39,6 @@ module TSOS {
                 if (chr === String.fromCharCode(13)) { // the Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
-                    console.log(this.buffer);
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
                     if (this.commandHistory.length > 7) {
@@ -52,30 +51,40 @@ module TSOS {
                     this.buffer = "";
                     this.commandCount = this.commandHistory.length;
                 } 
-                /*
-                if (chr === String.fromCharCode(9)) {
-                    //var commands = ["ver", "help", "shutdown", "cls", "man", "trace", 
+                /* TAB
+                Approach: If two commands start with the same letter such as 'shutdown' and 'status,' and the user inputs the letter s 
+                and presses Tab, nothing will happen. The user will have to enter as a minimum 'sh' for shutdown and 'st' for status.
+                Same logic applies for any similar commands.
+
+                */
+                else if (chr === String.fromCharCode(9)) {
+                    var commands = ["ver", "help", "shutdown", "cls", "man", "trace", 
                                       "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status"];
+                    var counter = 0;
+                    var command_location = 0;
 
                     for(let i = 0; i < commands.length; i++) {
-
-                        //console.log(commands[i].startsWith(this.buffer));
+                        console.log(this.buffer);
+                        console.log(commands[i]);
+                        console.log(commands[i].startsWith(this.buffer));
 
                         // Check if two commands start with the same substring
-                        var counter = 0;
-
-                        
-                        if (buffer.startsWith(start_of_string) == true) {
-                            counter++;
-                            console.log("Found: " + commands[i])
-                        }
-                        
+                        if (commands[i].startsWith(this.buffer) == true) { counter += 1; command_location = i}
                     }
-                    _OsShell.handleInput(this.buffer);
-                    //this.commandList.push(this.buffer); this.commandCount++;
-                    this.buffer = "";
+                    console.log(counter);
+                    if (counter == 1) {
+                        this.buffer = commands[command_location];
+
+                        this.deleteLine();
+                        for(let k = 0; k < commands[command_location].length; k++) {
+                            this.putText(commands[command_location].charAt(k));
+                        }
+                        _OsShell.handleInput(this.buffer);
+                        this.commandHistory.push(this.buffer);
+                        this.buffer = "";
+                    }
                 }
-                */
+                
                 
                 // UP arrow key
                 else if (chr === String.fromCharCode(17)) {
@@ -88,7 +97,6 @@ module TSOS {
                         }
                         
                         this.buffer = this.commandHistory[this.commandCount];
-                        //this.commandCount--;
                     }
                 }
                 else if (chr === String.fromCharCode(18)) {
