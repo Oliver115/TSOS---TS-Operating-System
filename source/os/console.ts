@@ -14,7 +14,7 @@ module TSOS {
                     public currentYPosition = _DefaultFontSize,
                     public buffer = "",
                     public commandHistory = [],
-                    public commandCount = -1) {
+                    public commandCount) {
         }
 
         public init(): void {
@@ -39,10 +39,18 @@ module TSOS {
                 if (chr === String.fromCharCode(13)) { // the Enter key
                     // The enter key marks the end of a console command, so ...
                     // ... tell the shell ...
+                    console.log(this.buffer);
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
-                    this.commandHistory.push(this.buffer); this.commandCount++;
+                    if (this.commandHistory.length > 7) {
+                        this.commandHistory.pop()
+                        this.commandHistory.push(this.buffer)
+                    }
+                    else {
+                        this.commandHistory.push(this.buffer); 
+                    }
                     this.buffer = "";
+                    this.commandCount = this.commandHistory.length;
                 } 
                 /*
                 if (chr === String.fromCharCode(9)) {
@@ -69,26 +77,42 @@ module TSOS {
                 }
                 */
                 
+                // UP arrow key
+                else if (chr === String.fromCharCode(17)) {
 
-                
-                else if (chr === String.fromCharCode(38)) { // 40 is down
-
-                    var command_location = this.commandCount - 1;
-                    
-                    for(let i = 0; i < this.commandHistory[command_location].length; i++) {
-                        this.Delete(this.buffer.charAt(this.buffer.length - i));
+                    if (this.commandCount - 1 >= 2) {
+                        this.commandCount--;
+                        this.deleteLine();
+                        for(let i = 0; i < this.commandHistory[this.commandCount].length; i++) {
+                            this.putText(this.commandHistory[this.commandCount].charAt(i));
+                        }
+                        
+                        this.buffer = this.commandHistory[this.commandCount];
+                        //this.commandCount--;
                     }
-                    
-                    if (this.commandCount >= 2) {
-                        _OsShell.handleInput(this.commandHistory[command_location])
+                }
+                else if (chr === String.fromCharCode(18)) {
+
+                    if (this.commandCount + 1 < this.commandHistory.length) {
+                        this.commandCount++;
+                        this.deleteLine();
+                        for(let i = 0; i < this.commandHistory[this.commandCount].length; i++) {
+                            this.putText(this.commandHistory[this.commandCount].charAt(i));
+                        }
+                        
+                        this.buffer = this.commandHistory[this.commandCount];
+                    }
+                    else {
+                        this.deleteLine();
+                        this.buffer = "";
                     }
                 }
                 
-
                 else if (chr === String.fromCharCode(8)) {
-                    this.Delete(this.buffer.charAt(this.buffer.length - 1));
+                    this.delete(this.buffer.charAt(this.buffer.length - 1));
                     this.buffer = this.buffer.slice(0, -1);
                 }
+
                 else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -117,16 +141,27 @@ module TSOS {
             }
         }
 
-        public Delete(text): void {
-            var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-            this.currentXPosition = this.currentXPosition - offset;
+        public delete(text): void {
+            if (text !== "") {
+                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                this.currentXPosition = this.currentXPosition - offset;
 
-            var cnv = document.getElementById("display");
-            var ctxt = cnv.getContext("2d");
-            ctxt.beginPath();
-            ctxt.fillStyle = "#DFDBC3";
-            ctxt.fillRect(this.currentXPosition, this.currentYPosition + 5, 15, -20);
-            ctxt.stroke();
+                var cnv = document.getElementById("display");
+                var ctxt = cnv.getContext("2d");
+                ctxt.beginPath();
+                ctxt.fillStyle = "#DFDBC3";
+                ctxt.fillRect(this.currentXPosition, this.currentYPosition + 5, 15, -20);
+                ctxt.stroke();
+            }
+        }
+        public deleteLine(): void {
+                var cnv = document.getElementById("display");
+                var ctxt = cnv.getContext("2d");
+                ctxt.beginPath();
+                ctxt.fillStyle = "#DFDBC3";
+                ctxt.fillRect(12, this.currentYPosition + 5, 200, -20);
+                ctxt.stroke();
+                this.currentXPosition = 12;
         }
 
         public advanceLine(): void {

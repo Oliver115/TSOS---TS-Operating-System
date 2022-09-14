@@ -81,7 +81,8 @@ module TSOS {
                     chr = String.fromCharCode(keyCode); // Uppercase A-Z
                 } 
                 else {
-                    chr = String.fromCharCode(keyCode + 32); // Lowercase a-z
+                    keyCode = keyCode + 32;
+                    chr = String.fromCharCode(keyCode); // Lowercase a-z
                 }
                 // TODO: Check for caps-lock and handle as shifted if so.
                 _KernelInputQueue.enqueue(chr);
@@ -131,11 +132,28 @@ module TSOS {
                             _KernelInputQueue.enqueue(chr);
                         }                     
             }
+            /*
             else if (keyCode == 9) {
-                chr = String.fromCharCode(9);
+                chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-                var commands = ["ver", "help", "shutdown", "cls", "man", "trace", 
-                "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status"];
+            }
+
+            */
+            // Arrows (UP) 17 // DOWN 18
+            else if ((keyCode == 38)) {
+                chr = String.fromCharCode(17);
+                _KernelInputQueue.enqueue(chr);
+            }
+            else if ((keyCode == 40)) {
+                chr = String.fromCharCode(18);
+                _KernelInputQueue.enqueue(chr);
+            }
+
+            
+            // DELETE
+            else if (keyCode == 8) {
+                chr = String.fromCharCode(keyCode);
+                _KernelInputQueue.enqueue(chr);
             }
         }
     }
