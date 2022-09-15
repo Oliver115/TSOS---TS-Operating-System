@@ -147,7 +147,6 @@ module TSOS {
                     this.currentXPosition = 18;
                 }
                 
-                console.log(this.currentYPosition);
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
@@ -177,6 +176,18 @@ module TSOS {
                 ctxt.fillRect(12, this.currentYPosition + 5, 200, -20);
                 ctxt.stroke();
                 this.currentXPosition = 12;
+        }
+        public BSOD(): void {
+            var cnv = document.getElementById("display");
+            var ctxt = cnv.getContext("2d");
+            make_base();
+
+            function make_base() {
+                var base_image = new Image();
+                base_image.src = "../distrib/images/66.png";
+                base_image.onload = function() {
+                    ctxt.drawImage(base_image, 0, 0, 700, 700); }
+            }
         }
 
         public advanceLine(): void {

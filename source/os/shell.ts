@@ -100,7 +100,7 @@ module TSOS {
             // lifemeaning
             sc = new ShellCommand(this.shellLifemeaning,
                 "lifemeaning",
-                "- Incredibly! This program managed to calculate the meaning of life. Astonishing!");
+                "- A question we've all pondered...");
             this.commandList[this.commandList.length] = sc;
 
             // status
@@ -115,9 +115,18 @@ module TSOS {
                 "- Validate the user code. Only hex digits and spaces are valid.");
             this.commandList[this.commandList.length] = sc;
 
+            // BSOD
+            sc = new ShellCommand(this.shellOrder66,
+                "order66",
+                "- Execute Order 66...");
+            this.commandList[this.commandList.length] = sc;
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
+            if (_Kernel.krnShutdown) {
+
+            }
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -277,8 +286,11 @@ module TSOS {
         }
 
         public shellWhereami(args: string[]) {
-            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
-            "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.")
+            var story = ("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
+            "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.");
+                for(let i = 0; i < story.length; i++) {
+                    _StdOut.putText(story.charAt(i));
+                }
         }
 
         public shellWeather(args: string[]) {
@@ -295,6 +307,12 @@ module TSOS {
 
         public shellLoad(args: string[]) {
             _StdOut.putText("Validate the user code. Only hex digits and spaces are valid.");
+        }
+
+        public shellOrder66(args: string[]) {
+            _StdOut.putText("It will be done my lord...");
+
+            setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 500);
         }
 
         public shellCls(args: string[]) {         
@@ -347,6 +365,9 @@ module TSOS {
                         break;
                     case "load":
                         _StdOut.putText("Load and validate user input (Only hex values are accepted)");
+                        break;
+                    case "Order 66":
+                        _StdOut.putText("...");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
