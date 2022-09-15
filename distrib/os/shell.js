@@ -58,13 +58,21 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellFav_prof, "favprof", "- Oliver's favourite professor. Note: It will not be Prof. Algozzine...");
             this.commandList[this.commandList.length] = sc;
             // lifemeaning
-            sc = new TSOS.ShellCommand(this.shellLifemeaning, "lifemeaning", "- Incredibly! This program managed to calculate the meaning of life. Astonishing!");
+            sc = new TSOS.ShellCommand(this.shellLifemeaning, "lifemeaning", "- A question we've all pondered...");
             this.commandList[this.commandList.length] = sc;
             // status
             sc = new TSOS.ShellCommand(this.shellStatus, "status", "- Set new status message for the host task bar.");
             this.commandList[this.commandList.length] = sc;
+            // load
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Validate the user code. Only hex digits and spaces are valid.");
+            this.commandList[this.commandList.length] = sc;
+            // BSOD
+            sc = new TSOS.ShellCommand(this.shellOrder66);
+            this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
+            if (_Kernel.krnShutdown) {
+            }
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -191,7 +199,11 @@ var TSOS;
             _StdOut.putText("Commands:");
             for (var i in _OsShell.commandList) {
                 _StdOut.advanceLine();
-                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                var help_command_queue = ("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                for (let i = 0; i < help_command_queue.length; i++) {
+                    _StdOut.putText(help_command_queue.charAt(i));
+                }
+                //_StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
             }
         }
         shellShutdown(args) {
@@ -201,15 +213,17 @@ var TSOS;
             // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
         }
         // TODO: Add interesting and creative prompts
-        // Weather? 
         // Joke?
         shellDate(args) {
             const today = new Date();
             _StdOut.putText(today.toUTCString());
         }
         shellWhereami(args) {
-            _StdOut.putText("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
+            var story = ("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
                 "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.");
+            for (let i = 0; i < story.length; i++) {
+                _StdOut.putText(story.charAt(i));
+            }
         }
         shellWeather(args) {
             _StdOut.putText("Go outside to figure it out.");
@@ -219,6 +233,13 @@ var TSOS;
         }
         shellLifemeaning(args) {
             _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.");
+        }
+        shellLoad(args) {
+            _StdOut.putText("Validate the user code. Only hex digits and spaces are valid.");
+        }
+        shellOrder66(args) {
+            _StdOut.putText("It will be done my lord...");
+            setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 500);
         }
         shellCls(args) {
             _StdOut.clearScreen();
@@ -266,6 +287,12 @@ var TSOS;
                         break;
                     case "status":
                         _StdOut.putText("Set new status message.");
+                        break;
+                    case "load":
+                        _StdOut.putText("Load and validate user input (Only hex values are accepted)");
+                        break;
+                    case "Order 66":
+                        _StdOut.putText("...");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");

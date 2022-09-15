@@ -116,9 +116,7 @@ module TSOS {
             this.commandList[this.commandList.length] = sc;
 
             // BSOD
-            sc = new ShellCommand(this.shellOrder66,
-                "order66",
-                "- Execute Order 66...");
+            sc = new ShellCommand(this.shellOrder66);
             this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs

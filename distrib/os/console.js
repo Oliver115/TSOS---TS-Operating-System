@@ -124,6 +124,14 @@ var TSOS;
                 decided to write one function and use the term "text" to connote string or char.
             */
             if (text !== "") {
+                if ((this.currentXPosition > 670) && (this.currentYPosition > 690)) {
+                    this.advanceLine();
+                }
+                // Wrap around text 
+                else if (this.currentXPosition > 670) {
+                    this.currentYPosition += 20.64;
+                    this.currentXPosition = 18;
+                }
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
@@ -152,6 +160,18 @@ var TSOS;
             ctxt.stroke();
             this.currentXPosition = 12;
         }
+        BSOD() {
+            var cnv = document.getElementById("display");
+            var ctxt = cnv.getContext("2d");
+            make_base();
+            function make_base() {
+                var base_image = new Image();
+                base_image.src = "../distrib/images/66.png";
+                base_image.onload = function () {
+                    ctxt.drawImage(base_image, 0, 0, 700, 700);
+                };
+            }
+        }
         advanceLine() {
             this.currentXPosition = 0;
             /*
@@ -164,11 +184,11 @@ var TSOS;
                 _FontHeightMargin;
             // TODO: Handle scrolling. (iProject 1)
             // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData
-            if (this.currentYPosition > 672) {
-                const screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
+            if (this.currentYPosition >= 690) {
+                var screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
                 _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
                 _DrawingContext.putImageData(screen, 0, -21);
-                this.currentYPosition = 672 - this.currentFontSize;
+                this.currentYPosition = this.currentYPosition - 21;
             }
         }
     }

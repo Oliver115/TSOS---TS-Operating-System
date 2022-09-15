@@ -136,8 +136,6 @@ module TSOS {
                 decided to write one function and use the term "text" to connote string or char.
             */
             if (text !== "") {
-
-
                 if ((this.currentXPosition > 670) && (this.currentYPosition > 690)) {
                     this.advanceLine();
                 }
@@ -146,7 +144,6 @@ module TSOS {
                     this.currentYPosition += 20.64;
                     this.currentXPosition = 18;
                 }
-                
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
