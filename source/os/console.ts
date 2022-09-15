@@ -137,17 +137,22 @@ module TSOS {
             */
             if (text !== "") {
 
+
+                if ((this.currentXPosition > 670) && (this.currentYPosition > 690)) {
+                    this.advanceLine();
+                }
                 // Wrap around text 
-                if (this.currentXPosition > 675) { // 675
+                else if (this.currentXPosition > 670) { 
                     this.currentYPosition += 20.64;
                     this.currentXPosition = 18;
                 }
+                
+                console.log(this.currentYPosition);
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
-                
             }
         }
 
@@ -187,12 +192,11 @@ module TSOS {
                                      _FontHeightMargin;
             // TODO: Handle scrolling. (iProject 1)
             // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData
-            if (this.currentYPosition > 672) {
-                const screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
+            if (this.currentYPosition >= 690) {
+                var screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
                 _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
                 _DrawingContext.putImageData(screen, 0, -21);
-
-                this.currentYPosition = 672 - this.currentFontSize;
+                this.currentYPosition = this.currentYPosition - 21;
             }
         }
     }
