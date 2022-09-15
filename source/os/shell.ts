@@ -116,7 +116,9 @@ module TSOS {
             this.commandList[this.commandList.length] = sc;
 
             // BSOD
-            sc = new ShellCommand(this.shellOrder66);
+            sc = new ShellCommand(this.shellOrder66,
+                "order66",
+                "- ?");
             this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs
@@ -304,12 +306,22 @@ module TSOS {
         }
 
         public shellLoad(args: string[]) {
-            _StdOut.putText("Validate the user code. Only hex digits and spaces are valid.");
+            var user_input: string;
+            var regex = /[0-9A-Fa-f]{6}/g;
+            user_input = document.getElementById('taProgramInput').value;
+
+            if (regex.test(user_input) === true) {
+                _StdOut.putText("Input loaded successfully!");
+            } else {
+                _StdOut.putText("Input loaded. Hex Code not valid.");
+            }
+            // Clear user text area 
+            var user_text_area = document.getElementById('taProgramInput'); 
+            user_text_area.value = "";
         }
 
         public shellOrder66(args: string[]) {
             _StdOut.putText("It will be done my lord...");
-
             setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 500);
         }
 
