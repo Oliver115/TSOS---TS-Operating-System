@@ -310,6 +310,7 @@ module TSOS {
             var regex = /[0-9A-Fa-f]{6}/g;
             user_input = document.getElementById('taProgramInput').value;
 
+            // Check Hex Code
             if (regex.test(user_input) === true) {
                 _StdOut.putText("Input loaded successfully!");
             } else {
