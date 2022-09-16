@@ -124,9 +124,6 @@ module TSOS {
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
-            if (_Kernel.krnShutdown) {
-
-            }
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -196,10 +193,11 @@ module TSOS {
             buffer = Utils.trim(buffer);
 
             // 2. Lower-case it.
-            buffer = buffer.toLowerCase();
+            //buffer = buffer.toLowerCase();
 
             // 3. Separate on spaces so we can determine the command and command-line args, if any.
             var tempList = buffer.split(" ");
+            tempList[0].toLowerCase();
 
             // 4. Take the first (zeroth) element and use that as the command.
             var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript. See the Queue class.
