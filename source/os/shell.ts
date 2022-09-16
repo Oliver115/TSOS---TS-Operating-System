@@ -192,11 +192,12 @@ module TSOS {
             // 1. Remove leading and trailing spaces.
             buffer = Utils.trim(buffer);
 
-            // 2. Lower-case it.
-            //buffer = buffer.toLowerCase();
-
-            // 3. Separate on spaces so we can determine the command and command-line args, if any.
+            // 2. Separate on spaces so we can determine the command and command-line args, if any.
             var tempList = buffer.split(" ");
+
+            // 3. Lower-case the command NOT the command-line args, if any
+            // Should commands be case-sensitive?
+            //tempList[0] = tempList[0].toLowerCase();
             tempList[0].toLowerCase();
 
             // 4. Take the first (zeroth) element and use that as the command.
@@ -273,6 +274,7 @@ module TSOS {
              // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
+            // Done
         }
 
         // TODO: Add interesting and creative prompts
@@ -321,7 +323,7 @@ module TSOS {
 
         public shellOrder66(args: string[]) {
             _StdOut.putText("It will be done my lord...");
-            setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 500);
+            setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 3000); // 3sec to build suspense
         }
 
         public shellCls(args: string[]) {         

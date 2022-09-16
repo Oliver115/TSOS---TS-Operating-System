@@ -136,11 +136,11 @@ module TSOS {
                 decided to write one function and use the term "text" to connote string or char.
             */
             if (text !== "") {
-                if ((this.currentXPosition > 670) && (this.currentYPosition > 690)) {
+                if ((this.currentXPosition > 870) && (this.currentYPosition > 690)) {
                     this.advanceLine();
                 }
                 // Wrap around text 
-                else if (this.currentXPosition > 670) { 
+                else if (this.currentXPosition > 870) { 
                     this.currentYPosition += 20.64;
                     this.currentXPosition = 18;
                 }
@@ -177,13 +177,14 @@ module TSOS {
         public BSOD(): void {
             var cnv = document.getElementById("display");
             var ctxt = cnv.getContext("2d");
+            stat_message = "YOU DIDN'T SAY THE MAGIC WORD!";
             make_base();
 
             function make_base() {
                 var base_image = new Image();
                 base_image.src = "../distrib/images/66.png";
                 base_image.onload = function() {
-                    ctxt.drawImage(base_image, 0, 0, 700, 700); }
+                    ctxt.drawImage(base_image, 0, 0, 900, 700); }
             }
         }
 
@@ -201,8 +202,8 @@ module TSOS {
             // TODO: Handle scrolling. (iProject 1)
             // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData
             if (this.currentYPosition >= 690) {
-                var screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
-                _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
+                var screen = _DrawingContext.getImageData(0, 0, 900, 900); // Since the canvas is 700 x 700
+                _DrawingContext.clearRect(0, 0, 900, 700); // Since the canvas is 700 x 700
                 _DrawingContext.putImageData(screen, 0, -21);
                 this.currentYPosition = this.currentYPosition - 21;
             }
