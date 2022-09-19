@@ -7,10 +7,11 @@
 var TSOS;
 (function (TSOS) {
     class Console {
-        constructor(currentFont = _DefaultFontFamily, currentFontSize = _DefaultFontSize, currentXPosition = 0, currentYPosition = _DefaultFontSize, buffer = "", commandHistory = [], commandCount) {
+        constructor(currentFont = _DefaultFontFamily, currentFontSize = _DefaultFontSize, currentXPosition = 0, savedXPosition = 0, currentYPosition = _DefaultFontSize, buffer = "", commandHistory = [], commandCount) {
             this.currentFont = currentFont;
             this.currentFontSize = currentFontSize;
             this.currentXPosition = currentXPosition;
+            this.savedXPosition = savedXPosition;
             this.currentYPosition = currentYPosition;
             this.buffer = buffer;
             this.commandHistory = commandHistory;
@@ -55,7 +56,7 @@ var TSOS;
                 */
                 else if (chr === String.fromCharCode(9)) {
                     var commands = ["ver", "help", "shutdown", "cls", "man", "trace",
-                        "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status"];
+                        "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status", "load", "order66"];
                     var counter = 0;
                     var command_location = 0;
                     for (let i = 0; i < commands.length; i++) {
@@ -124,12 +125,14 @@ var TSOS;
                 decided to write one function and use the term "text" to connote string or char.
             */
             if (text !== "") {
-                if ((this.currentXPosition > 670) && (this.currentYPosition > 690)) {
+                if ((this.currentXPosition > 870) && (this.currentYPosition > 690)) {
                     this.advanceLine();
                 }
                 // Wrap around text 
-                else if (this.currentXPosition > 670) {
+                else if (this.currentXPosition > 870) {
                     this.currentYPosition += 20.64;
+                    // Save current last X position
+                    this.savedXPosition = this.currentXPosition;
                     this.currentXPosition = 18;
                 }
                 // Draw the text at the current X and Y coordinates.
@@ -143,6 +146,11 @@ var TSOS;
             if (text !== "") {
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition - offset;
+                // Going back to previous line
+                if (this.currentXPosition <= 0) {
+                    this.currentYPosition -= 20.64;
+                    this.currentXPosition = this.savedXPosition;
+                }
                 var cnv = document.getElementById("display");
                 var ctxt = cnv.getContext("2d");
                 ctxt.beginPath();
@@ -163,12 +171,13 @@ var TSOS;
         BSOD() {
             var cnv = document.getElementById("display");
             var ctxt = cnv.getContext("2d");
+            stat_message = "YOU DIDN'T SAY THE MAGIC WORD!";
             make_base();
             function make_base() {
                 var base_image = new Image();
                 base_image.src = "../distrib/images/66.png";
                 base_image.onload = function () {
-                    ctxt.drawImage(base_image, 0, 0, 700, 700);
+                    ctxt.drawImage(base_image, 0, 0, 900, 700);
                 };
             }
         }
@@ -185,8 +194,8 @@ var TSOS;
             // TODO: Handle scrolling. (iProject 1)
             // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData
             if (this.currentYPosition >= 690) {
-                var screen = _DrawingContext.getImageData(0, 0, 700, 700); // Since the canvas is 700 x 700
-                _DrawingContext.clearRect(0, 0, 700, 700); // Since the canvas is 700 x 700
+                var screen = _DrawingContext.getImageData(0, 0, 900, 700); // Since the canvas is 700 x 700
+                _DrawingContext.clearRect(0, 0, 900, 700); // Since the canvas is 700 x 700
                 _DrawingContext.putImageData(screen, 0, -21);
                 this.currentYPosition = this.currentYPosition - 21;
             }

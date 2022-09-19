@@ -11,6 +11,7 @@ module TSOS {
         constructor(public currentFont = _DefaultFontFamily,
                     public currentFontSize = _DefaultFontSize,
                     public currentXPosition = 0,
+                    public savedXPosition = 0,
                     public currentYPosition = _DefaultFontSize,
                     public buffer = "",
                     public commandHistory = [],
@@ -59,7 +60,7 @@ module TSOS {
                 */
                 else if (chr === String.fromCharCode(9)) {
                     var commands = ["ver", "help", "shutdown", "cls", "man", "trace", 
-                                      "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status"];
+                                      "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status", "load", "order66"];
                     var counter = 0;
                     var command_location = 0;
 
@@ -142,8 +143,11 @@ module TSOS {
                 // Wrap around text 
                 else if (this.currentXPosition > 870) { 
                     this.currentYPosition += 20.64;
+                    // Save current last X position
+                    this.savedXPosition = this.currentXPosition;
                     this.currentXPosition = 18;
                 }
+                
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
@@ -156,6 +160,12 @@ module TSOS {
             if (text !== "") {
                 var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition - offset;
+
+                // Going back to previous line
+                if (this.currentXPosition <= 0) {
+                    this.currentYPosition -= 20.64;
+                    this.currentXPosition = this.savedXPosition;
+                }
 
                 var cnv = document.getElementById("display");
                 var ctxt = cnv.getContext("2d");
@@ -174,6 +184,7 @@ module TSOS {
                 ctxt.stroke();
                 this.currentXPosition = 12;
         }
+
         public BSOD(): void {
             var cnv = document.getElementById("display");
             var ctxt = cnv.getContext("2d");
@@ -202,7 +213,7 @@ module TSOS {
             // TODO: Handle scrolling. (iProject 1)
             // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData
             if (this.currentYPosition >= 690) {
-                var screen = _DrawingContext.getImageData(0, 0, 900, 900); // Since the canvas is 700 x 700
+                var screen = _DrawingContext.getImageData(0, 0, 900, 700); // Since the canvas is 700 x 700
                 _DrawingContext.clearRect(0, 0, 900, 700); // Since the canvas is 700 x 700
                 _DrawingContext.putImageData(screen, 0, -21);
                 this.currentYPosition = this.currentYPosition - 21;

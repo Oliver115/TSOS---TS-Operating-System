@@ -67,12 +67,10 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Validate the user code. Only hex digits and spaces are valid.");
             this.commandList[this.commandList.length] = sc;
             // BSOD
-            sc = new TSOS.ShellCommand(this.shellOrder66);
+            sc = new TSOS.ShellCommand(this.shellOrder66, "order66", "- ?");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
-            if (_Kernel.krnShutdown) {
-            }
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -139,10 +137,12 @@ var TSOS;
             var retVal = new TSOS.UserCommand();
             // 1. Remove leading and trailing spaces.
             buffer = TSOS.Utils.trim(buffer);
-            // 2. Lower-case it.
-            buffer = buffer.toLowerCase();
-            // 3. Separate on spaces so we can determine the command and command-line args, if any.
+            // 2. Separate on spaces so we can determine the command and command-line args, if any.
             var tempList = buffer.split(" ");
+            // 3. Lower-case the command NOT the command-line args, if any
+            // Should commands be case-sensitive? - NO
+            //tempList[0].toLowerCase();
+            tempList[0] = tempList[0].toLowerCase();
             // 4. Take the first (zeroth) element and use that as the command.
             var cmd = tempList.shift(); // Yes, you can do that to an array in JavaScript. See the Queue class.
             // 4.1 Remove any left-over spaces.
@@ -211,6 +211,7 @@ var TSOS;
             // Call Kernel shutdown routine.
             _Kernel.krnShutdown();
             // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
+            // Done
         }
         // TODO: Add interesting and creative prompts
         // Joke?
@@ -235,11 +236,36 @@ var TSOS;
             _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.");
         }
         shellLoad(args) {
-            _StdOut.putText("Validate the user code. Only hex digits and spaces are valid.");
+            let user_input;
+            user_input = document.getElementById('taProgramInput').value;
+            user_input = user_input.toLowerCase();
+            var validHex = user_input => {
+                const legend = '0123456789abcdef';
+                for (let i = 0; i < user_input.length; i++) {
+                    if (legend.includes(user_input[i])) {
+                        console.log(user_input[i]);
+                        continue;
+                    }
+                    ;
+                    return false;
+                }
+                ;
+                return true;
+            };
+            // Check Hex Code
+            console.log(validHex(user_input));
+            if (validHex(user_input)) {
+                _StdOut.putText("Input loaded successfully!");
+                var user_text_area = document.getElementById('taProgramInput');
+                user_text_area.value = "";
+            }
+            else {
+                _StdOut.putText("Input loaded. Hex Code not valid.");
+            }
         }
         shellOrder66(args) {
             _StdOut.putText("It will be done my lord...");
-            setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 500);
+            setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 3000); // 3sec to build suspense
         }
         shellCls(args) {
             _StdOut.clearScreen();
@@ -338,9 +364,15 @@ var TSOS;
         }
         shellStatus(args) {
             if (args.length > 0) {
-                _StdOut.putText("Status message updated.");
-                stat_message = args.toString();
-                stat_message = stat_message.replaceAll(",", " ");
+                var temp_message = args.toString().replaceAll(",", " ");
+                // Make sure the new message will fit in the box
+                if (temp_message.length >= 130) {
+                    _StdOut.putText("Status message too long.");
+                }
+                else {
+                    _StdOut.putText("Status message updated.");
+                    stat_message = temp_message;
+                }
             }
             else {
                 _StdOut.putText("Usage: status <message>  Please enter a message.");

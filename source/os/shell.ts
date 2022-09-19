@@ -196,9 +196,10 @@ module TSOS {
             var tempList = buffer.split(" ");
 
             // 3. Lower-case the command NOT the command-line args, if any
-            // Should commands be case-sensitive?
-            //tempList[0] = tempList[0].toLowerCase();
-            tempList[0].toLowerCase();
+
+            // Should commands be case-sensitive? - NO
+            //tempList[0].toLowerCase();
+            tempList[0] = tempList[0].toLowerCase();
 
             // 4. Take the first (zeroth) element and use that as the command.
             var cmd = tempList.shift();  // Yes, you can do that to an array in JavaScript. See the Queue class.
@@ -306,19 +307,32 @@ module TSOS {
         }
 
         public shellLoad(args: string[]) {
-            var user_input: string;
-            var regex = /[0-9A-Fa-f]{6}/g;
+            let user_input: string;
             user_input = document.getElementById('taProgramInput').value;
+            user_input = user_input.toLowerCase();
+
+            var validHex = user_input => {
+                const legend = '0123456789abcdef';
+                for(let i = 0; i < user_input.length; i++) {
+                    if (legend.includes(user_input[i])) {
+                        console.log(user_input[i]);
+                        continue;
+                    };
+                   return false;
+                };
+                return true;
+             };
 
             // Check Hex Code
-            if (regex.test(user_input) === true) {
+            console.log(validHex(user_input));
+            if (validHex(user_input)) {
                 _StdOut.putText("Input loaded successfully!");
-            } else {
+                var user_text_area = document.getElementById('taProgramInput'); 
+                user_text_area.value = "";
+            } 
+            else {
                 _StdOut.putText("Input loaded. Hex Code not valid.");
             }
-            // Clear user text area 
-            var user_text_area = document.getElementById('taProgramInput'); 
-            user_text_area.value = "";
         }
 
         public shellOrder66(args: string[]) {
@@ -423,8 +437,14 @@ module TSOS {
 
         public shellStatus(args: string) {
             if (args.length > 0) {
-                _StdOut.putText("Status message updated.");
-                stat_message = args.toString(); stat_message = stat_message.replaceAll(",", " ");
+                var temp_message = args.toString().replaceAll(",", " ");
+                // Make sure the new message will fit in the box
+                if (temp_message.length >= 130) {
+                    _StdOut.putText("Status message too long.");
+                } else {
+                    _StdOut.putText("Status message updated.");
+                    stat_message = temp_message;
+                }
             } else {
                 _StdOut.putText("Usage: status <message>  Please enter a message.");
             }
