@@ -309,7 +309,7 @@ module TSOS {
         public shellLoad(args: string[]) {
             let user_input: string;
             user_input = document.getElementById('taProgramInput').value;
-            user_input = user_input.toLowerCase();
+            user_input = user_input.toLowerCase(); user_input = user_input.replaceAll(" ", "");
 
             var validHex = user_input => {
                 const legend = '0123456789abcdef';
@@ -324,11 +324,15 @@ module TSOS {
              };
 
             // Check Hex Code
-            console.log(validHex(user_input));
             if (validHex(user_input)) {
+                if (user_input == "") {
+                    _StdOut.putText("Input loaded. Hex Code not valid.");
+                }
+                else {
                 _StdOut.putText("Input loaded successfully!");
                 var user_text_area = document.getElementById('taProgramInput'); 
                 user_text_area.value = "";
+                }
             } 
             else {
                 _StdOut.putText("Input loaded. Hex Code not valid.");
