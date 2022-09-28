@@ -116,9 +116,15 @@ module TSOS {
             this.commandList[this.commandList.length] = sc;
 
             // BSOD
+            sc = new ShellCommand(this.shellRun,
+                "run",
+                "- Run program with specified PID.");
+            this.commandList[this.commandList.length] = sc;
+
+            // BSOD
             sc = new ShellCommand(this.shellOrder66,
                 "order66",
-                "- ?");
+                "- Kill not just the OS, but the women and children too (it's a Star Wars quote. Pls don't think I'm a psychopath)");
             this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs
@@ -309,13 +315,12 @@ module TSOS {
         public shellLoad(args: string[]) {
             let user_input: string;
             user_input = document.getElementById('taProgramInput').value;
-            user_input = user_input.toLowerCase(); user_input = user_input.replaceAll(" ", "");
+            user_input = user_input.toUpperCase(); user_input = user_input.replaceAll(" ", "");
 
             var validHex = user_input => {
-                const legend = '0123456789abcdef';
+                const legend = '0123456789ABCDEF';
                 for(let i = 0; i < user_input.length; i++) {
                     if (legend.includes(user_input[i])) {
-                        console.log(user_input[i]);
                         continue;
                     };
                    return false;
@@ -326,16 +331,54 @@ module TSOS {
             // Check Hex Code
             if (validHex(user_input)) {
                 if (user_input == "") {
-                    _StdOut.putText("Input loaded. Hex Code not valid.");
+                    _StdOut.putText("Hex Code not valid.");
                 }
                 else {
-                _StdOut.putText("Input loaded successfully!");
-                var user_text_area = document.getElementById('taProgramInput'); 
-                user_text_area.value = "";
+                    _PCB_ID += 1;
+                    _StdOut.putText("Input loaded successfully with Process ID: " + _PCB_ID);
+                    var user_text_area = document.getElementById('taProgramInput'); 
+                    user_text_area.value = "";
+
+                    // load hex code into memory
+                    const hex_for_appending = "0x"
+                    var program = [];
+                    for(let j = 0; j < user_input.length; j++) {
+                        var temp_var = (hex_for_appending + user_input[j] + user_input[j + 1]);
+                        j++;
+                        program.push(temp_var);
+                    }
+                    
+                    for(let k = 0; k < program.length; k++) {
+                        _MemoryAccessor.writeImmediate(k, program[k])
+                    }
+                    var newPCB = new PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, 0);
+                    _PCBs.push(newPCB);
                 }
             } 
             else {
-                _StdOut.putText("Input loaded. Hex Code not valid.");
+                _StdOut.putText("Hex Code not valid.");
+            }
+        }
+
+        public shellRun(args: string[]) {
+            if (args.length > 0) {
+                // Iterate through PCBs to find respective PCB ID
+                for(let i = 1; i < _PCBs.length; i++) {
+                    var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                    var was_pcb_found = false;
+                    
+                    // Found correct PCB
+                    if (temp_pcb.get_ID() == parseInt(args[0])) {
+                        _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
+                        was_pcb_found = true;
+                    }
+                }
+                // If no PCB with speficied PID was not found:
+                if (was_pcb_found == false) {
+                    _StdOut.putText("PID " + args + " was not found. Please supply a valid PID.");
+                }
+            } else {
+                _StdOut.putText("Usage: run <PID>  Please supply a valid PID.");
             }
         }
 
@@ -395,9 +438,11 @@ module TSOS {
                     case "load":
                         _StdOut.putText("Load and validate user input (Only hex values are accepted)");
                         break;
-                    case "Order 66":
-                        _StdOut.putText("...");
+                    case "order66":
+                        _StdOut.putText("Manual shutdown.");
                         break;
+                    case "run":
+                        _StdOut.putText("Run program with specified PID.")
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }

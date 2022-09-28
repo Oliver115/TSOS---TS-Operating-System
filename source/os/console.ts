@@ -95,6 +95,7 @@ module TSOS {
                         this.buffer = this.commandHistory[this.commandCount];
                     }
                 }
+                // DOWN arrow key
                 else if (chr === String.fromCharCode(18)) {
 
                     if (this.commandCount + 1 < this.commandHistory.length) {

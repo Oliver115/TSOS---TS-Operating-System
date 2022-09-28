@@ -12,7 +12,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME: string    = "Revilo";   // 'cause Bob and I were at a loss for a better name.
-const APP_VERSION: string = "0.02";   // What did you expect?
+const APP_VERSION: string = "0.10";   // What did you expect?
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds) so 1000 = 1 second.
 
@@ -26,6 +26,8 @@ const KEYBOARD_IRQ: number = 1;
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
+var _Memory: TSOS.Memory; 
+var _MemoryAccessor: TSOS.MemoryAccessor;
 
 var _OSclock: number = 0;  // Page 23.
 
@@ -44,7 +46,10 @@ var _Kernel: TSOS.Kernel;
 var _KernelInterruptQueue: TSOS.Queue = null;
 var _KernelInputQueue: TSOS.Queue = null; 
 var _KernelBuffers = null; 
-
+var _MemoryManager: any = null;
+var _PCB;
+var _PCBs = [_PCB];
+var _PCB_ID = 0;
 // Standard input and output
 var _StdIn:  TSOS.Console = null; 
 var _StdOut: TSOS.Console = null;
@@ -69,4 +74,5 @@ var onDocumentLoad = function() {
 	TSOS.Control.hostInit();
 };
 
+// GUI status message 
 var stat_message = "I love Capybaras! Use the 'status' shell command to update this message.";

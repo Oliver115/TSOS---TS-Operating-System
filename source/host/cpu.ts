@@ -14,22 +14,26 @@
 module TSOS {
 
     export class Cpu {
-
         constructor(public PC: number = 0,
+                    public IR: number = 0,
                     public Acc: number = 0,
                     public Xreg: number = 0,
                     public Yreg: number = 0,
                     public Zflag: number = 0,
+                    public step: number = 0,
+                    public little_endian: number = 0x0000,
                     public isExecuting: boolean = false) {
-
         }
 
         public init(): void {
             this.PC = 0;
+            this.IR = 0;
             this.Acc = 0;
             this.Xreg = 0;
             this.Yreg = 0;
             this.Zflag = 0;
+            this.step = 0;
+            this.little_endian = 0x0000;
             this.isExecuting = false;
         }
 

@@ -13,20 +13,26 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
-        constructor(PC = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, isExecuting = false) {
+        constructor(PC = 0, IR = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, step = 0, little_endian = 0x0000, isExecuting = false) {
             this.PC = PC;
+            this.IR = IR;
             this.Acc = Acc;
             this.Xreg = Xreg;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
+            this.step = step;
+            this.little_endian = little_endian;
             this.isExecuting = isExecuting;
         }
         init() {
             this.PC = 0;
+            this.IR = 0;
             this.Acc = 0;
             this.Xreg = 0;
             this.Yreg = 0;
             this.Zflag = 0;
+            this.step = 0;
+            this.little_endian = 0x0000;
             this.isExecuting = false;
         }
         cycle() {
