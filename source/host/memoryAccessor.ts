@@ -12,15 +12,12 @@ module TSOS {
          * Method that writes data into RAM at specified location
          * @param wi_address = location in memory
          * @param wi_data = data to be placed in memory
-         * @param data = communicate with Memory (RAM)
          */
         writeImmediate(wi_address: number, wi_data: number) {
             this.dataRAM.setMAR(wi_address);
             this.dataRAM.setMDR(wi_data);
             this.dataRAM.write();
         }
-
-        show() { return this.dataRAM; }
 
 
         /**
@@ -98,7 +95,6 @@ module TSOS {
             var final_mar = parseInt(mar);
             return final_mar;
         }
-
 
         /**
          * Method that gets an address and puts it into the MAR. The MMU then reads this address (the MDR gets the value of the memory location speficied by the parameter)

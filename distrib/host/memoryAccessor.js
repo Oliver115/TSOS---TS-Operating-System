@@ -8,14 +8,12 @@ var TSOS;
          * Method that writes data into RAM at specified location
          * @param wi_address = location in memory
          * @param wi_data = data to be placed in memory
-         * @param data = communicate with Memory (RAM)
          */
         writeImmediate(wi_address, wi_data) {
             this.dataRAM.setMAR(wi_address);
             this.dataRAM.setMDR(wi_data);
             this.dataRAM.write();
         }
-        show() { return this.dataRAM; }
         /**
          * Method that takes in a number and converts it into hexadecimal
          * @param number_to_convert = number that will be converted into hexdecimal

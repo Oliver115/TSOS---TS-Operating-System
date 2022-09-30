@@ -294,7 +294,8 @@ var TSOS;
                     // Found correct PCB
                     if (temp_pcb.get_ID() == parseInt(args[0])) {
                         _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
-                        was_pcb_found = true;
+                        was_pcb_found = true; // Mark as found
+                        break;
                     }
                 }
                 // If no PCB with speficied PID was not found:
