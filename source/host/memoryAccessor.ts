@@ -2,10 +2,13 @@
 module TSOS {
     export class MemoryAccessor {
 
-        dataRAM : Memory;
+        dataRAM: Memory;
 
-        constructor(data: Memory) {
-            this.dataRAM = data;
+        constructor() {
+        }
+
+        public init(): void {
+            this.dataRAM = _Memory;
         }
 
         /**

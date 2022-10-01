@@ -18,6 +18,10 @@ module TSOS {
             this.MDR = 0x00;
         }
 
+        public show() {
+            console.log(this.RAM);
+        }
+
 
         /**
          * Method that takes in a number and converts it into hexadecimal 

@@ -15,8 +15,6 @@ module TSOS {
 
     export class Cpu {
 
-        accessor : MemoryAccessor;
-
         constructor(public PC: number = 0,
                     public IR: number = 0,
                     public Acc: number = 0,
@@ -43,30 +41,47 @@ module TSOS {
         
         public cycle(): void {
             _Kernel.krnTrace('CPU cycle');
+
+            if (_PCBprogram[2] == 0) {
+                for(let i = 0; i < _PCBs.length; i++) {
+                    var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                    if (temp_pcb.get_ID() == _PCBprogram[0]) {
+                        this.PC = temp_pcb.get_PC();
+                        this.IR = temp_pcb.get_IR();
+                        this.Acc = temp_pcb.get_Acc();
+                        this.Xreg = temp_pcb.get_Xreg();
+                        this.Yreg = temp_pcb.get_Yreg();
+                        this.Zflag = temp_pcb.get_Zflag();
+                        this.step = temp_pcb.get_step();
+                        _PCBprogram[2] = 1;
+                        break;
+                    }
+                }
+            }
             // Based on the value of this.step, execute the individual steps of the fetch-decode-execute cycle
             switch(this.step) {
 
                 // Fetch step of the cycle
                 case 0:
-                    this.fetch(this.accessor);
-                        this.viewProgram();
-                        break;
+                    this.fetch();
+                    this.viewProgram();
+                    break;
 
                 // Decode step of the cycle
                 case 1:
-                    this.decode(this.accessor);
+                    this.decode();
                     this.viewProgram();
                     break;
 
                 // Execute step fo the cycle
                 case 3:
-                    this.execute(this.accessor);
+                    this.execute();
                     this.viewProgram();
                     break;
 
                 // If needed, write back the data to accessor
                 case 5:
-                    this.writeBack(this.accessor);
+                    this.writeBack();
                     this.viewProgram();
                     break;
 
@@ -74,6 +89,7 @@ module TSOS {
                 case 6:
                     //this.interruptCheck();
                     this.viewProgram();
+                    this.step = 0;
                     break;
             }
         }
@@ -81,10 +97,10 @@ module TSOS {
         /**
          * Method that uses the MemoryAccessor to place the Program Counter into the MAR
          * At the end, it changes the current state to 1
-         * @param accessor = MemoryAccessor that is connected to the CPU 
          */
-        fetch(accessor : MemoryAccessor) { // 0
-            accessor.readMMU(this.PC);
+        fetch() { // 0
+            _MemoryAccessor.readMMU(this.PC);
+            console.log("Fetch");
             this.step = 1;
         }
 
@@ -93,8 +109,9 @@ module TSOS {
          * At the end, it changes the current state to 3
          * @param accessor = MemoryAccessor that is connected to the CPU 
          */
-        decode(accessor : MemoryAccessor) { // 1
-            this.IR = accessor.getMDR_MMU();
+        decode() { // 1
+            this.IR = _MemoryAccessor.getMDR_MMU();
+            console.log("Decode: " + _MemoryAccessor.getMDR_MMU());
             this.step = 3;
         } 
 
@@ -104,32 +121,33 @@ module TSOS {
          * @param accessor = MemoryAccessor that is connected to the CPU 
          * @var temp_PC = variable used for temporarily saving the Program Counter while the CPU uses the Program Counter to communicate back and fourth with the MemoryAccessor
          */
-        execute(accessor : MemoryAccessor) { // 3
+        execute() { // 3
             switch(this.hexLog(this.IR, 2)) {
 
                 // Load the accumulator with a constant
                 case "A9": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.Acc = accessor.getMDR_MMU();
+                    this.fetch();
+                    this.Acc = _MemoryAccessor.getMDR_MMU();
                     this.step = 6;
+                    this.PC++;
                     break;
 
                 // Load the accumulator from accessor
                 case "AD": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     var temp_PC = this.PC;
                     this.PC = this.little_endian;
 
-                    this.fetch(this.accessor);
-                    this.Acc = accessor.getMDR_MMU();
+                    this.fetch();
+                    this.Acc = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
                     this.step = 6;
@@ -138,12 +156,12 @@ module TSOS {
                 // Store the accumulator in accessor
                 case "8D":
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     this.step = 5;
                     break;
@@ -163,18 +181,18 @@ module TSOS {
                 // Add contents of an address to the accumulator and keeps the result in the accumulator
                 case "6D": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
 
-                    this.fetch(this.accessor);
-                    this.Acc = (this.Acc + accessor.getMDR_MMU());
+                    this.fetch();
+                    this.Acc = (this.Acc + _MemoryAccessor.getMDR_MMU());
 
                     this.PC = temp_PC;
 
@@ -184,8 +202,8 @@ module TSOS {
                 // Load the Xreg register with a constant
                 case "A2": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.Xreg = accessor.getMDR_MMU();
+                    this.fetch();
+                    this.Xreg = _MemoryAccessor.getMDR_MMU();
 
                     this.step = 6;
                     break;
@@ -193,18 +211,18 @@ module TSOS {
                 // Load the Xreg register from accessor
                 case "AE": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
 
-                    this.fetch(this.accessor);
-                    this.Xreg = accessor.getMDR_MMU();
+                    this.fetch();
+                    this.Xreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
                     this.step = 6;
@@ -219,8 +237,8 @@ module TSOS {
                 // Load the Y register with a constant
                 case "A0": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.Yreg = accessor.getMDR_MMU();
+                    this.fetch();
+                    this.Yreg = _MemoryAccessor.getMDR_MMU();
 
                     this.step = 6;
                     break;
@@ -228,18 +246,18 @@ module TSOS {
                 // Load the Y register from accessor
                 case "AC": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
 
-                    this.fetch(this.accessor);
-                    this.Yreg = accessor.getMDR_MMU();
+                    this.fetch();
+                    this.Yreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
                     this.step = 6;
@@ -258,26 +276,28 @@ module TSOS {
 
                 // Break - Stop System
                 case "00": 
-                    super.log("Program has ended!");
-                    process.exit();
+                    console.log("END")
+                    _PCBprogram[1] = false;
+                    _PCBprogram[2] = 0;
+                    break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
                 case "EC": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
 
                     this.PC = this.little_endian;
-                    this.fetch(this.accessor);
+                    this.fetch();
 
-                    if (accessor.getMDR_MMU() == this.Xreg) {
+                    if (_MemoryAccessor.getMDR_MMU() == this.Xreg) {
                         this.Zflag = 1;
                         this.PC = temp_PC;
                         this.step = 6;
@@ -293,10 +313,10 @@ module TSOS {
                 case "D0": 
                     if (this.Zflag == 0) {
                         this.PC++;
-                        this.fetch(this.accessor);
-                        var branch = (this.signedConverter(accessor.getMDR_MMU())); 
+                        this.fetch();
+                        var branch = (this.signedConverter(_MemoryAccessor.getMDR_MMU())); 
 
-                        if (accessor.getMDR_MMU() < 127) {
+                        if (_MemoryAccessor.getMDR_MMU() < 127) {
                             this.PC = this.PC + branch;
                             this.step = 6;
                         }
@@ -314,21 +334,21 @@ module TSOS {
                 // Increment the value of a byte
                 case "EE": 
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
                     this.PC++;
-                    this.fetch(this.accessor);
-                    this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
+                    this.fetch();
+                    this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
 
-                    this.fetch(this.accessor);
+                    this.fetch();
                     var tempAcc = this.Acc;
-                    this.Acc = (accessor.getMDR_MMU() + 0x01);
+                    this.Acc = (_MemoryAccessor.getMDR_MMU() + 0x01);
 
-                    this.writeBack(this.accessor);
+                    this.writeBack();
 
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
@@ -350,20 +370,20 @@ module TSOS {
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
 
                         temp_PC = this.PC;
-                        this.PC = accessor.setLowOrderByte(this.Yreg);
+                        this.PC = _MemoryAccessor.setLowOrderByte(this.Yreg);
 
                         var continueString = 1;
                         while(continueString == 1) {
 
-                            this.fetch(this.accessor);
+                            this.fetch();
 
-                            if (accessor.getMDR_MMU() == 0x00) {
+                            if (_MemoryAccessor.getMDR_MMU() == 0x00) {
                                 this.PC = temp_PC;
                                 continueString = 0;
                                 break;
                             }
                             else {
-                                _StdOut.putText(this.ascii.decode(accessor.getMDR_MMU()));
+                                _StdOut.putText(String.fromCharCode(_MemoryAccessor.getMDR_MMU()));
                                 this.PC++;
                             }
                         }
@@ -373,42 +393,6 @@ module TSOS {
                     else {
                         this.step = 6;
                     }
-
-                    if (this.Xreg == 0x03) { // If there is a 0x03 in the Xreg register. Print the 0x00 terminated string from the address in the operand
-
-                        this.PC++;
-                        this.fetch(this.accessor);
-                        this.little_endian = accessor.setLowOrderByte(accessor.getMDR_MMU());
-                        
-                        this.PC++;
-                        this.fetch(this.accessor);
-                        this.little_endian = accessor.setHighOrderByte(accessor.getMDR_MMU(), this.little_endian);
-
-                        temp_PC = this.PC;
-                        this.PC = this.little_endian;
-
-                        var continueString = 1;
-                        while(continueString == 1) {
-
-                            this.fetch(this.accessor);
-
-                            if (accessor.getMDR_MMU() == 0x00) {
-                                this.PC = temp_PC;
-                                continueString = 0;
-                                break;
-                            }
-                            else {
-                                _StdOut.putText(this.ascii.decode(accessor.getMDR_MMU()));
-                                this.PC++;
-                            }
-                        }
-                        this.step = 6;
-                        break;
-                    }
-                    else {
-                        this.step = 6;
-                    }
-                    break;
             }
 
         } 
@@ -418,8 +402,8 @@ module TSOS {
          * At the end, it changes the current state to 6
          * @param accessor = MemoryAccessor that is connected to the CPU 
          */
-        writeBack(accessor : MemoryAccessor) { // 5
-            accessor.writeMMU(this.little_endian, this.Acc);
+        writeBack() { // 5
+            _MemoryAccessor.writeMMU(this.little_endian, this.Acc);
             this.step = 6;
         } 
 
@@ -440,7 +424,9 @@ module TSOS {
         /**
          * Method that displays the current state of the CPU
          */
-        viewProgram() {}
+        viewProgram() {
+            console.log("PC: " + this.PC + " - IR: " + this.IR + " - Acc: " + this.Acc + " - Xreg: " + this.Xreg + " - Yreg: " + this.Yreg + " - Zflag: " + this.Zflag + " - step: " + this.step);
+        }
 
         /**
          * Method that transforms a decimal value into signed 2's complement. (Used to determine how many spaces to branch)
