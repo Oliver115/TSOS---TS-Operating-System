@@ -315,11 +315,11 @@ module TSOS {
                     break;
 
                 // System Calls - 
-
                 case "FF": 
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
-                        _StdOut.putText(this.hexLog(this.Yreg, 2));
+                        _StdOut.putText(String(this.Yreg));
                         this.viewProgram();
+                        this.PC++;
                         break;
                     }
                     else {
