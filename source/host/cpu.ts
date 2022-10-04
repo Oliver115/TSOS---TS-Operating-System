@@ -58,40 +58,11 @@ module TSOS {
                     }
                 }
             }
-            // Based on the value of this.step, execute the individual steps of the fetch-decode-execute cycle
-            switch(this.step) {
 
-                // Fetch step of the cycle
-                case 0:
-                    this.fetch();
-                    this.viewProgram();
-                    break;
-
-                // Decode step of the cycle
-                case 1:
-                    this.decode();
-                    this.viewProgram();
-                    break;
-
-                // Execute step fo the cycle
-                case 3:
-                    this.execute();
-                    this.viewProgram();
-                    break;
-
-                // If needed, write back the data to accessor
-                case 5:
-                    this.writeBack();
-                    this.viewProgram();
-                    break;
-
-                // After every cycle, check for interrupts
-                case 6:
-                    //this.interruptCheck();
-                    this.viewProgram();
-                    this.step = 0;
-                    break;
-            }
+            // Fetch-Decode-Execute Cycle in ONE CPU cycle
+            this.fetch();
+            this.decode();
+            this.execute();
         }
 
         /**
@@ -101,7 +72,6 @@ module TSOS {
         fetch() { // 0
             _MemoryAccessor.readMMU(this.PC);
             console.log("Fetch");
-            this.step = 1;
         }
 
         /**
@@ -111,8 +81,7 @@ module TSOS {
          */
         decode() { // 1
             this.IR = _MemoryAccessor.getMDR_MMU();
-            console.log("Decode: " + _MemoryAccessor.getMDR_MMU());
-            this.step = 3;
+            console.log("Decode: " + this.hexLog(_MemoryAccessor.getMDR_MMU(), 2));
         } 
 
         /**
@@ -129,7 +98,7 @@ module TSOS {
                     this.PC++;
                     this.fetch();
                     this.Acc = _MemoryAccessor.getMDR_MMU();
-                    this.step = 6;
+                    this.viewProgram();
                     this.PC++;
                     break;
 
@@ -150,7 +119,8 @@ module TSOS {
                     this.Acc = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.step = 6;
+                    this.viewProgram();
+                    this.PC++;
                     break;
 
                 // Store the accumulator in accessor
@@ -163,19 +133,10 @@ module TSOS {
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
-                    this.step = 5;
-                    break;
-
-                // Load the accumulator from Xreg register
-                case "8A": 
-                    this.Acc = this.Xreg;
-                    this.step = 6;
-                    break;
-
-                // Load the accumulator from Y register
-                case "98": 
-                    this.Acc = this.Yreg;
-                    this.step = 6;
+                    this.writeBack();
+                    this.viewProgram();
+                    _Memory.show();
+                    this.PC++;
                     break;
 
                 // Add contents of an address to the accumulator and keeps the result in the accumulator
@@ -196,7 +157,8 @@ module TSOS {
 
                     this.PC = temp_PC;
 
-                    this.step = 6;
+                    this.viewProgram();
+                    this.PC++;
                     break;
 
                 // Load the Xreg register with a constant
@@ -205,7 +167,8 @@ module TSOS {
                     this.fetch();
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.step = 6;
+                    this.viewProgram();
+                    this.PC++;
                     break;
 
                 // Load the Xreg register from accessor
@@ -225,13 +188,8 @@ module TSOS {
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.step = 6;
-                    break;
-
-                // Load the Xreg register from the accumulator 
-                case "AA": 
-                    this.Xreg = this.Acc;
-                    this.step = 6;
+                    this.viewProgram();
+                    this.PC++;
                     break;
 
                 // Load the Y register with a constant
@@ -240,7 +198,8 @@ module TSOS {
                     this.fetch();
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.step = 6;
+                    this.viewProgram();
+                    this.PC++;
                     break;
 
                 // Load the Y register from accessor
@@ -260,25 +219,21 @@ module TSOS {
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.step = 6;
-                    break;
-
-                // Load the Y register from the accumulator
-                case "A8": 
-                    this.Yreg = this.Acc;
-                    this.step = 6;
+                    this.viewProgram();
+                    this.PC++;
                     break;
 
                 // No operation
                 case "EA": 
-                    this.step = 6;
+                    this.viewProgram();
+                    this.PC++;
                     break;
 
                 // Break - Stop System
                 case "00": 
                     console.log("END")
-                    _PCBprogram[1] = false;
-                    _PCBprogram[2] = 0;
+                    _PCBprogram[1] = false; // CPU is done with the program
+                    _PCBprogram[2] = 0; // Set PCB setter to 0
                     break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
@@ -300,12 +255,12 @@ module TSOS {
                     if (_MemoryAccessor.getMDR_MMU() == this.Xreg) {
                         this.Zflag = 1;
                         this.PC = temp_PC;
-                        this.step = 6;
+                        this.viewProgram();
                     }
                     else {
                         this.Zflag = 0;
                         this.PC = temp_PC;
-                        this.step = 6;
+                        this.viewProgram();
                     }
                     break;
 
@@ -318,16 +273,16 @@ module TSOS {
 
                         if (_MemoryAccessor.getMDR_MMU() < 127) {
                             this.PC = this.PC + branch;
-                            this.step = 6;
+                            this.viewProgram();
                         }
                         else {
                             this.PC = this.PC + branch;
-                            this.step = 6;
+                            this.viewProgram();
                         }
                     }
                     else {
                         this.PC++;
-                        this.step = 6;
+                        this.viewProgram();
                     }
                     break;
 
@@ -352,7 +307,8 @@ module TSOS {
 
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
-                    this.step = 5;
+                    this.writeBack();
+                    this.viewProgram();
                     break;
 
                 // System Calls - 
@@ -360,11 +316,11 @@ module TSOS {
                 case "FF": 
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
                         _StdOut.putText(this.hexLog(this.Yreg, 2));
-                        this.step = 6;
+                        this.viewProgram();
                         break;
                     }
                     else {
-                        this.step = 6;
+                        this.viewProgram();
                     }
 
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
@@ -387,11 +343,11 @@ module TSOS {
                                 this.PC++;
                             }
                         }
-                        this.step = 6;
+                        this.viewProgram();
                         break;
                     }
                     else {
-                        this.step = 6;
+                        this.viewProgram();
                     }
             }
 
@@ -425,7 +381,7 @@ module TSOS {
          * Method that displays the current state of the CPU
          */
         viewProgram() {
-            console.log("PC: " + this.PC + " - IR: " + this.IR + " - Acc: " + this.Acc + " - Xreg: " + this.Xreg + " - Yreg: " + this.Yreg + " - Zflag: " + this.Zflag + " - step: " + this.step);
+            console.log("PC: " + this.PC + " - IR: " + this.hexLog(this.IR, 2) + " - Acc: " + this.hexLog(this.Acc, 2) + " - Xreg: " + this.hexLog(this.Xreg, 2) + " - Yreg: " + this.hexLog(this.Yreg, 2) + " - Zflag: " + this.Zflag + " - step: " + this.step);
         }
 
         /**
