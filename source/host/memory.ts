@@ -18,7 +18,7 @@ module TSOS {
             this.MDR = 0x00;
         }
 
-        public show() {
+        public show(): void {
             console.log(this.RAM);
         }
 
@@ -53,23 +53,6 @@ module TSOS {
         padLeft(text: string, padChar: string, size: number): string {
             return (String(padChar).repeat(size) + text).substr( (size * -1), size);
         }
-
-
-        /**
-         * Method that displays a specific memory location and its value
-         * @param memory_address = specified memory location to be shown
-         */
-        display_Memory(memory_address: number) {
-
-            if (memory_address >= 0xFFFF) {
-                // Throw error if memory location is out of bounds 
-                console.log("Address: " + this.hexLog(memory_address, 4) + " - Contains Value: ERR **Address in Memory does not exist**");
-            }
-            else {
-                console.log("Address: " + this.hexLog(memory_address, 4) + " - Contains Value: " + this.hexLog(this.RAM[memory_address], 2));
-            }
-        }
-
 
         /**
          * Method that loads the MDR with the data from memory specified by the MAR
