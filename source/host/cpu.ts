@@ -135,7 +135,6 @@ module TSOS {
 
                     this.writeBack();
                     this.viewProgram();
-                    _Memory.show();
                     this.PC++;
                     break;
 
@@ -256,11 +255,13 @@ module TSOS {
                         this.Zflag = 1;
                         this.PC = temp_PC;
                         this.viewProgram();
+                        this.PC++;
                     }
                     else {
                         this.Zflag = 0;
                         this.PC = temp_PC;
                         this.viewProgram();
+                        this.PC++;
                     }
                     break;
 
@@ -303,12 +304,14 @@ module TSOS {
                     var tempAcc = this.Acc;
                     this.Acc = (_MemoryAccessor.getMDR_MMU() + 0x01);
 
+                    console.log("Endian: " + this.little_endian + " Acc: " + this.Acc);
                     this.writeBack();
 
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
-                    this.writeBack();
+                    //this.writeBack();
                     this.viewProgram();
+                    this.PC++;
                     break;
 
                 // System Calls - 
@@ -360,7 +363,7 @@ module TSOS {
          */
         writeBack() { // 5
             _MemoryAccessor.writeMMU(this.little_endian, this.Acc);
-            this.step = 6;
+            _Memory.show();
         } 
 
         /**
