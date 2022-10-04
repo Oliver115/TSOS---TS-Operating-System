@@ -60,7 +60,8 @@ module TSOS {
                 */
                 else if (chr === String.fromCharCode(9)) {
                     var commands = ["ver", "help", "shutdown", "cls", "man", "trace", 
-                                      "rot13", "prompt", "date", "whereami", "weather", "favprof", "lifemeaning", "status", "load", "order66"];
+                                      "rot13", "prompt", "date", "whereami", "weather", 
+                                      "favprof", "lifemeaning", "status", "load", "run", "order66"];
                     var counter = 0;
                     var command_location = 0;
 
@@ -75,9 +76,6 @@ module TSOS {
                         for(let k = 0; k < commands[command_location].length; k++) {
                             this.putText(commands[command_location].charAt(k));
                         }
-                        _OsShell.handleInput(this.buffer);
-                        this.commandHistory.push(this.buffer);
-                        this.buffer = "";
                     }
                 }
                 
