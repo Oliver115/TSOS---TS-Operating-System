@@ -32,7 +32,6 @@ module TSOS {
             // Call the kernel clock pulse event handler.
             _Kernel.krnOnCPUClockPulse();
             if (_PCBprogram[1] == true) {
-                console.log("CPU CYCLE");
                 _CPU.cycle();
             }
         }

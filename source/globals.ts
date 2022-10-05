@@ -47,10 +47,10 @@ var _KernelInterruptQueue: TSOS.Queue = null;
 var _KernelInputQueue: TSOS.Queue = null; 
 var _KernelBuffers = null; 
 var _MemoryManager: any = null;
-var _PCB;
-var _PCBs = [_PCB];
+var _PCB: TSOS.PCB;
+var _PCBs = []
 var _PCB_ID = 0;
-var _PCBprogram = 0;
+var _PCBprogram = [0, false, 0]; // [0] = PCB ID to be sent to CPU. [1] = should CPU keep running? [2] = Does PCB need to be loaded into CPU
 // Standard input and output
 var _StdIn:  TSOS.Console = null; 
 var _StdOut: TSOS.Console = null;

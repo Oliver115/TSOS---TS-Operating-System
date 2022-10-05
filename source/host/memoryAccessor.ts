@@ -11,7 +11,6 @@ module TSOS {
             this.dataRAM = _Memory;
         }
 
-
         /**
          * Method that takes in a number and converts it into hexadecimal 
          * @param number_to_convert = number that will be converted into hexdecimal
