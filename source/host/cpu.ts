@@ -71,7 +71,6 @@ module TSOS {
          */
         fetch() { // 0
             _MemoryAccessor.readMMU(this.PC);
-            console.log("Fetch");
         }
 
         /**
@@ -304,12 +303,10 @@ module TSOS {
                     var tempAcc = this.Acc;
                     this.Acc = (_MemoryAccessor.getMDR_MMU() + 0x01);
 
-                    console.log("Endian: " + this.little_endian + " Acc: " + this.Acc);
                     this.writeBack();
 
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
-                    //this.writeBack();
                     this.viewProgram();
                     this.PC++;
                     break;
@@ -317,7 +314,7 @@ module TSOS {
                 // System Calls - 
                 case "FF": 
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
-                        _StdOut.putText(String(this.Yreg));
+                        _StdOut.putText(this.Yreg);
                         this.viewProgram();
                         this.PC++;
                         break;
@@ -327,7 +324,6 @@ module TSOS {
                     }
 
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
-
                         temp_PC = this.PC;
                         this.PC = _MemoryAccessor.setLowOrderByte(this.Yreg);
 
@@ -337,11 +333,12 @@ module TSOS {
                             this.fetch();
 
                             if (_MemoryAccessor.getMDR_MMU() == 0x00) {
-                                this.PC = temp_PC;
+                                this.PC = temp_PC + 1;
                                 continueString = 0;
                                 break;
                             }
                             else {
+                                console.log("Printing: " + _MemoryAccessor.getMDR_MMU());
                                 _StdOut.putText(String.fromCharCode(_MemoryAccessor.getMDR_MMU()));
                                 this.PC++;
                             }

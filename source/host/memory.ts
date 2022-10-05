@@ -7,13 +7,13 @@
 module TSOS {
     export class Memory {
 
-        constructor(public RAM: number[] = Array(0xFF).fill(0x00), // More space will be allocated later
+        constructor(public RAM: number[] = Array(0x300).fill(0x00), // More space will be allocated later
                     public MAR: number = 0x0000,
                     public MDR: number = 0x00) {
         }
 
         public init(): void {
-            this.RAM = Array(0xFF).fill(0x00); // More space will be allocated later
+            this.RAM = Array(0x300).fill(0x00); // More space will be allocated later
             this.MAR = 0x0000;
             this.MDR = 0x00;
         }
