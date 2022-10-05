@@ -15,13 +15,13 @@ module TSOS {
 
     export class Cpu {
 
+        // include current memory location (iP3)
         constructor(public PC: number = 0,
                     public IR: number = 0,
                     public Acc: number = 0,
                     public Xreg: number = 0,
                     public Yreg: number = 0,
                     public Zflag: number = 0,
-                    public step: number = 0,
                     public little_endian: number = 0x0000,
                     public isExecuting: boolean = false) {
         }
@@ -33,7 +33,6 @@ module TSOS {
             this.Xreg = 0;
             this.Yreg = 0;
             this.Zflag = 0;
-            this.step = 0;
             this.little_endian = 0x0000;
             this.isExecuting = false;
         }
@@ -52,7 +51,6 @@ module TSOS {
                         this.Xreg = temp_pcb.get_Xreg();
                         this.Yreg = temp_pcb.get_Yreg();
                         this.Zflag = temp_pcb.get_Zflag();
-                        this.step = temp_pcb.get_step();
                         _PCBprogram[2] = 1;
                         break;
                     }
@@ -251,13 +249,13 @@ module TSOS {
                     this.fetch();
 
                     if (_MemoryAccessor.getMDR_MMU() == this.Xreg) {
-                        this.Zflag = 1;
+                        this.Zflag = 0;
                         this.PC = temp_PC;
                         this.viewProgram();
                         this.PC++;
                     }
                     else {
-                        this.Zflag = 0;
+                        this.Zflag = 1;
                         this.PC = temp_PC;
                         this.viewProgram();
                         this.PC++;
@@ -269,16 +267,10 @@ module TSOS {
                     if (this.Zflag == 0) {
                         this.PC++;
                         this.fetch();
-                        var branch = (this.signedConverter(_MemoryAccessor.getMDR_MMU())); 
+                        var branch = (this.howMuchBranch(_MemoryAccessor.getMDR_MMU())); 
 
-                        if (_MemoryAccessor.getMDR_MMU() < 127) {
-                            this.PC = this.PC + branch;
-                            this.viewProgram();
-                        }
-                        else {
-                            this.PC = this.PC + branch;
-                            this.viewProgram();
-                        }
+                        this.PC = this.PC + branch;
+                        this.viewProgram();
                     }
                     else {
                         this.PC++;
@@ -314,7 +306,7 @@ module TSOS {
                 // System Calls - 
                 case "FF": 
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
-                        _StdOut.putText(this.Yreg);
+                        _StdOut.putText(String(this.Yreg));
                         this.viewProgram();
                         this.PC++;
                         break;
@@ -381,31 +373,19 @@ module TSOS {
          * Method that displays the current state of the CPU
          */
         viewProgram() {
-            console.log("PC: " + this.PC + " - IR: " + this.hexLog(this.IR, 2) + " - Acc: " + this.hexLog(this.Acc, 2) + " - Xreg: " + this.hexLog(this.Xreg, 2) + " - Yreg: " + this.hexLog(this.Yreg, 2) + " - Zflag: " + this.Zflag + " - step: " + this.step);
+            console.log("PC: " + this.PC + " - IR: " + this.hexLog(this.IR, 2) + " - Acc: " + this.hexLog(this.Acc, 2) + " - Xreg: " + this.hexLog(this.Xreg, 2) + " - Yreg: " + this.hexLog(this.Yreg, 2) + " - Zflag: " + this.Zflag);
         }
 
-        /**
-         * Method that transforms a decimal value into signed 2's complement. (Used to determine how many spaces to branch)
-         * @param branchNumber = number to be converted into signed 2's complement
-         * @param return_spaces = number of spaces to branch backwards
-         * @return number of spaces to branch (backwards or forwards)
-         */
-        signedConverter(branchNumber : number) {
-            if (branchNumber == 0x80) {
-                return 0;
+        // Method will be adjusted when we implement the 3 sections of memory
+        howMuchBranch(branchNumber : number) {
+
+            if ((branchNumber + this.PC) > 255) {
             }
             else {
-                if ((branchNumber - 127) <= 0) {
-                    return branchNumber;
-                }
-                else {
-                    var return_spaces = -1;
-                    for (let i = 255; i > branchNumber; i--) {
-                        return_spaces = (return_spaces - 1);
-                    }
-                    return return_spaces;
-                }
+                return branchNumber;
             }
+
+
         }
         /** 
         * Method that takes in a number and converts it into hexadecimal 
