@@ -52,6 +52,13 @@ module TSOS {
                         this.Yreg = temp_pcb.get_Yreg();
                         this.Zflag = temp_pcb.get_Zflag();
                         _PCBprogram[2] = 1;
+
+                        var pcbID = document.getElementById("pcbID");
+                            pcbID.innerHTML = String(temp_pcb.get_ID());
+
+                        var pcbStat = document.getElementById("pcbStat");
+                            pcbStat.innerHTML = ("Running...")
+
                         break;
                     }
                 }
@@ -95,7 +102,7 @@ module TSOS {
                     this.PC++;
                     this.fetch();
                     this.Acc = _MemoryAccessor.getMDR_MMU();
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -116,7 +123,7 @@ module TSOS {
                     this.Acc = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -131,7 +138,7 @@ module TSOS {
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     this.writeBack();
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -153,7 +160,7 @@ module TSOS {
 
                     this.PC = temp_PC;
 
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -163,7 +170,7 @@ module TSOS {
                     this.fetch();
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -184,7 +191,7 @@ module TSOS {
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -194,7 +201,7 @@ module TSOS {
                     this.fetch();
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -215,13 +222,13 @@ module TSOS {
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
                 // No operation
                 case "EA": 
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -230,6 +237,8 @@ module TSOS {
                     console.log("END")
                     _PCBprogram[1] = false; // CPU is done with the program
                     _PCBprogram[2] = 0; // Set PCB setter to 0
+                    var pcbStat = document.getElementById("pcbStat");
+                        pcbStat.innerHTML = ("Complete");
                     break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
@@ -251,13 +260,13 @@ module TSOS {
                     if (_MemoryAccessor.getMDR_MMU() == this.Xreg) {
                         this.Zflag = 0;
                         this.PC = temp_PC;
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                         this.PC++;
                     }
                     else {
                         this.Zflag = 1;
                         this.PC = temp_PC;
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                         this.PC++;
                     }
                     break;
@@ -271,11 +280,11 @@ module TSOS {
                         //var branch = (this.howMuchBranch(_MemoryAccessor.getMDR_MMU())); 
 
                         //this.PC = this.PC + branch;
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                     }
                     else {
                         this.PC++;
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                     }
                     break;
                     
@@ -301,7 +310,7 @@ module TSOS {
 
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
-                    this.viewProgram();
+                    this.viewProgram(); this.updatePCB();
                     this.PC++;
                     break;
 
@@ -309,12 +318,12 @@ module TSOS {
                 case "FF": 
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
                         _StdOut.putText(String(this.Yreg));
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                         this.PC++;
                         break;
                     }
                     else {
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                     }
 
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
@@ -337,11 +346,11 @@ module TSOS {
                                 this.PC++;
                             }
                         }
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                         break;
                     }
                     else {
-                        this.viewProgram();
+                        this.viewProgram(); this.updatePCB();
                     }
             }
 
@@ -387,6 +396,21 @@ module TSOS {
                 cpuY.innerHTML = "0x" + this.hexLog(this.Yreg, 2);
             var cpuZ = document.getElementById('cpuZflag'); 
                 cpuZ.innerHTML = String(this.Zflag);  
+        }
+
+        updatePCB() {
+            var pcbPC = document.getElementById('pcbPC'); 
+                pcbPC.innerHTML = String(this.PC);
+            var pcbIR = document.getElementById('pcbIR'); 
+                pcbIR.innerHTML = "0x" + this.hexLog(this.IR, 2);
+            var pcbAcc = document.getElementById('pcbAcc'); 
+                pcbAcc.innerHTML = "0x" + this.hexLog(this.Acc, 2);
+            var pcbX = document.getElementById('pcbXreg'); 
+                pcbX.innerHTML = "0x" + this.hexLog(this.Xreg, 2);
+            var pcbY = document.getElementById('pcbYreg'); 
+                pcbY.innerHTML = "0x" + this.hexLog(this.Yreg, 2);
+            var pcbZ = document.getElementById('pcbZflag'); 
+                pcbZ.innerHTML = String(this.Zflag);  
         }
 
         // Method will be adjusted when we implement the 3 sections of memory
