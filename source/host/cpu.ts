@@ -267,6 +267,7 @@ module TSOS {
                     if (this.Zflag == 0) {
                         this.PC++;
                         this.fetch();
+
                         var branch = (this.howMuchBranch(_MemoryAccessor.getMDR_MMU())); 
 
                         this.PC = this.PC + branch;
@@ -277,6 +278,7 @@ module TSOS {
                         this.viewProgram();
                     }
                     break;
+                    
 
                 // Increment the value of a byte
                 case "EE": 
@@ -373,20 +375,24 @@ module TSOS {
          * Method that displays the current state of the CPU
          */
         viewProgram() {
-            console.log("PC: " + this.PC + " - IR: " + this.hexLog(this.IR, 2) + " - Acc: " + this.hexLog(this.Acc, 2) + " - Xreg: " + this.hexLog(this.Xreg, 2) + " - Yreg: " + this.hexLog(this.Yreg, 2) + " - Zflag: " + this.Zflag);
+            console.log("PC: " + this.PC + " - IR: " + this.hexLog(this.IR, 2) + " - Acc: " + 
+                        this.hexLog(this.Acc, 2) + " - Xreg: " + this.hexLog(this.Xreg, 2) + " - Yreg: " + 
+                        this.hexLog(this.Yreg, 2) + " - Zflag: " + this.Zflag);
         }
 
         // Method will be adjusted when we implement the 3 sections of memory
         howMuchBranch(branchNumber : number) {
 
-            if ((branchNumber + this.PC) > 255) {
+            if ((branchNumber + this.PC) >= 0xFF) {
+                this.PC = ((branchNumber + this.PC) - 255);
+                console.log("Branch: " + this.PC);
+                return 0;
             }
             else {
                 return branchNumber;
             }
-
-
         }
+
         /** 
         * Method that takes in a number and converts it into hexadecimal 
         * @param number_to_convert = number that will be converted into hexdecimal
