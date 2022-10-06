@@ -268,9 +268,9 @@ module TSOS {
                         this.PC++;
                         this.fetch();
 
-                        var branch = (this.howMuchBranch(_MemoryAccessor.getMDR_MMU())); 
+                        //var branch = (this.howMuchBranch(_MemoryAccessor.getMDR_MMU())); 
 
-                        this.PC = this.PC + branch;
+                        //this.PC = this.PC + branch;
                         this.viewProgram();
                     }
                     else {
@@ -375,13 +375,22 @@ module TSOS {
          * Method that displays the current state of the CPU
          */
         viewProgram() {
-            console.log("PC: " + this.PC + " - IR: " + this.hexLog(this.IR, 2) + " - Acc: " + 
-                        this.hexLog(this.Acc, 2) + " - Xreg: " + this.hexLog(this.Xreg, 2) + " - Yreg: " + 
-                        this.hexLog(this.Yreg, 2) + " - Zflag: " + this.Zflag);
+            var cpuPC = document.getElementById('cpuPC'); 
+                cpuPC.innerHTML = String(this.PC);
+            var cpuIR = document.getElementById('cpuIR'); 
+                cpuIR.innerHTML = "0x" + this.hexLog(this.IR, 2);
+            var cpuAcc = document.getElementById('cpuAcc'); 
+                cpuAcc.innerHTML = "0x" + this.hexLog(this.Acc, 2);
+            var cpuX = document.getElementById('cpuXreg'); 
+                cpuX.innerHTML = "0x" + this.hexLog(this.Xreg, 2);
+            var cpuY = document.getElementById('cpuYreg'); 
+                cpuY.innerHTML = "0x" + this.hexLog(this.Yreg, 2);
+            var cpuZ = document.getElementById('cpuZflag'); 
+                cpuZ.innerHTML = String(this.Zflag);  
         }
 
         // Method will be adjusted when we implement the 3 sections of memory
-        howMuchBranch(branchNumber : number) {
+        howMuchBranch2(branchNumber : number) {
 
             if ((branchNumber + this.PC) >= 0xFF) {
                 this.PC = ((branchNumber + this.PC) - 255);
@@ -391,6 +400,16 @@ module TSOS {
             else {
                 return branchNumber;
             }
+        }
+
+        howMuchBranch(input) {
+            if (this.Zflag == 0) {
+                this.PC += input;
+                //console.log("BEFORE: " + this.PC);
+                this.PC = (this.PC % 0x100);
+                //console.log("AFTER: " + this.PC);
+            }
+            this.PC++;
         }
 
         /** 

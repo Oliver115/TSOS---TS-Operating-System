@@ -97,7 +97,7 @@
                                const date_time = new Date(); 
                                ctx.fillText("Date and Time: " + date_time, 5, 19); 
                                ctx.fillText("Status: " + getNewMessage(), 5, 42);
-                              },1000);
+                              }, 1000);
    </script>
 
    <div id="divLog" style="margin-left:920px;">
@@ -123,9 +123,32 @@
          ></textarea>
       </label>
    </div>
+
+   <div id="divTable-CPU">
+      <table style="margin-top: 1px; margin-left: 4px;">
+         <h2 style="margin-top: 220px; margin-left: 165px;">CPU</h2>
+         <tr>
+         <td>PC</td>
+         <td>IR</td>
+         <td>Acc</td>
+         <td>Xreg</td>
+         <td>Yreg</td>
+         <td>Zflag</td>
+         </tr>
+         <tr>
+            <td id="cpuPC">0</td>
+            <td id="cpuIR">0x00</td>
+            <td id="cpuAcc">0x00</td>
+            <td id="cpuXreg">0x00</td>
+            <td id="cpuYreg">0x00</td>
+            <td id="cpuZflag">0</td>
+         </tr>
+      </table>
+   </div>
 </div>
 
 </body>
+
 <footer>
    <p class="footerText" style="clear:both;">
       <br>
