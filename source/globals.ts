@@ -77,3 +77,4 @@ var onDocumentLoad = function() {
 
 // GUI status message 
 var stat_message = "I love Capybaras! Use the 'status' shell command to update this message.";
+
