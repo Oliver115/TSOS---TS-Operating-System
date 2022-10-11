@@ -19,6 +19,8 @@ var TSOS;
         }
         init() {
             var sc;
+            tableCreate(0);
+            updateMemory();
             //
             // Load the command list.
             // ver
@@ -269,15 +271,16 @@ var TSOS;
                     const hex_for_appending = "0x";
                     var program = [];
                     for (let j = 0; j < user_input.length; j++) {
-                        var temp_var = (hex_for_appending + user_input[j] + user_input[j + 1]);
+                        var temp_var = (parseInt((hex_for_appending + user_input[j] + user_input[j + 1]), 16));
                         j++;
                         program.push(temp_var);
                     }
                     for (let k = 0; k < program.length; k++) {
-                        _MemoryAccessor.writeImmediate(k, program[k]);
+                        _MemoryManager.writeImmediate(k, program[k]);
                     }
-                    var newPCB = new TSOS.PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, 0);
+                    var newPCB = new TSOS.PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false);
                     _PCBs.push(newPCB);
+                    tableCreate(1);
                 }
             }
             else {
@@ -287,15 +290,23 @@ var TSOS;
         shellRun(args) {
             if (args.length > 0) {
                 // Iterate through PCBs to find respective PCB ID
-                for (let i = 1; i < _PCBs.length; i++) {
+                for (let i = 0; i < _PCBs.length; i++) {
                     var temp_pcb;
                     temp_pcb = _PCBs[i];
                     var was_pcb_found = false;
                     // Found correct PCB
                     if (temp_pcb.get_ID() == parseInt(args[0])) {
-                        _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
                         was_pcb_found = true; // Mark as found
-                        break;
+                        if (temp_pcb.get_stat() == true) {
+                            _StdOut.putText("PID: " + temp_pcb.get_ID() + " was not found in the resident queue.");
+                            break;
+                        }
+                        else {
+                            _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
+                            _PCBprogram[0] = parseInt(args[0]);
+                            _PCBprogram[1] = true;
+                            break;
+                        }
                     }
                 }
                 // If no PCB with speficied PID was not found:
@@ -437,5 +448,37 @@ var TSOS;
 })(TSOS || (TSOS = {}));
 function getNewMessage() {
     return stat_message;
+}
+function tableCreate(table) {
+    if (table == 1) {
+        document.getElementById("tableMem").innerHTML = "";
+    }
+    let memTable = document.getElementById('tableMem');
+    let tbl = document.createElement('table');
+    tbl.style.width = '700px';
+    tbl.style.border = '1px solid black';
+    var marker = 0;
+    var memoryAdd = 0;
+    for (let i = 0; i < 0x60; i++) {
+        let tr = tbl.insertRow();
+        for (let j = 0; j < 9; j++) {
+            let td = tr.insertCell();
+            if (j < 1) {
+                td.appendChild(document.createTextNode("0x" + _Memory.hexLog(marker, 3)));
+                td.style.border = '2px solid black';
+                marker = marker + 8;
+            }
+            else {
+                td.appendChild(document.createTextNode("0x" + _Memory.getLocation(memoryAdd)));
+                td.style.border = '1px solid black';
+                memoryAdd = memoryAdd + 1;
+            }
+        }
+    }
+    memTable.appendChild(tbl);
+}
+function updateMemory() {
+    var memTitle = document.getElementById('memoryHead');
+    memTitle.innerHTML = "Memory View";
 }
 //# sourceMappingURL=shell.js.map

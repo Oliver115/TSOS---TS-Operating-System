@@ -30,6 +30,7 @@
    <script type="text/javascript" src="distrib/os/userCommand.js"></script>
    <script type="text/javascript" src="distrib/os/memoryManager.js"></script>
    <script type="text/javascript" src="distrib/os/pcb.js"></script>
+   <script type="text/javascript" src="distrib/os/createMemory.js"></script>
    <script type="text/javascript" src="distrib/os/kernel.js"></script>
 
    <!-- Other Routines -->
@@ -100,7 +101,7 @@
                               }, 1000);
    </script>
 
-   <div id="divLog" style="margin-left:920px;">
+   <div id="divLog" style="margin-left:920px; margin-top: -29px;">
       <label>
          Host Log
          <br>
@@ -124,16 +125,25 @@
       </label>
    </div>
 
+   <!-- https://stackoverflow.com/questions/14643617/create-table-using-javascript -->
+   <div> 
+      <h2 id="memoryHead" style="margin-top: 250px; margin-left: 10px;"> Memory View (Memory Not Initialised) </h2>
+   </div>
+   <div id="divMemory" style="margin-left: 2px;">
+      <div id="tableMem">
+      </div>
+   </div>
+
    <div id="divTables">
-      <table style="margin-top: 1px; margin-left: 4px;">
-         <h2 style="margin-top: 220px; margin-left: 175px;">CPU</h2>
+      <table style="margin-top: -5px; margin-left: 920px;" id="tableCPU">
+         <h2 style="margin-top: -440px; margin-left: 1090px;">CPU</h2>
          <tr>
-         <td>PC</td>
-         <td>IR</td>
-         <td>Acc</td>
-         <td>Xreg</td>
-         <td>Yreg</td>
-         <td>Zflag</td>
+            <td>PC</td>
+            <td>IR</td>
+            <td>Acc</td>
+            <td>Xreg</td>
+            <td>Yreg</td>
+            <td>Zflag</td>
          </tr>
          <tr>
             <td id="cpuPC">0</td>
@@ -145,8 +155,8 @@
          </tr>
       </table>
 
-      <table style="margin-top: 20px; margin-left: 475px;">
-         <h2 style="margin-top: -100px; margin-left: 645px;">PCB</h2>
+      <table style="margin-top: 20px; margin-left: 920px;" id="tablePCB">
+         <h2 style="margin-top: 30px; margin-left: 1090px;">PCB</h2>
          <tr>
          <td>ID</td>
          <td>State</td>
@@ -180,6 +190,8 @@
       <br>
       Reproduction is inhibited without the express written consent of
       Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+      <br>
+      Created by Oliver Wilson for CMPT424 
    </p>
 </footer>
 </html>

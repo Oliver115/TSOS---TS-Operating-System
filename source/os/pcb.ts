@@ -8,7 +8,8 @@ module TSOS {
                     public Acc: number,
                     public Xreg: number,
                     public Yreg: number,
-                    public Zflag: number) {
+                    public Zflag: number,
+                    public complete: boolean) {
         }
 
         get_ID() { return this.ID; }
@@ -18,6 +19,7 @@ module TSOS {
         get_Xreg() { return this.Xreg; }
         get_Yreg() { return this.Yreg; }
         get_Zflag() { return this.Zflag; }
-    
+        get_stat() { return this.complete; }
+        done() { this.complete = true; }
     } 
 } 

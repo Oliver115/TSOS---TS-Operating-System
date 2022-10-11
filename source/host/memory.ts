@@ -18,10 +18,14 @@ module TSOS {
             this.MDR = 0x00;
         }
 
+        // Temporary method for debuggin
         public show(): void {
-            console.log(this.RAM);
+            //console.log(this.RAM);
         }
 
+        public getLocation(location: number) {
+            return this.hexLog(this.RAM[location], 2);
+        }
 
         /**
          * Method that takes in a number and converts it into hexadecimal 

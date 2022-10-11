@@ -199,6 +199,13 @@ var TSOS;
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
+            else if (keyCode == 17) {
+                _PCBprogram[1] = false;
+                _PCBprogram[2] = 0;
+                var pcbStat = document.getElementById("pcbStat");
+                pcbStat.innerHTML = ("Order 66ed");
+                _StdOut.putText("Program Halted!");
+            }
         }
     }
     TSOS.DeviceDriverKeyboard = DeviceDriverKeyboard;

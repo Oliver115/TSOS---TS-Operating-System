@@ -85,7 +85,7 @@ module TSOS {
          */
         decode() { // 1
             this.IR = _MemoryAccessor.getMDR_MMU();
-            console.log("Decode: " + this.hexLog(_MemoryAccessor.getMDR_MMU(), 2));
+            //console.log("Decode: " + this.hexLog(_MemoryAccessor.getMDR_MMU(), 2));
         } 
 
         /**
@@ -239,6 +239,13 @@ module TSOS {
                     _PCBprogram[2] = 0; // Set PCB setter to 0
                     var pcbStat = document.getElementById("pcbStat");
                         pcbStat.innerHTML = ("Complete");
+
+                    for(let i = 0; i < _PCBs.length; i++) {
+                        var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                        if (temp_pcb.get_ID() == _PCBprogram[0]) {
+                            temp_pcb.done();
+                        }
+                    }
                     break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
@@ -341,7 +348,7 @@ module TSOS {
                                 break;
                             }
                             else {
-                                console.log("Printing: " + _MemoryAccessor.getMDR_MMU());
+                                //console.log("Printing: " + _MemoryAccessor.getMDR_MMU());
                                 _StdOut.putText(String.fromCharCode(_MemoryAccessor.getMDR_MMU()));
                                 this.PC++;
                             }

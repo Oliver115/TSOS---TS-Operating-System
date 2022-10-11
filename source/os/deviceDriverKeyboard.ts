@@ -33,8 +33,8 @@ module TSOS {
             var isShifted = params[1];
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
-            // Check to see if we even want to deal with the key that was pressed.
 
+            // Check to see if we even want to deal with the key that was pressed.
             if ((keyCode >= 186) && (keyCode <= 222)) {
                 switch (keyCode) {
                     case 186:
@@ -149,11 +149,19 @@ module TSOS {
                 _KernelInputQueue.enqueue(chr);
             }
 
-            
             // DELETE
             else if (keyCode == 8) {
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
+            }
+
+            else if (keyCode == 17) {
+                _PCBprogram[1] = false;
+                _PCBprogram[2] = 0
+                var pcbStat = document.getElementById("pcbStat");
+                            pcbStat.innerHTML = ("Order 66ed")
+
+                _StdOut.putText("Program Halted!")
             }
         }
     }

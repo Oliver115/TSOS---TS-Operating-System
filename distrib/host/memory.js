@@ -7,16 +7,23 @@
 var TSOS;
 (function (TSOS) {
     class Memory {
-        constructor(RAM = Array(0xFF).fill(0x00), // More space will be allocated later
+        constructor(RAM = Array(0x300).fill(0x00), // More space will be allocated later
         MAR = 0x0000, MDR = 0x00) {
             this.RAM = RAM;
             this.MAR = MAR;
             this.MDR = MDR;
         }
         init() {
-            this.RAM = Array(0xFF).fill(0x00); // More space will be allocated later
+            this.RAM = Array(0x300).fill(0x00); // More space will be allocated later
             this.MAR = 0x0000;
             this.MDR = 0x00;
+        }
+        // Temporary method for debuggin
+        show() {
+            //console.log(this.RAM);
+        }
+        getLocation(location) {
+            return this.hexLog(this.RAM[location], 2);
         }
         /**
          * Method that takes in a number and converts it into hexadecimal
@@ -45,19 +52,6 @@ var TSOS;
          */
         padLeft(text, padChar, size) {
             return (String(padChar).repeat(size) + text).substr((size * -1), size);
-        }
-        /**
-         * Method that displays a specific memory location and its value
-         * @param memory_address = specified memory location to be shown
-         */
-        display_Memory(memory_address) {
-            if (memory_address >= 0xFFFF) {
-                // Throw error if memory location is out of bounds 
-                console.log("Address: " + this.hexLog(memory_address, 4) + " - Contains Value: ERR **Address in Memory does not exist**");
-            }
-            else {
-                console.log("Address: " + this.hexLog(memory_address, 4) + " - Contains Value: " + this.hexLog(this.RAM[memory_address], 2));
-            }
         }
         /**
          * Method that loads the MDR with the data from memory specified by the MAR
