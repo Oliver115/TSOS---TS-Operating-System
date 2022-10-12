@@ -70,6 +70,28 @@
              value="Reset"
              tabindex="2"
              onclick="TSOS.Control.hostBtnReset_click(this);">
+
+      <input type="button"
+             id = "btnSS"
+             name="brnSS"
+             class="normal_buttonSS"
+             disabled="disabled"
+             value="Single Step"
+             tabindex="2"
+             onclick="TSOS.Control.hostBtnSS_click(this);">
+      <script> const button = document.querySelector('.normal_buttonSS');
+               button.addEventListener('click', () => {
+                  button.classList.toggle('active');});
+      </script>
+
+      <input type="button"
+             id = "btnNext"
+             name="brnNext"
+             class="normal_buttonNext"
+             disabled="disabled"
+             value="Next Step"
+             tabindex="2"
+             onclick="TSOS.Control.hostBtnNext_click(this);">
    </div>
 
    <div id="divConsole" style="margin:4px; width:500px; height:705px; float:left;">
