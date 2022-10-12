@@ -298,7 +298,7 @@ var TSOS;
                     if (temp_pcb.get_ID() == parseInt(args[0])) {
                         was_pcb_found = true; // Mark as found
                         if (temp_pcb.get_stat() == true) {
-                            _StdOut.putText("PID: " + temp_pcb.get_ID() + " was not found in the resident queue.");
+                            _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
                             break;
                         }
                         else {
@@ -465,7 +465,7 @@ function tableCreate(table) {
             let td = tr.insertCell();
             if (j < 1) {
                 td.appendChild(document.createTextNode("0x" + _Memory.hexLog(marker, 3)));
-                td.style.border = '2px solid black';
+                td.style.border = '3px solid black';
                 marker = marker + 8;
             }
             else {

@@ -28,7 +28,7 @@ var TSOS;
             _OSclock++;
             // Call the kernel clock pulse event handler.
             _Kernel.krnOnCPUClockPulse();
-            if (_PCBprogram[1] == true) {
+            if ((_PCBprogram[1] == true) && (singleStep == false)) {
                 _CPU.cycle();
             }
         }

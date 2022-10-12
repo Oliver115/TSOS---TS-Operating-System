@@ -548,7 +548,7 @@ function tableCreate(table: number) {
 
             if (j < 1) {
                 td.appendChild(document.createTextNode("0x" + _Memory.hexLog(marker, 3)));
-                td.style.border = '2px solid black';
+                td.style.border = '3px solid black';
                 marker = marker + 8;
             }
             else {

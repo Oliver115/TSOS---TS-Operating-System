@@ -26,10 +26,18 @@ var TSOS;
             // Parse the params.  TODO: Check that the params are valid and osTrapError if not.
             var keyCode = params[0];
             var isShifted = params[1];
+            var isctrl = params[2];
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
+            if (keyCode == 17 && _PCBprogram[1] == true) {
+                _PCBprogram[1] = false;
+                _PCBprogram[2] = 0;
+                var pcbStat = document.getElementById("pcbStat");
+                pcbStat.innerHTML = ("Order 66ed");
+                _StdOut.putText("Program Halted!");
+            }
             // Check to see if we even want to deal with the key that was pressed.
-            if ((keyCode >= 186) && (keyCode <= 222)) {
+            else if ((keyCode >= 186) && (keyCode <= 222)) {
                 switch (keyCode) {
                     case 186:
                         if (isShifted === true) {
@@ -185,7 +193,7 @@ var TSOS;
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
             }
-            // Arrows (UP) 17 // DOWN 18
+            // Arrows (UP) 17 // (DOWN) 18
             else if ((keyCode == 38)) {
                 chr = String.fromCharCode(17);
                 _KernelInputQueue.enqueue(chr);
@@ -198,13 +206,6 @@ var TSOS;
             else if (keyCode == 8) {
                 chr = String.fromCharCode(keyCode);
                 _KernelInputQueue.enqueue(chr);
-            }
-            else if (keyCode == 17) {
-                _PCBprogram[1] = false;
-                _PCBprogram[2] = 0;
-                var pcbStat = document.getElementById("pcbStat");
-                pcbStat.innerHTML = ("Order 66ed");
-                _StdOut.putText("Program Halted!");
             }
         }
     }

@@ -64,6 +64,8 @@ var TSOS;
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            document.getElementById("btnSS").disabled = false;
+            document.getElementById("btnNext").disabled = false;
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
@@ -94,6 +96,18 @@ var TSOS;
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
+        }
+        static hostBtnSS_click(btn) {
+            console.log("PRESSED");
+            if (singleStep == false) {
+                singleStep = true;
+            }
+            else {
+                singleStep = false;
+            }
+        }
+        static hostBtnNext_click(btn) {
+            _CPU.cycle();
         }
     }
     TSOS.Control = Control;
