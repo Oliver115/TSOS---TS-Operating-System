@@ -280,17 +280,16 @@ module TSOS {
 
                 // Branch n bytes if Zflag is set to zero (0) 
                 case "D0": 
-                    if (this.Zflag == 0) {
+                    if (this.Zflag == 1) {
                         this.PC++;
                         this.fetch();
 
-                        //var branch = (this.howMuchBranch(_MemoryAccessor.getMDR_MMU())); 
-
+                        this.howMuchBranch(_MemoryAccessor.getMDR_MMU()); 
                         //this.PC = this.PC + branch;
                         this.viewProgram(); this.updatePCB();
                     }
                     else {
-                        this.PC++;
+                        this.PC++; this.PC++;
                         this.viewProgram(); this.updatePCB();
                     }
                     break;
@@ -420,26 +419,14 @@ module TSOS {
         }
 
         // Method will be adjusted when we implement the 3 sections of memory
-        howMuchBranch2(branchNumber : number) {
-
+        howMuchBranch(branchNumber : number) {
+            // Branch backwards
             if ((branchNumber + this.PC) >= 0xFF) {
                 this.PC = ((branchNumber + this.PC) - 255);
-                console.log("Branch: " + this.PC);
-                return 0;
             }
             else {
-                return branchNumber;
+                this.PC = this.PC + branchNumber;
             }
-        }
-
-        howMuchBranch(input) {
-            if (this.Zflag == 0) {
-                this.PC += input;
-                //console.log("BEFORE: " + this.PC);
-                this.PC = (this.PC % 0x100);
-                //console.log("AFTER: " + this.PC);
-            }
-            this.PC++;
         }
 
         /** 
