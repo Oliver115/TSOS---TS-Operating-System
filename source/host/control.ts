@@ -102,7 +102,7 @@ module TSOS {
             _Kernel.krnBootstrap();  // _GLaDOS.afterStartup() will get called in there, if configured.
         }
 
-        public static hostBtnHaltOS_click(btn): void {
+        public static hostBtnHaltOS_click(): void {
             Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
             // Call the OS shutdown routine.
@@ -112,7 +112,7 @@ module TSOS {
             // TODO: Is there anything else we need to do here?
         }
 
-        public static hostBtnReset_click(btn): void {
+        public static hostBtnReset_click(): void {
             // The easiest and most thorough way to do this is to reload (not refresh) the document.
             location.reload();
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
@@ -120,7 +120,7 @@ module TSOS {
             // page from its cache, which is not what we want.
         }
 
-        public static hostBtnSS_click(btn): void {
+        public static hostBtnSS_click(): void {
             if (singleStep == false) {
                 singleStep = true;
                (<HTMLButtonElement>document.getElementById("btnNext")).disabled = false;
@@ -131,7 +131,7 @@ module TSOS {
             }
         }
 
-        public static hostBtnNext_click(btn): void {
+        public static hostBtnNext_click(): void {
             _CPU.cycle();
         }
     }
