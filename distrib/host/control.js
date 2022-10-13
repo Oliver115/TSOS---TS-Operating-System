@@ -98,7 +98,6 @@ var TSOS;
             // page from its cache, which is not what we want.
         }
         static hostBtnSS_click(btn) {
-            console.log("PRESSED");
             if (singleStep == false) {
                 singleStep = true;
             }

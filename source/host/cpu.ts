@@ -295,7 +295,6 @@ module TSOS {
                     }
                     break;
                     
-
                 // Increment the value of a byte
                 case "EE": 
                     this.PC++;

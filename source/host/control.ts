@@ -121,7 +121,6 @@ module TSOS {
         }
 
         public static hostBtnSS_click(btn): void {
-            console.log("PRESSED");
             if (singleStep == false) {
                 singleStep = true;
             }
