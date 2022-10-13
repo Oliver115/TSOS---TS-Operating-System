@@ -65,7 +65,7 @@ var TSOS;
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
             document.getElementById("btnSS").disabled = false;
-            document.getElementById("btnNext").disabled = false;
+            document.getElementById("btnNext").disabled = true;
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
@@ -100,9 +100,11 @@ var TSOS;
         static hostBtnSS_click(btn) {
             if (singleStep == false) {
                 singleStep = true;
+                document.getElementById("btnNext").disabled = false;
             }
             else {
                 singleStep = false;
+                document.getElementById("btnNext").disabled = true;
             }
         }
         static hostBtnNext_click(btn) {

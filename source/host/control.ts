@@ -82,7 +82,7 @@ module TSOS {
             (<HTMLButtonElement>document.getElementById("btnHaltOS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnSS")).disabled = false;
-            (<HTMLButtonElement>document.getElementById("btnNext")).disabled = false;
+            (<HTMLButtonElement>document.getElementById("btnNext")).disabled = true;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -123,9 +123,11 @@ module TSOS {
         public static hostBtnSS_click(btn): void {
             if (singleStep == false) {
                 singleStep = true;
+               (<HTMLButtonElement>document.getElementById("btnNext")).disabled = false;
             }
             else {
                 singleStep = false;
+                (<HTMLButtonElement>document.getElementById("btnNext")).disabled = true;
             }
         }
 
