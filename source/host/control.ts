@@ -132,7 +132,9 @@ module TSOS {
         }
 
         public static hostBtnNext_click(): void {
-            _CPU.cycle();
+            if ((_PCBprogram[1] == true)) {
+                _CPU.cycle();
+            }
         }
     }
 }
