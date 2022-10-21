@@ -4,6 +4,8 @@ module TSOS {
 
         dataRAM: Memory;
 
+        memoryLocations = [true, true, true]; // Memory locations 0, 1, and 2
+
         constructor() {
             this.dataRAM = _Memory;
         }
@@ -18,6 +20,24 @@ module TSOS {
             this.dataRAM.setMDR(wi_data);
             this.dataRAM.write();
         }
-    }
 
+        memoryLocationAvailable() {
+            if (this.memoryLocations[0] == true) {
+                return 0;
+            }
+            else if (this.memoryLocations[1] == true) {
+                return 1;
+            }
+            else if (this.memoryLocations[2] == true) {
+                return 2;
+            }
+            else {
+                return 7;
+            }
+        }
+
+        memoryLocationSetter(memLocation: number, free: boolean) {
+            this.memoryLocations[memLocation] = free;
+        }
+    }
 }
