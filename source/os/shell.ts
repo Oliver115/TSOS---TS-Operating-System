@@ -340,7 +340,7 @@ module TSOS {
                     }
                     else {
                         _PCB_ID += 1;
-                        _StdOut.putText("Input loaded successfully at Segment " + _MemoryManager.memoryLocationAvailable() + " with Process ID: " + _PCB_ID);
+                        _StdOut.putText("Input loaded successfully at Memory Segment " + _MemoryManager.memoryLocationAvailable() + " with Process ID: " + _PCB_ID);
                         var user_text_area = document.getElementById('taProgramInput'); 
                         user_text_area.value = "";
 
@@ -372,7 +372,7 @@ module TSOS {
                                 setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 5000);
                         }
                         for(let k = 0; k < program.length; k++) {
-                            _MemoryManager.writeImmediate((k + base), program[k])
+                            _MemoryManager.writeImmediate((k + base), program[k]);
                         }
                         var newPCB = new PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, _MemoryManager.memoryLocationAvailable(), base, limit);
                         _PCBs.push(newPCB);

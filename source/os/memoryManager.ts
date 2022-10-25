@@ -39,5 +39,11 @@ module TSOS {
         memoryLocationSetter(memLocation: number, free: boolean) {
             this.memoryLocations[memLocation] = free;
         }
+
+        freeLocation(base: number, limit: number) {
+            for(let i = base; i < limit; i++) {
+                _MemoryManager.writeImmediate(i, "0x00");
+            }
+        }
     }
 }

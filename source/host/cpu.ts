@@ -246,6 +246,10 @@ module TSOS {
                             temp_pcb.done();
                         }
                     }
+                    // Free up memory location
+                    _MemoryManager.freeLocation(temp_pcb.get_base(), temp_pcb.get_limit());
+                    // Flag location as available
+                    _MemoryManager.memoryLocationSetter(temp_pcb.get_memSeg(), true);
                     break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
