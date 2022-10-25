@@ -316,52 +316,79 @@ module TSOS {
         }
 
         public shellLoad(args: string[]) {
-            let user_input: string;
-            user_input = document.getElementById('taProgramInput').value;
-            user_input = user_input.toUpperCase(); user_input = user_input.replaceAll(" ", "");
+            // Check if memory locations are available
+            if (_MemoryManager.memoryLocationAvailable() < 4) {
+                let user_input: string;
+                user_input = document.getElementById('taProgramInput').value;
+                user_input = user_input.toUpperCase(); user_input = user_input.replaceAll(" ", "");
 
-            var validHex = user_input => {
-                const legend = '0123456789ABCDEF';
-                for(let i = 0; i < user_input.length; i++) {
-                    if (legend.includes(user_input[i])) {
-                        continue;
+                // Check Hex Code
+                var validHex = user_input => {
+                    const legend = '0123456789ABCDEF';
+                    for(let i = 0; i < user_input.length; i++) {
+                        if (legend.includes(user_input[i])) {
+                            continue;
+                        };
+                    return false;
                     };
-                   return false;
+                    return true;
                 };
-                return true;
-             };
 
-            // Check Hex Code
-            if (validHex(user_input)) {
-                if (user_input == "") {
+                if (validHex(user_input)) {
+                    if (user_input == "") {
+                        _StdOut.putText("Hex Code not valid.");
+                    }
+                    else {
+                        _PCB_ID += 1;
+                        _StdOut.putText("Input loaded successfully at Segment " + _MemoryManager.memoryLocationAvailable() + " with Process ID: " + _PCB_ID);
+                        var user_text_area = document.getElementById('taProgramInput'); 
+                        user_text_area.value = "";
+
+                        // load hex code into memory
+                        const hex_for_appending = "0x"
+                        var program = [];
+                        for(let j = 0; j < user_input.length; j++) {
+                            var temp_var = (parseInt((hex_for_appending + user_input[j] + user_input[j + 1]), 16));
+                            j++;
+                            program.push(temp_var);
+                        }
+                        // Change base and limit based on memory location
+                        var base = 0;
+                        var limit = 0;
+                        switch (_MemoryManager.memoryLocationAvailable()) {
+                            case 0:
+                                limit = 255;
+                                break;
+                            case 1:
+                                base = 256;
+                                limit = 511;
+                                break;
+                            case 2:
+                                base = 512;
+                                limit = 767;
+                                break;
+                            default:
+                                _StdOut.putText("Error while loading memory... order66 is coming...");
+                                setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 5000);
+                        }
+                        for(let k = 0; k < program.length; k++) {
+                            _MemoryManager.writeImmediate((k + base), program[k])
+                        }
+                        var newPCB = new PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, _MemoryManager.memoryLocationAvailable(), base, limit);
+                        _PCBs.push(newPCB);
+
+                        // Flag memory location as full
+                        _MemoryManager.memoryLocationSetter(_MemoryManager.memoryLocationAvailable(), false);
+
+                        tableCreate(1);
+                    }
+                } 
+                else {
                     _StdOut.putText("Hex Code not valid.");
                 }
-                else {
-                    _PCB_ID += 1;
-                    _StdOut.putText("Input loaded successfully with Process ID: " + _PCB_ID);
-                    var user_text_area = document.getElementById('taProgramInput'); 
-                    user_text_area.value = "";
-
-                    // load hex code into memory
-                    const hex_for_appending = "0x"
-                    var program = [];
-                    for(let j = 0; j < user_input.length; j++) {
-                        var temp_var = (parseInt((hex_for_appending + user_input[j] + user_input[j + 1]), 16));
-                        j++;
-                        program.push(temp_var);
-                    }
-                    
-                    for(let k = 0; k < program.length; k++) {
-                        _MemoryManager.writeImmediate(k, program[k])
-                    }
-                    var newPCB = new PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false);
-                    _PCBs.push(newPCB);
-
-                    tableCreate(1);
-                }
-            } 
+            }
             else {
-                _StdOut.putText("Hex Code not valid.");
+                _StdOut.putText("Memory is finito");
             }
         }
 
