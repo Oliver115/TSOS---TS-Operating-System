@@ -428,6 +428,10 @@ module TSOS {
                 pcbY.innerHTML = "0x" + this.hexLog(this.Yreg, 2);
             var pcbZ = document.getElementById('pcbZflag'); 
                 pcbZ.innerHTML = String(this.Zflag);  
+            var pcbBase = document.getElementById('pcbBase');
+                pcbBase.innerHTML = String(this.base);
+            var pcbLimit = document.getElementById('pcbLimit');
+                pcbLimit.innerHTML = String(this.limit);
         }
 
         // Method will be adjusted when we implement the 3 sections of memory
