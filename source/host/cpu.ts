@@ -15,7 +15,6 @@ module TSOS {
 
     export class Cpu {
 
-        // include current memory location (iP3)
         constructor(public PC: number = 0,
                     public IR: number = 0,
                     public Acc: number = 0,
@@ -23,7 +22,10 @@ module TSOS {
                     public Yreg: number = 0,
                     public Zflag: number = 0,
                     public little_endian: number = 0x0000,
-                    public isExecuting: boolean = false) {
+                    public isExecuting: boolean = false,
+                    public memSeg: number = 0,
+                    public base: number = 0,
+                    public limit: number = 0) {
         }
 
         public init(): void {
@@ -35,6 +37,9 @@ module TSOS {
             this.Zflag = 0;
             this.little_endian = 0x0000;
             this.isExecuting = false;
+            this.memSeg = 0;
+            this.base = 0;
+            this.limit = 0;
         }
 
         
@@ -51,6 +56,9 @@ module TSOS {
                         this.Xreg = temp_pcb.get_Xreg();
                         this.Yreg = temp_pcb.get_Yreg();
                         this.Zflag = temp_pcb.get_Zflag();
+                        this.memSeg = temp_pcb.get_memSeg();
+                        this.base = temp_pcb.get_base();
+                        this.limit = temp_pcb.get_limit();
                         _PCBprogram[2] = 1;
 
                         var pcbID = document.getElementById("pcbID");
@@ -249,7 +257,7 @@ module TSOS {
                     // Free up memory location
                     _MemoryManager.freeLocation(temp_pcb.get_base(), temp_pcb.get_limit());
                     // Flag location as available
-                    _MemoryManager.memoryLocationSetter(temp_pcb.get_memSeg(), true);
+                    _MemoryManager.memoryLocationSetter(this.memSeg, true);
                     break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal

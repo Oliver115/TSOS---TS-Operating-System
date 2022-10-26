@@ -118,7 +118,7 @@ module TSOS {
                 "- Validate the user code. Only hex digits and spaces are valid.");
             this.commandList[this.commandList.length] = sc;
 
-            // BSOD
+            // Run
             sc = new ShellCommand(this.shellRun,
                 "run",
                 "- Run program with specified PID.");
@@ -130,8 +130,17 @@ module TSOS {
                 "- Kill not just the OS, but the women and children too (it's a Star Wars quote. Pls don't think I'm a psychopath)");
             this.commandList[this.commandList.length] = sc;
 
-            // ps  - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
+            // Clear Memory
+            sc = new ShellCommand(this.shellClearmem,
+                "clearmem",
+                "- Clear all memory partitions");
+            this.commandList[this.commandList.length] = sc;
+
+            // Kill
+            sc = new ShellCommand(this.shellKill,
+                "kill",
+                "- Kill a specific process");
+            this.commandList[this.commandList.length] = sc;
 
             // Display the initial prompt.
             this.putPrompt();
@@ -304,15 +313,23 @@ module TSOS {
         }
 
         public shellWeather(args: string[]) {
-            _StdOut.putText("Go outside to figure it out.")
+            _StdOut.putText("Go outside to figure it out.");
         }
 
         public shellFav_prof(args: string[]) {
-            _StdOut.putText("The answer is obvious! Prof. Algozzine!")
+            _StdOut.putText("The answer is obvious! Prof. Algozzine!");
         }
 
         public shellLifemeaning(args: string[]) {
-            _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.")
+            _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.");
+        }
+
+        public shellClearmem(args: string[]) {
+            for(let i = 0; i < 0x300; i++) {
+                _MemoryManager.writeImmediate(i, "0x00");
+            } 
+            tableCreate(1);
+            _StdOut.putText("All Memory partitions cleared. Memory has no friends now...")
         }
 
         public shellLoad(args: string[]) {
@@ -328,11 +345,11 @@ module TSOS {
                     for(let i = 0; i < user_input.length; i++) {
                         if (legend.includes(user_input[i])) {
                             continue;
-                        };
+                        }
                     return false;
-                    };
+                    }
                     return true;
-                };
+                }
 
                 if (validHex(user_input)) {
                     if (user_input == "") {
@@ -394,32 +411,67 @@ module TSOS {
 
         public shellRun(args: string[]) {
             if (args.length > 0) {
-                // Iterate through PCBs to find respective PCB ID
-                for(let i = 0; i < _PCBs.length; i++) {
-                    var temp_pcb: PCB; temp_pcb = _PCBs[i];
-                    var was_pcb_found = false;
-                    
-                    // Found correct PCB
-                    if (temp_pcb.get_ID() == parseInt(args[0])) {
-                        was_pcb_found = true; // Mark as found
-                        if (temp_pcb.get_stat() == true) {
-                            _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
-                            break;
+                if (_PCBs.length == 0) {
+                    _StdOut.putText("Memory is lonely :(  Please give it a friend by loading a program")
+                }
+                else {
+                    // Iterate through PCBs to find respective PCB ID
+                    for(let i = 0; i < _PCBs.length; i++) {
+                        var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                        var was_pcb_found = false;
+                        
+                        // Found correct PCB
+                        if (temp_pcb.get_ID() == parseInt(args[0])) {
+                            was_pcb_found = true; // Mark as found
+                            if (temp_pcb.get_stat() == true) {
+                                _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
+                                break;
+                            }
+                            else {
+                                _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
+                                _PCBprogram[0] = parseInt(args[0]); _PCBprogram[1] = true;
+                                break;
+                            }
                         }
-                        else {
-                            _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
-                            _PCBprogram[0] = parseInt(args[0]); _PCBprogram[1] = true;
-                            break;
+                    }
+                    // If no PCB with speficied PID was not found:
+                    if (was_pcb_found == false) {
+                        _StdOut.putText("PID " + args + " was not found. Please supply a valid PID.");
+                    }
+                }
+            } 
+            else {
+                _StdOut.putText("Usage: run <PID>  Please supply a valid PID.");
+            } 
+        }
+
+        // Kill themed commands here: 
+        public shellKill(args: string[]) {
+            if (args.length > 0) {
+                var pid_to_be_killed = args[0];
+
+                // If no programs running. No need to kill. Right...?
+                if (_PCBs.length == 0) {
+                    _StdOut.putText("Why so aggressive? There are no programs to kill");
+                } 
+                else {
+                    // iterate through PCBs 
+                    for(let i = 0; i < _PCBs.length; i++) {
+                        var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                        // If PCB exists and is currently running, kill it
+                        if ( (temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true)) {
+                            _PCBprogram[1] = false;
+                            _PCBprogram[2] = 0
+                            var pcbStat = document.getElementById("pcbStat");
+                                        pcbStat.innerHTML = ("Order 66ed")
+                            _StdOut.putText("Program Halted!")
                         }
                     }
                 }
-                // If no PCB with speficied PID was not found:
-                if (was_pcb_found == false) {
-                    _StdOut.putText("PID " + args + " was not found. Please supply a valid PID.");
-                }
-            } else {
-                _StdOut.putText("Usage: run <PID>  Please supply a valid PID.");
             } 
+            else {
+                _StdOut.putText("Usage: kill <PID>");
+            }
         }
 
         public shellOrder66(args: string[]) {
@@ -482,7 +534,8 @@ module TSOS {
                         _StdOut.putText("Manual shutdown.");
                         break;
                     case "run":
-                        _StdOut.putText("Run program with specified PID.")
+                        _StdOut.putText("Run program with specified PID.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }

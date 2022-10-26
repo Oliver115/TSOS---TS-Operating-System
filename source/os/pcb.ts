@@ -9,7 +9,10 @@ module TSOS {
                     public Xreg: number,
                     public Yreg: number,
                     public Zflag: number,
-                    public complete: boolean) {
+                    public complete: boolean,
+                    public memSeg: number,
+                    public base: number,
+                    public limit: number) {
         }
 
         get_ID() { return this.ID; }
@@ -21,5 +24,8 @@ module TSOS {
         get_Zflag() { return this.Zflag; }
         get_stat() { return this.complete; }
         done() { this.complete = true; }
+        get_memSeg() { return this.memSeg; }
+        get_base() { return this.base; }
+        get_limit() { return this.limit; }
     } 
 } 
