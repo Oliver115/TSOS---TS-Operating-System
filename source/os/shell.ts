@@ -142,6 +142,12 @@ module TSOS {
                 "- Kill a specific process");
             this.commandList[this.commandList.length] = sc;
 
+            // Quantum
+            sc = new ShellCommand(this.shellQuantum,
+                "quantum",
+                "-  set the Round Robin quantum");
+            this.commandList[this.commandList.length] = sc;
+
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -306,7 +312,7 @@ module TSOS {
 
         public shellWhereami(args: string[]) {
             var story = ("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
-            "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.");
+            "called the Orion Arm; which lies about two-thirds of the way out from the center of the Galaxy.");
                 for(let i = 0; i < story.length; i++) {
                     _StdOut.putText(story.charAt(i));
                 }
@@ -392,7 +398,7 @@ module TSOS {
                             _MemoryManager.writeImmediate((k + base), program[k]);
                         }
                         var newPCB = new PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, _MemoryManager.memoryLocationAvailable(), base, limit);
-                        _PCBs.push(newPCB);
+                        _PCBresident.push(newPCB);
 
                         // Flag memory location as full
                         _MemoryManager.memoryLocationSetter(_MemoryManager.memoryLocationAvailable(), false);
@@ -411,13 +417,13 @@ module TSOS {
 
         public shellRun(args: string[]) {
             if (args.length > 0) {
-                if (_PCBs.length == 0) {
-                    _StdOut.putText("Memory is lonely :(  Please give it a friend by loading a program")
+                if (_PCBresident.length == 0) {
+                    _StdOut.putText("Memory is empty and lonely :(  Please give it a friend by loading a program")
                 }
                 else {
                     // Iterate through PCBs to find respective PCB ID
-                    for(let i = 0; i < _PCBs.length; i++) {
-                        var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                    for(let i = 0; i < _PCBresident.length; i++) {
+                        var temp_pcb: PCB; temp_pcb = _PCBresident[i];
                         var was_pcb_found = false;
                         
                         // Found correct PCB
@@ -451,20 +457,25 @@ module TSOS {
                 var pid_to_be_killed = args[0];
 
                 // If no programs running. No need to kill. Right...?
-                if (_PCBs.length == 0) {
+                if (_PCBresident.length == 0) {
                     _StdOut.putText("Why so aggressive? There are no programs to kill");
                 } 
                 else {
                     // iterate through PCBs 
-                    for(let i = 0; i < _PCBs.length; i++) {
-                        var temp_pcb: PCB; temp_pcb = _PCBs[i];
-                        // If PCB exists and is currently running, kill it
-                        if ( (temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true)) {
+                    for(let i = 0; i < _PCBresident.length; i++) {
+                        var temp_pcb: PCB; temp_pcb = _PCBresident[i];
+                        // If PCB exists and is currently running; kill it
+                        if ( (temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true) ) {
                             _PCBprogram[1] = false;
                             _PCBprogram[2] = 0
                             var pcbStat = document.getElementById("pcbStat");
-                                        pcbStat.innerHTML = ("Order 66ed")
-                            _StdOut.putText("Program Halted!")
+                                        pcbStat.innerHTML = ("Order 66ed");
+                            _StdOut.putText("Program Halted!");
+                            break;
+                        }
+                        else {
+                            _StdOut.putText("PID " + pid_to_be_killed + " either doesn't exist or isn't on the ready queue.");
+                            break;
                         }
                     }
                 }
@@ -482,6 +493,26 @@ module TSOS {
         public shellCls(args: string[]) {         
             _StdOut.clearScreen();     
             _StdOut.resetXY();
+        }
+
+        public shellQuantum(args: string[]) {
+            if (args.length > 0) {
+                var quantum = parseInt(args[0]);
+
+                if (quantum < 0) {
+                    _StdOut.putText("Time travel isn't possible yet...");
+                }
+                else if (quantum == 0) {
+                    _StdOut.putText("I'm going to act like Russia in the EU and veto this resolution.");
+                }
+                else {
+                    global_quantum = quantum;
+                    _StdOut.putText("Quantum changed to: " + quantum);
+                }
+            }
+            else {
+                _StdOut.putText("Usage: quantum <new quantum>");
+            }
         }
 
         public shellMan(args: string[]) {

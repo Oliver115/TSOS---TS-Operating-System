@@ -48,9 +48,10 @@ var _KernelInputQueue: TSOS.Queue = null;
 var _KernelBuffers = null; 
 var _MemoryManager: any = null;
 var _PCB: TSOS.PCB;
-var _PCBs = []
-var _PCB_ID = 0;
-var _PCBprogram = [0, false, 0]; // [0] = PCB ID to be sent to CPU. [1] = should CPU keep running? [2] = Does PCB need to be loaded into CPU
+var _PCBresident = [] // PCB resident queue
+var _PCBready = [] // PCB ready queue
+var _PCB_ID = -1;
+var _PCBprogram = [0, false, 0]; // [0] = PCB ID to be sent to CPU. [1] = should CPU keep running? [2] = Does PCB need to be loaded into CPU (0=NO. 1=YES)
 // Standard input and output
 var _StdIn:  TSOS.Console = null; 
 var _StdOut: TSOS.Console = null;
@@ -79,3 +80,5 @@ var onDocumentLoad = function() {
 // GUI status message 
 var stat_message = "I love Capybaras! Use the 'status' shell command to update this message.";
 
+// quantum (can be changed using the 'quantum' shell command)
+var global_quantum = 6;

@@ -47,8 +47,8 @@ module TSOS {
             _Kernel.krnTrace('CPU cycle');
 
             if (_PCBprogram[2] == 0) {
-                for(let i = 0; i < _PCBs.length; i++) {
-                    var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                for(let i = 0; i < _PCBresident.length; i++) {
+                    var temp_pcb: PCB; temp_pcb = _PCBresident[i];
                     if (temp_pcb.get_ID() == _PCBprogram[0]) {
                         this.PC = temp_pcb.get_PC();
                         this.IR = temp_pcb.get_IR();
@@ -248,8 +248,8 @@ module TSOS {
                     var pcbStat = document.getElementById("pcbStat");
                         pcbStat.innerHTML = ("Complete");
 
-                    for(let i = 0; i < _PCBs.length; i++) {
-                        var temp_pcb: PCB; temp_pcb = _PCBs[i];
+                    for(let i = 0; i < _PCBresident.length; i++) {
+                        var temp_pcb: PCB; temp_pcb = _PCBresident[i];
                         if (temp_pcb.get_ID() == _PCBprogram[0]) {
                             temp_pcb.done();
                         }
