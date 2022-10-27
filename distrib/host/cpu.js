@@ -13,8 +13,7 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
-        // include current memory location (iP3)
-        constructor(PC = 0, IR = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, little_endian = 0x0000, isExecuting = false) {
+        constructor(PC = 0, IR = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, little_endian = 0x0000, isExecuting = false, memSeg = 0, base = 0, limit = 0) {
             this.PC = PC;
             this.IR = IR;
             this.Acc = Acc;
@@ -23,6 +22,9 @@ var TSOS;
             this.Zflag = Zflag;
             this.little_endian = little_endian;
             this.isExecuting = isExecuting;
+            this.memSeg = memSeg;
+            this.base = base;
+            this.limit = limit;
         }
         init() {
             this.PC = 0;
@@ -33,13 +35,16 @@ var TSOS;
             this.Zflag = 0;
             this.little_endian = 0x0000;
             this.isExecuting = false;
+            this.memSeg = 0;
+            this.base = 0;
+            this.limit = 0;
         }
         cycle() {
             _Kernel.krnTrace('CPU cycle');
             if (_PCBprogram[2] == 0) {
-                for (let i = 0; i < _PCBs.length; i++) {
+                for (let i = 0; i < _PCBresident.length; i++) {
                     var temp_pcb;
-                    temp_pcb = _PCBs[i];
+                    temp_pcb = _PCBresident[i];
                     if (temp_pcb.get_ID() == _PCBprogram[0]) {
                         this.PC = temp_pcb.get_PC();
                         this.IR = temp_pcb.get_IR();
@@ -47,6 +52,9 @@ var TSOS;
                         this.Xreg = temp_pcb.get_Xreg();
                         this.Yreg = temp_pcb.get_Yreg();
                         this.Zflag = temp_pcb.get_Zflag();
+                        this.memSeg = temp_pcb.get_memSeg();
+                        this.base = temp_pcb.get_base();
+                        this.limit = temp_pcb.get_limit();
                         _PCBprogram[2] = 1;
                         var pcbID = document.getElementById("pcbID");
                         pcbID.innerHTML = String(temp_pcb.get_ID());
@@ -206,13 +214,17 @@ var TSOS;
                     _PCBprogram[2] = 0; // Set PCB setter to 0
                     var pcbStat = document.getElementById("pcbStat");
                     pcbStat.innerHTML = ("Complete");
-                    for (let i = 0; i < _PCBs.length; i++) {
+                    for (let i = 0; i < _PCBresident.length; i++) {
                         var temp_pcb;
-                        temp_pcb = _PCBs[i];
+                        temp_pcb = _PCBresident[i];
                         if (temp_pcb.get_ID() == _PCBprogram[0]) {
                             temp_pcb.done();
                         }
                     }
+                    // Free up memory location
+                    _MemoryManager.freeLocation(temp_pcb.get_base(), temp_pcb.get_limit());
+                    // Flag location as available
+                    _MemoryManager.memoryLocationSetter(this.memSeg, true);
                     break;
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
                 case "EC":
@@ -369,6 +381,10 @@ var TSOS;
             pcbY.innerHTML = "0x" + this.hexLog(this.Yreg, 2);
             var pcbZ = document.getElementById('pcbZflag');
             pcbZ.innerHTML = String(this.Zflag);
+            var pcbBase = document.getElementById('pcbBase');
+            pcbBase.innerHTML = String(this.base);
+            var pcbLimit = document.getElementById('pcbLimit');
+            pcbLimit.innerHTML = String(this.limit);
         }
         // Method will be adjusted when we implement the 3 sections of memory
         howMuchBranch(branchNumber) {

@@ -140,7 +140,6 @@ var TSOS;
                     keyCode = keyCode + 32;
                     chr = String.fromCharCode(keyCode); // Lowercase a-z
                 }
-                // TODO: Check for caps-lock and handle as shifted if so.
                 _KernelInputQueue.enqueue(chr);
             }
             else if (((keyCode >= 48) && (keyCode <= 57)) || // digits 48 - 57

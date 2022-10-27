@@ -23,7 +23,7 @@ module TSOS {
         public init() {
             var sc: ShellCommand;
 
-            tableCreate(0);
+            tableCreateMemory(0);
             updateMemory();
             //
             // Load the command list.
@@ -334,7 +334,7 @@ module TSOS {
             for(let i = 0; i < 0x300; i++) {
                 _MemoryManager.writeImmediate(i, "0x00");
             } 
-            tableCreate(1);
+            tableCreateMemory(1);
             _StdOut.putText("All Memory partitions cleared. Memory has no friends now...")
         }
 
@@ -403,7 +403,7 @@ module TSOS {
                         // Flag memory location as full
                         _MemoryManager.memoryLocationSetter(_MemoryManager.memoryLocationAvailable(), false);
 
-                        tableCreate(1);
+                        tableCreateMemory(1);
                     }
                 } 
                 else {
@@ -500,14 +500,19 @@ module TSOS {
                 var quantum = parseInt(args[0]);
 
                 if (quantum < 0) {
-                    _StdOut.putText("Time travel isn't possible yet...");
+                    _StdOut.putText("Quantum can't be negative because time travel isn't possible yet...");
                 }
-                else if (quantum == 0) {
-                    _StdOut.putText("I'm going to act like Russia in the EU and veto this resolution.");
+                else if ((quantum >= 0) && (quantum <= 1 )) {
+                    _StdOut.putText("Not allowed.");
+                }
+                else if (quantum > 99) {
+                    _StdOut.putText("My OS, my rules. Quantum can't be larger than 99");
                 }
                 else {
                     global_quantum = quantum;
                     _StdOut.putText("Quantum changed to: " + quantum);
+                    var new_quantum = document.getElementById("q_badge");
+                        new_quantum.innerHTML = String(quantum);
                 }
             }
             else {
@@ -637,7 +642,7 @@ function getNewMessage() {
     return stat_message;
 }
 
-function tableCreate(table: number) {
+function tableCreateMemory(table: number) {
 
     if (table == 1) {
         document.getElementById("tableMem").innerHTML = "";

@@ -19,7 +19,7 @@ var TSOS;
         }
         init() {
             var sc;
-            tableCreate(0);
+            tableCreateMemory(0);
             updateMemory();
             //
             // Load the command list.
@@ -68,14 +68,21 @@ var TSOS;
             // load
             sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Validate the user code. Only hex digits and spaces are valid.");
             this.commandList[this.commandList.length] = sc;
-            // BSOD
+            // Run
             sc = new TSOS.ShellCommand(this.shellRun, "run", "- Run program with specified PID.");
             this.commandList[this.commandList.length] = sc;
             // BSOD
             sc = new TSOS.ShellCommand(this.shellOrder66, "order66", "- Kill not just the OS, but the women and children too (it's a Star Wars quote. Pls don't think I'm a psychopath)");
             this.commandList[this.commandList.length] = sc;
-            // ps  - list the running processes and their IDs
-            // kill <id> - kills the specified process id.
+            // Clear Memory
+            sc = new TSOS.ShellCommand(this.shellClearmem, "clearmem", "- Clear all memory partitions");
+            this.commandList[this.commandList.length] = sc;
+            // Kill
+            sc = new TSOS.ShellCommand(this.shellKill, "kill", "- Kill a specific process");
+            this.commandList[this.commandList.length] = sc;
+            // Quantum
+            sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "-  set the Round Robin quantum");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -226,7 +233,7 @@ var TSOS;
         }
         shellWhereami(args) {
             var story = ("You are sitting on a chair located in one of the spiral arms of the Milky Way " +
-                "called the Orion Arm) which lies about two-thirds of the way out from the center of the Galaxy.");
+                "called the Orion Arm; which lies about two-thirds of the way out from the center of the Galaxy.");
             for (let i = 0; i < story.length; i++) {
                 _StdOut.putText(story.charAt(i));
             }
@@ -240,82 +247,152 @@ var TSOS;
         shellLifemeaning(args) {
             _StdOut.putText("Calculating the meaning of life... Error 404. Meaning not found.");
         }
+        shellClearmem(args) {
+            for (let i = 0; i < 0x300; i++) {
+                _MemoryManager.writeImmediate(i, "0x00");
+            }
+            tableCreateMemory(1);
+            _StdOut.putText("All Memory partitions cleared. Memory has no friends now...");
+        }
         shellLoad(args) {
-            let user_input;
-            user_input = document.getElementById('taProgramInput').value;
-            user_input = user_input.toUpperCase();
-            user_input = user_input.replaceAll(" ", "");
-            var validHex = user_input => {
-                const legend = '0123456789ABCDEF';
-                for (let i = 0; i < user_input.length; i++) {
-                    if (legend.includes(user_input[i])) {
-                        continue;
+            // Check if memory locations are available
+            if (_MemoryManager.memoryLocationAvailable() < 4) {
+                let user_input;
+                user_input = document.getElementById('taProgramInput').value;
+                user_input = user_input.toUpperCase();
+                user_input = user_input.replaceAll(" ", "");
+                // Check Hex Code
+                var validHex = user_input => {
+                    const legend = '0123456789ABCDEF';
+                    for (let i = 0; i < user_input.length; i++) {
+                        if (legend.includes(user_input[i])) {
+                            continue;
+                        }
+                        return false;
                     }
-                    ;
-                    return false;
-                }
-                ;
-                return true;
-            };
-            // Check Hex Code
-            if (validHex(user_input)) {
-                if (user_input == "") {
-                    _StdOut.putText("Hex Code not valid.");
+                    return true;
+                };
+                if (validHex(user_input)) {
+                    if (user_input == "") {
+                        _StdOut.putText("Hex Code not valid.");
+                    }
+                    else {
+                        _PCB_ID += 1;
+                        _StdOut.putText("Input loaded successfully at Memory Segment " + _MemoryManager.memoryLocationAvailable() + " with Process ID: " + _PCB_ID);
+                        var user_text_area = document.getElementById('taProgramInput');
+                        user_text_area.value = "";
+                        // load hex code into memory
+                        const hex_for_appending = "0x";
+                        var program = [];
+                        for (let j = 0; j < user_input.length; j++) {
+                            var temp_var = (parseInt((hex_for_appending + user_input[j] + user_input[j + 1]), 16));
+                            j++;
+                            program.push(temp_var);
+                        }
+                        // Change base and limit based on memory location
+                        var base = 0;
+                        var limit = 0;
+                        switch (_MemoryManager.memoryLocationAvailable()) {
+                            case 0:
+                                limit = 255;
+                                break;
+                            case 1:
+                                base = 256;
+                                limit = 511;
+                                break;
+                            case 2:
+                                base = 512;
+                                limit = 767;
+                                break;
+                            default:
+                                _StdOut.putText("Error while loading memory... order66 is coming...");
+                                setInterval(function () { _Console.BSOD(); _Kernel.krnShutdown(); }, 5000);
+                        }
+                        for (let k = 0; k < program.length; k++) {
+                            _MemoryManager.writeImmediate((k + base), program[k]);
+                        }
+                        var newPCB = new TSOS.PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, _MemoryManager.memoryLocationAvailable(), base, limit);
+                        _PCBresident.push(newPCB);
+                        // Flag memory location as full
+                        _MemoryManager.memoryLocationSetter(_MemoryManager.memoryLocationAvailable(), false);
+                        tableCreateMemory(1);
+                    }
                 }
                 else {
-                    _PCB_ID += 1;
-                    _StdOut.putText("Input loaded successfully with Process ID: " + _PCB_ID);
-                    var user_text_area = document.getElementById('taProgramInput');
-                    user_text_area.value = "";
-                    // load hex code into memory
-                    const hex_for_appending = "0x";
-                    var program = [];
-                    for (let j = 0; j < user_input.length; j++) {
-                        var temp_var = (parseInt((hex_for_appending + user_input[j] + user_input[j + 1]), 16));
-                        j++;
-                        program.push(temp_var);
-                    }
-                    for (let k = 0; k < program.length; k++) {
-                        _MemoryManager.writeImmediate(k, program[k]);
-                    }
-                    var newPCB = new TSOS.PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false);
-                    _PCBs.push(newPCB);
-                    tableCreate(1);
+                    _StdOut.putText("Hex Code not valid.");
                 }
             }
             else {
-                _StdOut.putText("Hex Code not valid.");
+                _StdOut.putText("Memory is finito");
             }
         }
         shellRun(args) {
             if (args.length > 0) {
-                // Iterate through PCBs to find respective PCB ID
-                for (let i = 0; i < _PCBs.length; i++) {
-                    var temp_pcb;
-                    temp_pcb = _PCBs[i];
-                    var was_pcb_found = false;
-                    // Found correct PCB
-                    if (temp_pcb.get_ID() == parseInt(args[0])) {
-                        was_pcb_found = true; // Mark as found
-                        if (temp_pcb.get_stat() == true) {
-                            _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
-                            break;
-                        }
-                        else {
-                            _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
-                            _PCBprogram[0] = parseInt(args[0]);
-                            _PCBprogram[1] = true;
-                            break;
+                if (_PCBresident.length == 0) {
+                    _StdOut.putText("Memory is empty and lonely :(  Please give it a friend by loading a program");
+                }
+                else {
+                    // Iterate through PCBs to find respective PCB ID
+                    for (let i = 0; i < _PCBresident.length; i++) {
+                        var temp_pcb;
+                        temp_pcb = _PCBresident[i];
+                        var was_pcb_found = false;
+                        // Found correct PCB
+                        if (temp_pcb.get_ID() == parseInt(args[0])) {
+                            was_pcb_found = true; // Mark as found
+                            if (temp_pcb.get_stat() == true) {
+                                _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
+                                break;
+                            }
+                            else {
+                                _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
+                                _PCBprogram[0] = parseInt(args[0]);
+                                _PCBprogram[1] = true;
+                                break;
+                            }
                         }
                     }
-                }
-                // If no PCB with speficied PID was not found:
-                if (was_pcb_found == false) {
-                    _StdOut.putText("PID " + args + " was not found. Please supply a valid PID.");
+                    // If no PCB with speficied PID was not found:
+                    if (was_pcb_found == false) {
+                        _StdOut.putText("PID " + args + " was not found. Please supply a valid PID.");
+                    }
                 }
             }
             else {
                 _StdOut.putText("Usage: run <PID>  Please supply a valid PID.");
+            }
+        }
+        // Kill themed commands here: 
+        shellKill(args) {
+            if (args.length > 0) {
+                var pid_to_be_killed = args[0];
+                // If no programs running. No need to kill. Right...?
+                if (_PCBresident.length == 0) {
+                    _StdOut.putText("Why so aggressive? There are no programs to kill");
+                }
+                else {
+                    // iterate through PCBs 
+                    for (let i = 0; i < _PCBresident.length; i++) {
+                        var temp_pcb;
+                        temp_pcb = _PCBresident[i];
+                        // If PCB exists and is currently running; kill it
+                        if ((temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true)) {
+                            _PCBprogram[1] = false;
+                            _PCBprogram[2] = 0;
+                            var pcbStat = document.getElementById("pcbStat");
+                            pcbStat.innerHTML = ("Order 66ed");
+                            _StdOut.putText("Program Halted!");
+                            break;
+                        }
+                        else {
+                            _StdOut.putText("PID " + pid_to_be_killed + " either doesn't exist or isn't on the ready queue.");
+                            break;
+                        }
+                    }
+                }
+            }
+            else {
+                _StdOut.putText("Usage: kill <PID>");
             }
         }
         shellOrder66(args) {
@@ -325,6 +402,29 @@ var TSOS;
         shellCls(args) {
             _StdOut.clearScreen();
             _StdOut.resetXY();
+        }
+        shellQuantum(args) {
+            if (args.length > 0) {
+                var quantum = parseInt(args[0]);
+                if (quantum < 0) {
+                    _StdOut.putText("Quantum can't be negative because time travel isn't possible yet...");
+                }
+                else if ((quantum >= 0) && (quantum <= 1)) {
+                    _StdOut.putText("Not allowed.");
+                }
+                else if (quantum > 99) {
+                    _StdOut.putText("My OS, my rules. Quantum can't be larger than 99");
+                }
+                else {
+                    global_quantum = quantum;
+                    _StdOut.putText("Quantum changed to: " + quantum);
+                    var new_quantum = document.getElementById("q_badge");
+                    new_quantum.innerHTML = String(quantum);
+                }
+            }
+            else {
+                _StdOut.putText("Usage: quantum <new quantum>");
+            }
         }
         shellMan(args) {
             if (args.length > 0) {
@@ -377,6 +477,7 @@ var TSOS;
                         break;
                     case "run":
                         _StdOut.putText("Run program with specified PID.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -449,7 +550,7 @@ var TSOS;
 function getNewMessage() {
     return stat_message;
 }
-function tableCreate(table) {
+function tableCreateMemory(table) {
     if (table == 1) {
         document.getElementById("tableMem").innerHTML = "";
     }

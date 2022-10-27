@@ -83,6 +83,7 @@ module TSOS {
             (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnSS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnNext")).disabled = true;
+            (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -135,6 +136,10 @@ module TSOS {
             if ((_PCBprogram[1] == true)) {
                 _CPU.cycle();
             }
+        }
+
+        public static hostBtnRR_click(): void {
+            _StdOut.putText("Quantum is: " + global_quantum); // Test code 
         }
     }
 }

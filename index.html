@@ -93,14 +93,13 @@
              tabindex="2"
              onclick="TSOS.Control.hostBtnNext_click(this);">
 
-      <input type="button"
-             id = "btnRR"
-             name="brnRRt"
-             class="normal_buttonRR"
-             disabled="disabled"
-             value="RR"
-             tabindex="2"
-             onclick="TSOS.Control.hostBtnRR_click(this);">
+      <a id = "btnRR"
+         name="brnRR"
+         class="normal_buttonRR"
+         onclick="TSOS.Control.hostBtnRR_click(this);"> 
+         <span>RR</span>
+         <span id = "q_badge" class="badge">6</span>
+      </a>
    </div>
 
    <div id="divConsole" style="margin:4px; width:500px; height:705px; float:left;">

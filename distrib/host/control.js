@@ -66,6 +66,7 @@ var TSOS;
             document.getElementById("btnReset").disabled = false;
             document.getElementById("btnSS").disabled = false;
             document.getElementById("btnNext").disabled = true;
+            document.getElementById("btnRR").disabled = false;
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
@@ -81,7 +82,7 @@ var TSOS;
             _Kernel = new TSOS.Kernel();
             _Kernel.krnBootstrap(); // _GLaDOS.afterStartup() will get called in there, if configured.
         }
-        static hostBtnHaltOS_click(btn) {
+        static hostBtnHaltOS_click() {
             Control.hostLog("Emergency halt", "host");
             Control.hostLog("Attempting Kernel shutdown.", "host");
             // Call the OS shutdown routine.
@@ -90,14 +91,14 @@ var TSOS;
             clearInterval(_hardwareClockID);
             // TODO: Is there anything else we need to do here?
         }
-        static hostBtnReset_click(btn) {
+        static hostBtnReset_click() {
             // The easiest and most thorough way to do this is to reload (not refresh) the document.
             location.reload();
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         }
-        static hostBtnSS_click(btn) {
+        static hostBtnSS_click() {
             if (singleStep == false) {
                 singleStep = true;
                 document.getElementById("btnNext").disabled = false;
@@ -107,8 +108,13 @@ var TSOS;
                 document.getElementById("btnNext").disabled = true;
             }
         }
-        static hostBtnNext_click(btn) {
-            _CPU.cycle();
+        static hostBtnNext_click() {
+            if ((_PCBprogram[1] == true)) {
+                _CPU.cycle();
+            }
+        }
+        static hostBtnRR_click() {
+            _StdOut.putText("Quantum is: " + global_quantum); // Test code 
         }
     }
     TSOS.Control = Control;
