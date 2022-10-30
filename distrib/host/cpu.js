@@ -42,24 +42,21 @@ var TSOS;
         cycle() {
             _Kernel.krnTrace('CPU cycle');
             if (_PCBprogram[2] == 0) {
-                for (let i = 0; i < _PCBresident.length; i++) {
-                    var temp_pcb;
-                    temp_pcb = _PCBresident[i];
-                    if (temp_pcb.get_ID() == _PCBprogram[0]) {
-                        this.PC = temp_pcb.get_PC();
-                        this.IR = temp_pcb.get_IR();
-                        this.Acc = temp_pcb.get_Acc();
-                        this.Xreg = temp_pcb.get_Xreg();
-                        this.Yreg = temp_pcb.get_Yreg();
-                        this.Zflag = temp_pcb.get_Zflag();
-                        this.memSeg = temp_pcb.get_memSeg();
-                        this.base = temp_pcb.get_base();
-                        this.limit = temp_pcb.get_limit();
+                for (let i = 0; i < _PCBready.length; i++) {
+                    var ready_pcb;
+                    ready_pcb = _PCBready[i];
+                    if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                        this.PC = ready_pcb.get_PC();
+                        this.IR = ready_pcb.get_IR();
+                        this.Acc = ready_pcb.get_Acc();
+                        this.Xreg = ready_pcb.get_Xreg();
+                        this.Yreg = ready_pcb.get_Yreg();
+                        this.Zflag = ready_pcb.get_Zflag();
+                        this.memSeg = ready_pcb.get_memSeg();
+                        this.base = ready_pcb.get_base();
+                        this.limit = ready_pcb.get_limit();
                         _PCBprogram[2] = 1;
-                        var pcbID = document.getElementById("pcbID");
-                        pcbID.innerHTML = String(temp_pcb.get_ID());
-                        var pcbStat = document.getElementById("pcbStat");
-                        pcbStat.innerHTML = ("Running...");
+                        this.createReadyQueue("Running...");
                         break;
                     }
                 }
@@ -99,7 +96,7 @@ var TSOS;
                     this.fetch();
                     this.Acc = _MemoryAccessor.getMDR_MMU();
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Load the accumulator from accessor
@@ -116,7 +113,7 @@ var TSOS;
                     this.Acc = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Store the accumulator in accessor
@@ -129,7 +126,7 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     this.writeBack();
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Add contents of an address to the accumulator and keeps the result in the accumulator
@@ -146,7 +143,7 @@ var TSOS;
                     this.Acc = (this.Acc + _MemoryAccessor.getMDR_MMU());
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Load the Xreg register with a constant
@@ -155,7 +152,7 @@ var TSOS;
                     this.fetch();
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Load the Xreg register from accessor
@@ -172,7 +169,7 @@ var TSOS;
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Load the Y register with a constant
@@ -181,7 +178,7 @@ var TSOS;
                     this.fetch();
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Load the Y register from accessor
@@ -198,13 +195,13 @@ var TSOS;
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // No operation
                 case "EA":
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // Break - Stop System
@@ -212,19 +209,35 @@ var TSOS;
                     console.log("END");
                     _PCBprogram[1] = false; // CPU is done with the program
                     _PCBprogram[2] = 0; // Set PCB setter to 0
-                    var pcbStat = document.getElementById("pcbStat");
-                    pcbStat.innerHTML = ("Complete");
-                    for (let i = 0; i < _PCBresident.length; i++) {
-                        var temp_pcb;
-                        temp_pcb = _PCBresident[i];
-                        if (temp_pcb.get_ID() == _PCBprogram[0]) {
-                            temp_pcb.done();
+                    this.createReadyQueue("Complete");
+                    var ready_pcb;
+                    for (let i = 0; i < _PCBready.length; i++) {
+                        ready_pcb = _PCBready[i];
+                        if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                            break;
                         }
                     }
                     // Free up memory location
-                    _MemoryManager.freeLocation(temp_pcb.get_base(), temp_pcb.get_limit());
+                    _MemoryManager.freeLocation(ready_pcb.get_base(), ready_pcb.get_limit());
                     // Flag location as available
                     _MemoryManager.memoryLocationSetter(this.memSeg, true);
+                    // remove program from ready queue
+                    for (let i = 0; i < _PCBready.length; i++) {
+                        var ready_pcb;
+                        ready_pcb = _PCBready[i];
+                        if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                            ready_pcb.set_ID(-1);
+                        }
+                    }
+                    // remove program from resident queue
+                    for (let i = 0; i < _PCBresident.length; i++) {
+                        var resident_pcb;
+                        resident_pcb = _PCBresident[i];
+                        if (resident_pcb.get_ID() == _PCBprogram[0]) {
+                            resident_pcb.set_ID(-1);
+                        }
+                    }
+                    this.createReadyQueue("Complete");
                     break;
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
                 case "EC":
@@ -242,14 +255,14 @@ var TSOS;
                         this.Zflag = 0;
                         this.PC = temp_PC;
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                         this.PC++;
                     }
                     else {
                         this.Zflag = 1;
                         this.PC = temp_PC;
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                         this.PC++;
                     }
                     break;
@@ -261,13 +274,13 @@ var TSOS;
                         this.howMuchBranch(_MemoryAccessor.getMDR_MMU());
                         //this.PC = this.PC + branch;
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                     }
                     else {
                         this.PC++;
                         this.PC++;
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                     }
                     break;
                 // Increment the value of a byte
@@ -287,7 +300,7 @@ var TSOS;
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.updatePCB();
+                    this.createReadyQueue("Running...");
                     this.PC++;
                     break;
                 // System Calls - 
@@ -295,13 +308,13 @@ var TSOS;
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
                         _StdOut.putText(String(this.Yreg));
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                         this.PC++;
                         break;
                     }
                     else {
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                     }
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
                         temp_PC = this.PC;
@@ -321,12 +334,12 @@ var TSOS;
                             }
                         }
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                         break;
                     }
                     else {
                         this.viewProgram();
-                        this.updatePCB();
+                        this.createReadyQueue("Running...");
                     }
             }
         }
@@ -368,23 +381,91 @@ var TSOS;
             var cpuZ = document.getElementById('cpuZflag');
             cpuZ.innerHTML = String(this.Zflag);
         }
-        updatePCB() {
-            var pcbPC = document.getElementById('pcbPC');
-            pcbPC.innerHTML = String(this.PC);
-            var pcbIR = document.getElementById('pcbIR');
-            pcbIR.innerHTML = "0x" + this.hexLog(this.IR, 2);
-            var pcbAcc = document.getElementById('pcbAcc');
-            pcbAcc.innerHTML = "0x" + this.hexLog(this.Acc, 2);
-            var pcbX = document.getElementById('pcbXreg');
-            pcbX.innerHTML = "0x" + this.hexLog(this.Xreg, 2);
-            var pcbY = document.getElementById('pcbYreg');
-            pcbY.innerHTML = "0x" + this.hexLog(this.Yreg, 2);
-            var pcbZ = document.getElementById('pcbZflag');
-            pcbZ.innerHTML = String(this.Zflag);
-            var pcbBase = document.getElementById('pcbBase');
-            pcbBase.innerHTML = String(this.base);
-            var pcbLimit = document.getElementById('pcbLimit');
-            pcbLimit.innerHTML = String(this.limit);
+        // Create and Update Ready queue display
+        createReadyQueue(state) {
+            let readyTable = document.getElementById('ready_queue');
+            document.getElementById('ready_queue').innerHTML = "";
+            let tbl = document.createElement('table');
+            tbl.style.width = '700px';
+            tbl.style.border = '1px solid black';
+            for (let i = 0; i < _PCBready.length; i++) {
+                var ready_pcb;
+                ready_pcb = _PCBready[i];
+                if (ready_pcb.get_ID() != -1) {
+                    document.getElementById('ready_queue').innerHTML = "";
+                    let tr = tbl.insertRow();
+                    for (let j = 0; j < 12; j++) {
+                        let td = tr.insertCell();
+                        switch (j) {
+                            case 0:
+                                td.appendChild(document.createTextNode(String(ready_pcb.get_ID())));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 1:
+                                td.appendChild(document.createTextNode(String(this.PC)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 2:
+                                td.appendChild(document.createTextNode(this.hexLog(this.IR, 2)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 3:
+                                td.appendChild(document.createTextNode(this.hexLog(this.Acc, 2)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 4:
+                                td.appendChild(document.createTextNode(this.hexLog(this.Xreg, 2)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 5:
+                                td.appendChild(document.createTextNode(this.hexLog(this.Yreg, 2)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 6:
+                                td.appendChild(document.createTextNode(String(this.Zflag)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 7:
+                                td.appendChild(document.createTextNode("7")); // This will change for Final Project
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 8:
+                                td.appendChild(document.createTextNode(String(state)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 9:
+                                td.appendChild(document.createTextNode("Memory: " + String(this.memSeg)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            // Not sure if we need these
+                            case 10:
+                                td.appendChild(document.createTextNode(String(this.base)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                            case 11:
+                                td.appendChild(document.createTextNode(String(this.limit)));
+                                td.style.border = '1px solid black';
+                                td.style.width = '10px';
+                                break;
+                        }
+                    }
+                    readyTable.appendChild(tbl);
+                }
+                else {
+                    document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                }
+            }
         }
         // Method will be adjusted when we implement the 3 sections of memory
         howMuchBranch(branchNumber) {

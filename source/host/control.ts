@@ -84,6 +84,8 @@ module TSOS {
             (<HTMLButtonElement>document.getElementById("btnSS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnNext")).disabled = true;
             (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
+            (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = true;
+            (<HTMLButtonElement>document.getElementById("btnP")).disabled = true;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -139,7 +141,13 @@ module TSOS {
         }
 
         public static hostBtnRR_click(): void {
-            _StdOut.putText("Quantum is: " + global_quantum); // Test code 
+            //_StdOut.putText("Quantum is: " + global_quantum); Test code 
+        }
+
+        public static hostBtnFCFS_click(): void {
+        }
+
+        public static hostBtnP_click(): void {
         }
     }
 }

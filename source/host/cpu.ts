@@ -272,7 +272,6 @@ module TSOS {
                             resident_pcb.set_ID(-1);
                         }
                     }
-                    _PCBprogram[1] == false;
                     this.createReadyQueue("Complete");
                     break;
 

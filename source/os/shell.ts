@@ -397,7 +397,7 @@ module TSOS {
                         for(let k = 0; k < program.length; k++) {
                             _MemoryManager.writeImmediate((k + base), program[k]);
                         }
-                        var newPCB = new PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, _MemoryManager.memoryLocationAvailable(), base, limit);
+                        var newPCB = new PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, _MemoryManager.memoryLocationAvailable(), base, limit, 7);
                         _PCBresident.push(newPCB);
 
                         // Flag memory location as full
@@ -436,7 +436,24 @@ module TSOS {
                             else {
                                 _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
                                 _PCBprogram[0] = parseInt(args[0]); _PCBprogram[1] = true;
-                                break;
+                                
+                                // Has this program already been loaded into the ready queue?
+                                if (_PCBready.length = 0) {
+                                    _PCBready.push(temp_pcb);
+                                }
+                                else {
+                                    var does_it_exist = false;
+                                    for(let k = 0; k < _PCBready.length; k++) {
+                                        var ready_pcb: PCB; ready_pcb = _PCBready[k];
+
+                                        if (ready_pcb.get_ID() == parseInt(args[0])) {
+                                            does_it_exist = true;
+                                            break;
+                                        }
+                                    }
+                                    if (does_it_exist == false) { _PCBready.push(temp_pcb); }
+                                    break;
+                                }   
                             }
                         }
                     }
@@ -457,19 +474,20 @@ module TSOS {
                 var pid_to_be_killed = args[0];
 
                 // If no programs running. No need to kill. Right...?
-                if (_PCBresident.length == 0) {
+                if (_PCBready.length == 0) {
                     _StdOut.putText("Why so aggressive? There are no programs to kill");
                 } 
                 else {
                     // iterate through PCBs 
-                    for(let i = 0; i < _PCBresident.length; i++) {
-                        var temp_pcb: PCB; temp_pcb = _PCBresident[i];
+                    for(let i = 0; i < _PCBready.length; i++) {
+                        var temp_pcb: PCB; temp_pcb = _PCBready[i];
                         // If PCB exists and is currently running; kill it
                         if ( (temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true) ) {
                             _PCBprogram[1] = false;
                             _PCBprogram[2] = 0
-                            var pcbStat = document.getElementById("pcbStat");
-                                        pcbStat.innerHTML = ("Order 66ed");
+
+                            document.getElementById('ready_queue').innerHTML = "No Programs Running";
+
                             _StdOut.putText("Program Halted!");
                             break;
                         }
@@ -501,6 +519,9 @@ module TSOS {
 
                 if (quantum < 0) {
                     _StdOut.putText("Quantum can't be negative because time travel isn't possible yet...");
+                }
+                else if (quantum == global_quantum) {
+                    _StdOut.putText("Quantum is already " + global_quantum);
                 }
                 else if ((quantum >= 0) && (quantum <= 1 )) {
                     _StdOut.putText("Not allowed.");
@@ -643,7 +664,6 @@ function getNewMessage() {
 }
 
 function tableCreateMemory(table: number) {
-
     if (table == 1) {
         document.getElementById("tableMem").innerHTML = "";
     }
@@ -676,6 +696,7 @@ function tableCreateMemory(table: number) {
     }
     memTable.appendChild(tbl);
 }
+
 
 function updateMemory() {
     var memTitle = document.getElementById('memoryHead'); 

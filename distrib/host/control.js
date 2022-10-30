@@ -67,6 +67,8 @@ var TSOS;
             document.getElementById("btnSS").disabled = false;
             document.getElementById("btnNext").disabled = true;
             document.getElementById("btnRR").disabled = false;
+            document.getElementById("btnFCFS").disabled = true;
+            document.getElementById("btnP").disabled = true;
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
@@ -114,7 +116,11 @@ var TSOS;
             }
         }
         static hostBtnRR_click() {
-            _StdOut.putText("Quantum is: " + global_quantum); // Test code 
+            //_StdOut.putText("Quantum is: " + global_quantum); Test code 
+        }
+        static hostBtnFCFS_click() {
+        }
+        static hostBtnP_click() {
         }
     }
     TSOS.Control = Control;
