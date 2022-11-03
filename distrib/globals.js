@@ -37,6 +37,7 @@ var _KernelInterruptQueue = null;
 var _KernelInputQueue = null;
 var _KernelBuffers = null;
 var _MemoryManager = null;
+var _Scheduler = null;
 var _PCB;
 var _PCBresident = []; // PCB resident queue
 var _PCBready = []; // PCB ready queue
@@ -53,6 +54,10 @@ var _SarcasticMode = false;
 // Global Device Driver Objects - page 12
 var _krnKeyboardDriver = null;
 var singleStep = false;
+var rr = false;
+var rr2 = 0;
+var fcfs = false;
+var priorityButton = false;
 var _hardwareClockID = null;
 // For testing (and enrichment)...
 var Glados = null; // This is the function Glados() in glados-ip*.js http://alanclasses.github.io/TSOS/test/ .

@@ -29,11 +29,19 @@ var TSOS;
             var isctrl = params[2];
             _Kernel.krnTrace("Key code:" + keyCode + " shifted:" + isShifted);
             var chr = "";
+            // Ctrl-C
             if (keyCode == 17 && _PCBprogram[1] == true) {
                 _PCBprogram[1] = false;
                 _PCBprogram[2] = 0;
-                var pcbStat = document.getElementById("pcbStat");
-                pcbStat.innerHTML = ("Order 66ed");
+                for (let i = 0; i < _PCBready.length; i++) {
+                    var pcb;
+                    pcb = _PCBready[i];
+                    if (pcb.get_state() === "Running...") {
+                        pcb.set_state("Resident");
+                        break;
+                    }
+                }
+                document.getElementById('ready_queue').innerHTML = "No Programs Running";
                 _StdOut.putText("Program Halted!");
             }
             // Check to see if we even want to deal with the key that was pressed.

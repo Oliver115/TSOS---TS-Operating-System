@@ -101,6 +101,10 @@
              value="FCFS"
              tabindex="2"
              onclick="TSOS.Control.hostBtnFCFS_click(this);">
+      <script> const buttonFCFS = document.querySelector('.normal_buttonFCFS');
+               buttonFCFS.addEventListener('click', () => {
+                  buttonFCFS.classList.toggle('activeFCFS');});
+      </script>
 
       <input type="button"
              id = "btnP"
@@ -110,11 +114,20 @@
              value="Priority"
              tabindex="2"
              onclick="TSOS.Control.hostBtnP_click(this);">
+      <script> const buttonP = document.querySelector('.normal_buttonP');
+               buttonP.addEventListener('click', () => {
+                  buttonP.classList.toggle('activeP');});
+      </script>
 
       <a id = "btnRR"
+            role ="link"
              name="brnRR"
              class="normal_buttonRR"
              onclick="TSOS.Control.hostBtnRR_click(this);"> 
+      <script> const buttonRR = document.querySelector('.normal_buttonRR');
+               buttonRR.addEventListener('click', () => {
+               buttonRR.classList.toggle('activeRR');});
+      </script>
              <span>RR</span>
              <span id = "q_badge" class="badge">6</span>
       </a>

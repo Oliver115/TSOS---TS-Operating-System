@@ -1,7 +1,7 @@
 var TSOS;
 (function (TSOS) {
     class PCB {
-        constructor(ID, PC, IR, Acc, Xreg, Yreg, Zflag, complete, memSeg, base, limit, priority) {
+        constructor(ID, PC, IR, Acc, Xreg, Yreg, Zflag, complete, state, memSeg, base, limit, priority) {
             this.ID = ID;
             this.PC = PC;
             this.IR = IR;
@@ -10,6 +10,7 @@ var TSOS;
             this.Yreg = Yreg;
             this.Zflag = Zflag;
             this.complete = complete;
+            this.state = state;
             this.memSeg = memSeg;
             this.base = base;
             this.limit = limit;
@@ -25,6 +26,7 @@ var TSOS;
         get_Yreg() { return this.Yreg; }
         get_Zflag() { return this.Zflag; }
         get_stat() { return this.complete; }
+        get_state() { return this.state; }
         get_memSeg() { return this.memSeg; }
         get_base() { return this.base; }
         get_limit() { return this.limit; }
@@ -37,6 +39,7 @@ var TSOS;
         set_Xreg(newX) { this.Xreg = newX; }
         set_Yreg(newY) { this.Yreg = newY; }
         set_Zflag(newZflag) { this.Zflag = newZflag; }
+        set_state(state) { this.state = state; }
         set_memSeg(newMemSeg) { this.memSeg = newMemSeg; }
         set_base(newBase) { this.base = newBase; }
         set_limit(newLimit) { this.limit = newLimit; }

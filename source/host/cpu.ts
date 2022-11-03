@@ -23,6 +23,7 @@ module TSOS {
                     public Zflag: number = 0,
                     public little_endian: number = 0x0000,
                     public isExecuting: boolean = false,
+                    public state: String,
                     public memSeg: number = 0,
                     public base: number = 0,
                     public limit: number = 0) {
@@ -37,6 +38,7 @@ module TSOS {
             this.Zflag = 0;
             this.little_endian = 0x0000;
             this.isExecuting = false;
+            this.state = "";
             this.memSeg = 0;
             this.base = 0;
             this.limit = 0;
@@ -50,18 +52,21 @@ module TSOS {
                 for(let i = 0; i < _PCBready.length; i++) {
                     var ready_pcb: PCB; ready_pcb = _PCBready[i];
                     if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                        ready_pcb.set_state("Running...");
                         this.PC = ready_pcb.get_PC();
                         this.IR = ready_pcb.get_IR();
                         this.Acc = ready_pcb.get_Acc();
                         this.Xreg = ready_pcb.get_Xreg();
                         this.Yreg = ready_pcb.get_Yreg();
                         this.Zflag = ready_pcb.get_Zflag();
+                        this.isExecuting = ready_pcb.get_stat();
+                        this.state = ready_pcb.get_state();
                         this.memSeg = ready_pcb.get_memSeg();
                         this.base = ready_pcb.get_base();
                         this.limit = ready_pcb.get_limit();
                         _PCBprogram[2] = 1;
 
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
 
                         break;
                     }
@@ -106,7 +111,7 @@ module TSOS {
                     this.PC++;
                     this.fetch();
                     this.Acc = _MemoryAccessor.getMDR_MMU();
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -127,7 +132,7 @@ module TSOS {
                     this.Acc = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -142,7 +147,7 @@ module TSOS {
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     this.writeBack();
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -164,7 +169,7 @@ module TSOS {
 
                     this.PC = temp_PC;
 
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -174,7 +179,7 @@ module TSOS {
                     this.fetch();
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -195,7 +200,7 @@ module TSOS {
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -205,7 +210,7 @@ module TSOS {
                     this.fetch();
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -226,23 +231,25 @@ module TSOS {
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
                 // No operation
                 case "EA": 
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
                 // Break - Stop System
                 case "00": 
                     console.log("END");
+                    console.log(_PCBresident);
+                    console.log(_PCBready);
                     _PCBprogram[1] = false; // CPU is done with the program
                     _PCBprogram[2] = 0; // Set PCB setter to 0
 
-                    this.createReadyQueue("Complete");
+                    this.createReadyQueue();
 
                     var ready_pcb: PCB;
                     for(let i = 0; i < _PCBready.length; i++) {
@@ -258,10 +265,11 @@ module TSOS {
 
                     // remove program from ready queue
                     for(let i = 0; i < _PCBready.length; i++) {
-                        var ready_pcb: PCB; ready_pcb = _PCBready[i];
+                        var r_pcb: PCB; r_pcb = _PCBready[i];
 
-                        if (ready_pcb.get_ID() == _PCBprogram[0]) {
-                            ready_pcb.set_ID(-1);
+                        if (r_pcb.get_ID() == _PCBprogram[0]) {
+                            //ready_pcb.set_ID(-1);
+                            r_pcb.set_state("Terminated");
                         }
                     }
                     // remove program from resident queue
@@ -269,10 +277,11 @@ module TSOS {
                         var resident_pcb: PCB; resident_pcb = _PCBresident[i];
 
                         if (resident_pcb.get_ID() == _PCBprogram[0]) {
-                            resident_pcb.set_ID(-1);
+                            //resident_pcb.set_ID(-1);
+                            resident_pcb.set_state("Terminated");
                         }
                     }
-                    this.createReadyQueue("Complete");
+                    this.createReadyQueue();
                     break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
@@ -294,13 +303,13 @@ module TSOS {
                     if (_MemoryAccessor.getMDR_MMU() == this.Xreg) {
                         this.Zflag = 0;
                         this.PC = temp_PC;
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                         this.PC++;
                     }
                     else {
                         this.Zflag = 1;
                         this.PC = temp_PC;
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                         this.PC++;
                     }
                     break;
@@ -313,11 +322,11 @@ module TSOS {
 
                         this.howMuchBranch(_MemoryAccessor.getMDR_MMU()); 
                         //this.PC = this.PC + branch;
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                     }
                     else {
                         this.PC++; this.PC++;
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                     }
                     break;
                     
@@ -342,7 +351,7 @@ module TSOS {
 
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue("Running...");
+                    this.viewProgram(); this.createReadyQueue();
                     this.PC++;
                     break;
 
@@ -350,12 +359,12 @@ module TSOS {
                 case "FF": 
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
                         _StdOut.putText(String(this.Yreg));
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                         this.PC++;
                         break;
                     }
                     else {
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                     }
 
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
@@ -378,11 +387,11 @@ module TSOS {
                                 this.PC++;
                             }
                         }
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                         break;
                     }
                     else {
-                        this.viewProgram(); this.createReadyQueue("Running...");
+                        this.viewProgram(); this.createReadyQueue();
                     }
             }
 
@@ -431,7 +440,7 @@ module TSOS {
         }
 
         // Create and Update Ready queue display
-        createReadyQueue(state: String) {
+        createReadyQueue() {
             let readyTable = document.getElementById('ready_queue'); 
             document.getElementById('ready_queue').innerHTML = "";
 
@@ -443,7 +452,7 @@ module TSOS {
                 var ready_pcb: PCB; 
                 ready_pcb = _PCBready[i];
 
-                if (ready_pcb.get_ID() != -1) {
+                if ((ready_pcb.get_state() === "Ready") || (ready_pcb.get_state() === "Running...")) {
                     document.getElementById('ready_queue').innerHTML = "";
 
                     let tr = tbl.insertRow();
@@ -493,7 +502,7 @@ module TSOS {
                                 td.style.width = '10px';
                                 break;
                             case 8: 
-                                td.appendChild(document.createTextNode(String(state)));
+                                td.appendChild(document.createTextNode(String(this.state)));
                                 td.style.border = '1px solid black';
                                 td.style.width = '10px';
                                 break;

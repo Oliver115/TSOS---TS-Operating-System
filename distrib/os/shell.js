@@ -71,6 +71,9 @@ var TSOS;
             // Run
             sc = new TSOS.ShellCommand(this.shellRun, "run", "- Run program with specified PID.");
             this.commandList[this.commandList.length] = sc;
+            // Run All
+            sc = new TSOS.ShellCommand(this.shellrunAll, "runall", "- Execute all programs at once.");
+            this.commandList[this.commandList.length] = sc;
             // BSOD
             sc = new TSOS.ShellCommand(this.shellOrder66, "order66", "- Kill not just the OS, but the women and children too (it's a Star Wars quote. Pls don't think I'm a psychopath)");
             this.commandList[this.commandList.length] = sc;
@@ -80,8 +83,14 @@ var TSOS;
             // Kill
             sc = new TSOS.ShellCommand(this.shellKill, "kill", "- Kill a specific process");
             this.commandList[this.commandList.length] = sc;
+            // Kill All
+            sc = new TSOS.ShellCommand(this.shellkillAll, "killall", "- Kill all processes");
+            this.commandList[this.commandList.length] = sc;
             // Quantum
             sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "-  set the Round Robin quantum");
+            this.commandList[this.commandList.length] = sc;
+            // Ps
+            sc = new TSOS.ShellCommand(this.shellPs, "ps", "-  display the state of all processes");
             this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
@@ -252,7 +261,14 @@ var TSOS;
                 _MemoryManager.writeImmediate(i, "0x00");
             }
             tableCreateMemory(1);
-            _StdOut.putText("All Memory partitions cleared. Memory has no friends now...");
+            if (_PCBprogram[1]) {
+                _StdOut.putText("All Programs killed");
+                _Console.advanceLine();
+                _StdOut.putText("All Memory partitions cleared. Memory has no friends now...");
+            }
+            else {
+                _StdOut.putText("All Memory partitions cleared. Memory has no friends now...");
+            }
         }
         shellLoad(args) {
             // Check if memory locations are available
@@ -311,7 +327,7 @@ var TSOS;
                         for (let k = 0; k < program.length; k++) {
                             _MemoryManager.writeImmediate((k + base), program[k]);
                         }
-                        var newPCB = new TSOS.PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, _MemoryManager.memoryLocationAvailable(), base, limit, 7);
+                        var newPCB = new TSOS.PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, "Resident", _MemoryManager.memoryLocationAvailable(), base, limit, 7);
                         _PCBresident.push(newPCB);
                         // Flag memory location as full
                         _MemoryManager.memoryLocationSetter(_MemoryManager.memoryLocationAvailable(), false);
@@ -349,7 +365,9 @@ var TSOS;
                                 _PCBprogram[0] = parseInt(args[0]);
                                 _PCBprogram[1] = true;
                                 // Has this program already been loaded into the ready queue?
-                                if (_PCBready.length = 0) {
+                                if (_PCBready.length == 0) {
+                                    console.log(_PCBresident);
+                                    temp_pcb.set_state("Ready");
                                     _PCBready.push(temp_pcb);
                                 }
                                 else {
@@ -363,6 +381,7 @@ var TSOS;
                                         }
                                     }
                                     if (does_it_exist == false) {
+                                        temp_pcb.set_state("Ready");
                                         _PCBready.push(temp_pcb);
                                     }
                                     break;
@@ -379,6 +398,17 @@ var TSOS;
             else {
                 _StdOut.putText("Usage: run <PID>  Please supply a valid PID.");
             }
+        }
+        shellrunAll(args) {
+            for (let i = 0; i < _PCBresident.length; i++) {
+                var resident_pcb;
+                resident_pcb = _PCBresident[i];
+                if (resident_pcb.get_state() === "Resident") {
+                    resident_pcb.set_state("Ready");
+                    _PCBready.push(resident_pcb);
+                }
+            }
+            _StdOut.putText("Executing all programs");
         }
         // Kill themed commands here: 
         shellKill(args) {
@@ -398,6 +428,7 @@ var TSOS;
                             _PCBprogram[1] = false;
                             _PCBprogram[2] = 0;
                             document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                            temp_pcb.set_state("Resident");
                             _StdOut.putText("Program Halted!");
                             break;
                         }
@@ -410,6 +441,35 @@ var TSOS;
             }
             else {
                 _StdOut.putText("Usage: kill <PID>");
+            }
+        }
+        shellkillAll(args) {
+            if (args.length > 0) {
+                var pid_to_be_killed = args[0];
+                // If no programs running. No need to kill. Right...?
+                if (_PCBready.length == 0) {
+                    _StdOut.putText("Why so aggressive? There are no programs to kill");
+                }
+                else {
+                    // iterate through PCBs 
+                    for (let i = 0; i < _PCBready.length; i++) {
+                        var temp_pcb;
+                        temp_pcb = _PCBready[i];
+                        // If PCB exists and is currently running; kill it
+                        if ((temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true)) {
+                            _PCBprogram[1] = false;
+                            _PCBprogram[2] = 0;
+                            document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                            temp_pcb.set_state("Resident");
+                            _StdOut.putText("Program Halted!");
+                            break;
+                        }
+                        else {
+                            _StdOut.putText("PID " + pid_to_be_killed + " either doesn't exist or isn't on the ready queue.");
+                            break;
+                        }
+                    }
+                }
             }
         }
         shellOrder66(args) {
@@ -444,6 +504,30 @@ var TSOS;
             }
             else {
                 _StdOut.putText("Usage: quantum <new quantum>");
+            }
+        }
+        shellPs(args) {
+            var empty = 0;
+            for (let i = 0; i < _PCBresident.length; i++) {
+                var resi_pcb;
+                resi_pcb = _PCBresident[i];
+                if ((resi_pcb.get_state() === "Resident") || (resi_pcb.get_state() === "Terminated") || (resi_pcb.get_state() === "Running...")) {
+                    _StdOut.putText("PID " + resi_pcb.get_ID() + " - State: " + resi_pcb.get_state());
+                    _Console.advanceLine();
+                    empty += 1;
+                }
+            }
+            for (let i = 0; i < _PCBready.length; i++) {
+                var ready_pcb;
+                ready_pcb = _PCBready[i];
+                if (ready_pcb.get_state() === "Ready") {
+                    _StdOut.putText("PID " + ready_pcb.get_ID() + " - State: " + ready_pcb.get_state());
+                    _Console.advanceLine();
+                    empty += 1;
+                }
+            }
+            if (empty == 0) {
+                _StdOut.putText("No Programs loaded or running");
             }
         }
         shellMan(args) {
@@ -497,6 +581,15 @@ var TSOS;
                         break;
                     case "run":
                         _StdOut.putText("Run program with specified PID.");
+                        break;
+                    case "clearmem":
+                        _StdOut.putText("Clear all segments of memory.");
+                        break;
+                    case "kill":
+                        _StdOut.putText("Kill a specific running program.");
+                        break;
+                    case "quantum":
+                        _StdOut.putText("Change the quantum used in RR");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");

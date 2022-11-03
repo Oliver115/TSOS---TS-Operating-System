@@ -84,8 +84,8 @@ module TSOS {
             (<HTMLButtonElement>document.getElementById("btnSS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnNext")).disabled = true;
             (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
-            (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = true;
-            (<HTMLButtonElement>document.getElementById("btnP")).disabled = true;
+            (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = false;
+            (<HTMLButtonElement>document.getElementById("btnP")).disabled = false;
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
@@ -141,13 +141,62 @@ module TSOS {
         }
 
         public static hostBtnRR_click(): void {
-            //_StdOut.putText("Quantum is: " + global_quantum); Test code 
+            if ((rr == false) && (rr2 == 0)) {
+                rr = true; fcfs = false; priorityButton = false;
+                (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
+                (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = true;
+                (<HTMLButtonElement>document.getElementById("btnP")).disabled = true;
+                _StdOut.putText("This is the RR button: ON!"); // Test code 
+                _Console.advanceLine();
+            }
+            else {
+                if (rr2 == 1) {
+                    _StdOut.putText("This is the RR button: OFF!"); // Test code 
+                    _Console.advanceLine();
+                }
+                else {
+                    rr = false; fcfs = false; priorityButton = false; 
+                    (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
+                    (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = false;
+                    (<HTMLButtonElement>document.getElementById("btnP")).disabled = false;
+                    _StdOut.putText("This is the RR button: OFF!"); // Test code 
+                    _Console.advanceLine();
+                }
+            }
         }
 
         public static hostBtnFCFS_click(): void {
+            if ((fcfs == false)) {
+                fcfs = true; rr = false; priorityButton = false; rr2 = 1;
+                (<HTMLButtonElement>document.getElementById("btnRR")).disabled = true;
+                (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = false;
+                (<HTMLButtonElement>document.getElementById("btnP")).disabled = true;
+                _StdOut.putText("This is the FCFS button"); // Test code 
+                _Console.advanceLine();
+            }
+            else {
+                fcfs = false; rr = false; priorityButton = false; rr2 = 0;
+                (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
+                (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = false;
+                (<HTMLButtonElement>document.getElementById("btnP")).disabled = false;
+            }
         }
 
         public static hostBtnP_click(): void {
+            if ((priorityButton == false)) {
+                priorityButton = true; rr = false; fcfs = false; rr2 = 1;
+                (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
+                (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = true;
+                (<HTMLButtonElement>document.getElementById("btnP")).disabled = false;
+                _StdOut.putText("This is the Priotity button"); // Test code 
+                _Console.advanceLine();
+            }
+            else {
+                priorityButton = false; rr = false; fcfs = false; rr2 = 0;
+                (<HTMLButtonElement>document.getElementById("btnRR")).disabled = false;
+                (<HTMLButtonElement>document.getElementById("btnFCFS")).disabled = false;
+                (<HTMLButtonElement>document.getElementById("btnP")).disabled = false;
+            }
         }
     }
 }

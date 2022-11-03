@@ -47,6 +47,7 @@ var _KernelInterruptQueue: TSOS.Queue = null;
 var _KernelInputQueue: TSOS.Queue = null; 
 var _KernelBuffers = null; 
 var _MemoryManager: any = null;
+var _Scheduler: any = null;
 var _PCB: TSOS.PCB;
 var _PCBresident = [] // PCB resident queue
 var _PCBready = [] // PCB ready queue
@@ -67,6 +68,9 @@ var _SarcasticMode: boolean = false;
 var _krnKeyboardDriver: TSOS.DeviceDriverKeyboard  = null;
 
 var singleStep: boolean = false;
+var rr: boolean = false; var rr2 = 0;
+var fcfs: boolean = false;
+var priorityButton: boolean = false;
 var _hardwareClockID: number = null;
 
 // For testing (and enrichment)...

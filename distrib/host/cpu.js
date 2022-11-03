@@ -13,7 +13,7 @@
 var TSOS;
 (function (TSOS) {
     class Cpu {
-        constructor(PC = 0, IR = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, little_endian = 0x0000, isExecuting = false, memSeg = 0, base = 0, limit = 0) {
+        constructor(PC = 0, IR = 0, Acc = 0, Xreg = 0, Yreg = 0, Zflag = 0, little_endian = 0x0000, isExecuting = false, state, memSeg = 0, base = 0, limit = 0) {
             this.PC = PC;
             this.IR = IR;
             this.Acc = Acc;
@@ -22,6 +22,7 @@ var TSOS;
             this.Zflag = Zflag;
             this.little_endian = little_endian;
             this.isExecuting = isExecuting;
+            this.state = state;
             this.memSeg = memSeg;
             this.base = base;
             this.limit = limit;
@@ -35,6 +36,7 @@ var TSOS;
             this.Zflag = 0;
             this.little_endian = 0x0000;
             this.isExecuting = false;
+            this.state = "";
             this.memSeg = 0;
             this.base = 0;
             this.limit = 0;
@@ -46,17 +48,20 @@ var TSOS;
                     var ready_pcb;
                     ready_pcb = _PCBready[i];
                     if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                        ready_pcb.set_state("Running...");
                         this.PC = ready_pcb.get_PC();
                         this.IR = ready_pcb.get_IR();
                         this.Acc = ready_pcb.get_Acc();
                         this.Xreg = ready_pcb.get_Xreg();
                         this.Yreg = ready_pcb.get_Yreg();
                         this.Zflag = ready_pcb.get_Zflag();
+                        this.isExecuting = ready_pcb.get_stat();
+                        this.state = ready_pcb.get_state();
                         this.memSeg = ready_pcb.get_memSeg();
                         this.base = ready_pcb.get_base();
                         this.limit = ready_pcb.get_limit();
                         _PCBprogram[2] = 1;
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                         break;
                     }
                 }
@@ -96,7 +101,7 @@ var TSOS;
                     this.fetch();
                     this.Acc = _MemoryAccessor.getMDR_MMU();
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Load the accumulator from accessor
@@ -113,7 +118,7 @@ var TSOS;
                     this.Acc = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Store the accumulator in accessor
@@ -126,7 +131,7 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     this.writeBack();
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Add contents of an address to the accumulator and keeps the result in the accumulator
@@ -143,7 +148,7 @@ var TSOS;
                     this.Acc = (this.Acc + _MemoryAccessor.getMDR_MMU());
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Load the Xreg register with a constant
@@ -152,7 +157,7 @@ var TSOS;
                     this.fetch();
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Load the Xreg register from accessor
@@ -169,7 +174,7 @@ var TSOS;
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Load the Y register with a constant
@@ -178,7 +183,7 @@ var TSOS;
                     this.fetch();
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Load the Y register from accessor
@@ -195,21 +200,23 @@ var TSOS;
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // No operation
                 case "EA":
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // Break - Stop System
                 case "00":
                     console.log("END");
+                    console.log(_PCBresident);
+                    console.log(_PCBready);
                     _PCBprogram[1] = false; // CPU is done with the program
                     _PCBprogram[2] = 0; // Set PCB setter to 0
-                    this.createReadyQueue("Complete");
+                    this.createReadyQueue();
                     var ready_pcb;
                     for (let i = 0; i < _PCBready.length; i++) {
                         ready_pcb = _PCBready[i];
@@ -223,10 +230,11 @@ var TSOS;
                     _MemoryManager.memoryLocationSetter(this.memSeg, true);
                     // remove program from ready queue
                     for (let i = 0; i < _PCBready.length; i++) {
-                        var ready_pcb;
-                        ready_pcb = _PCBready[i];
-                        if (ready_pcb.get_ID() == _PCBprogram[0]) {
-                            ready_pcb.set_ID(-1);
+                        var r_pcb;
+                        r_pcb = _PCBready[i];
+                        if (r_pcb.get_ID() == _PCBprogram[0]) {
+                            //ready_pcb.set_ID(-1);
+                            r_pcb.set_state("Terminated");
                         }
                     }
                     // remove program from resident queue
@@ -234,10 +242,11 @@ var TSOS;
                         var resident_pcb;
                         resident_pcb = _PCBresident[i];
                         if (resident_pcb.get_ID() == _PCBprogram[0]) {
-                            resident_pcb.set_ID(-1);
+                            //resident_pcb.set_ID(-1);
+                            resident_pcb.set_state("Terminated");
                         }
                     }
-                    this.createReadyQueue("Complete");
+                    this.createReadyQueue();
                     break;
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
                 case "EC":
@@ -255,14 +264,14 @@ var TSOS;
                         this.Zflag = 0;
                         this.PC = temp_PC;
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                         this.PC++;
                     }
                     else {
                         this.Zflag = 1;
                         this.PC = temp_PC;
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                         this.PC++;
                     }
                     break;
@@ -274,13 +283,13 @@ var TSOS;
                         this.howMuchBranch(_MemoryAccessor.getMDR_MMU());
                         //this.PC = this.PC + branch;
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                     }
                     else {
                         this.PC++;
                         this.PC++;
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                     }
                     break;
                 // Increment the value of a byte
@@ -300,7 +309,7 @@ var TSOS;
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
                     this.viewProgram();
-                    this.createReadyQueue("Running...");
+                    this.createReadyQueue();
                     this.PC++;
                     break;
                 // System Calls - 
@@ -308,13 +317,13 @@ var TSOS;
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
                         _StdOut.putText(String(this.Yreg));
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                         this.PC++;
                         break;
                     }
                     else {
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                     }
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
                         temp_PC = this.PC;
@@ -334,12 +343,12 @@ var TSOS;
                             }
                         }
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                         break;
                     }
                     else {
                         this.viewProgram();
-                        this.createReadyQueue("Running...");
+                        this.createReadyQueue();
                     }
             }
         }
@@ -382,7 +391,7 @@ var TSOS;
             cpuZ.innerHTML = String(this.Zflag);
         }
         // Create and Update Ready queue display
-        createReadyQueue(state) {
+        createReadyQueue() {
             let readyTable = document.getElementById('ready_queue');
             document.getElementById('ready_queue').innerHTML = "";
             let tbl = document.createElement('table');
@@ -391,7 +400,7 @@ var TSOS;
             for (let i = 0; i < _PCBready.length; i++) {
                 var ready_pcb;
                 ready_pcb = _PCBready[i];
-                if (ready_pcb.get_ID() != -1) {
+                if ((ready_pcb.get_state() === "Ready") || (ready_pcb.get_state() === "Running...")) {
                     document.getElementById('ready_queue').innerHTML = "";
                     let tr = tbl.insertRow();
                     for (let j = 0; j < 12; j++) {
@@ -438,7 +447,7 @@ var TSOS;
                                 td.style.width = '10px';
                                 break;
                             case 8:
-                                td.appendChild(document.createTextNode(String(state)));
+                                td.appendChild(document.createTextNode(String(this.state)));
                                 td.style.border = '1px solid black';
                                 td.style.width = '10px';
                                 break;

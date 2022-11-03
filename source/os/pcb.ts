@@ -10,6 +10,7 @@ module TSOS {
                     public Yreg: number,
                     public Zflag: number,
                     public complete: boolean,
+                    public state: string,
                     public memSeg: number,
                     public base: number,
                     public limit: number, 
@@ -27,6 +28,7 @@ module TSOS {
         get_Yreg() { return this.Yreg; }
         get_Zflag() { return this.Zflag; }
         get_stat() { return this.complete; }
+        get_state() { return this.state; }
         get_memSeg() { return this.memSeg; }
         get_base() { return this.base; }
         get_limit() { return this.limit; }
@@ -40,6 +42,7 @@ module TSOS {
         set_Xreg(newX: number) { this.Xreg = newX; }
         set_Yreg(newY: number) { this.Yreg = newY; }
         set_Zflag(newZflag: number) { this.Zflag = newZflag; }
+        set_state(state: string) { this.state = state; }
         set_memSeg(newMemSeg: number) { this.memSeg = newMemSeg; }
         set_base(newBase: number) { this.base = newBase; }
         set_limit(newLimit: number) { this.limit = newLimit; }
