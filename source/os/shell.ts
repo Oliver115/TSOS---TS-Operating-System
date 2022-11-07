@@ -504,11 +504,13 @@ module TSOS {
 
                 if (resident_pcb.get_state() === "Resident") {
                     resident_pcb.set_state("Ready");
-                    
                     _PCBready.push(resident_pcb);
+                    _Scheduler.createQueue(resident_pcb.get_ID());
                 }
             }
             _StdOut.putText("Executing all programs");
+            rr = true;
+            _PCBprogram[1] = true;
         }
 
         // Kill themed commands here: 
@@ -530,7 +532,7 @@ module TSOS {
                             _PCBprogram[2] = 0
 
                             document.getElementById('ready_queue').innerHTML = "No Programs Running";
-                            temp_pcb.set_state("Resident");
+                            temp_pcb.set_state("Terminated");
 
                             _StdOut.putText("Program Halted!");
                             break;
@@ -566,7 +568,7 @@ module TSOS {
                             _PCBprogram[2] = 0
 
                             document.getElementById('ready_queue').innerHTML = "No Programs Running";
-                            temp_pcb.set_state("Resident");
+                            temp_pcb.set_state("Terminated");
 
                             _StdOut.putText("Program Halted!");
                             break;
@@ -609,7 +611,7 @@ module TSOS {
                 }
                 else {
                     global_quantum = quantum;
-                    _StdOut.putText("Quantum changed to: " + quantum);
+                    _StdOut.putText("Quantum changed to: " + quantum + " (Hint: look at the RR)");
                     var new_quantum = document.getElementById("q_badge");
                         new_quantum.innerHTML = String(quantum);
                 }
@@ -704,7 +706,7 @@ module TSOS {
                         _StdOut.putText("Kill a specific running program.");
                         break;
                     case "quantum":
-                        _StdOut.putText("Change the quantum used in RR");
+                        _StdOut.putText("Change the quantum used in RR (Hint: Look at the RR button to check the current quantum)");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
