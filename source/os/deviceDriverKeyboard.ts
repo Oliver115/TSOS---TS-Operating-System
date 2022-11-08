@@ -38,17 +38,23 @@ module TSOS {
             // Ctrl-C
             if (keyCode == 17 && _PCBprogram[1] == true) {
                 _PCBprogram[1] = false;
-                _PCBprogram[2] = 0
                 for (let i = 0; i < _PCBready.length; i++) {
                     var pcb: PCB; pcb = _PCBready[i];
 
-                    if (pcb.get_state() === "Running...") {
+                    //if ((pcb.get_state() === "Running...") || (pcb.get_state() === "Ready")) {
+                    if (pcb.get_ID() == _PCBprogram[0]) {
+                        _StdOut.putText(" PID " + _PCBprogram[0] + " Terminated!");
+                        _Dispatcher.removeTarget(pcb.get_ID());
                         pcb.set_state("Terminated");
                         break;
                     }
                 }
-                document.getElementById('ready_queue').innerHTML = "No Programs Running";
-                _StdOut.putText("Program Halted!");
+                if (_Dispatcher.is_empty()) {
+                    document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                }
+                else {
+                    _PCBprogram[1] = true;
+                }
             }
 
             // Check to see if we even want to deal with the key that was pressed.

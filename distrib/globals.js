@@ -67,5 +67,5 @@ var onDocumentLoad = function () {
 var stat_message = "I love Capybaras! Use the 'status' shell command to update this message.";
 // quantum (can be changed using the 'quantum' shell command)
 var global_quantum = 6;
-var debug = true;
+var debug = false;
 //# sourceMappingURL=globals.js.map

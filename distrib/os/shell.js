@@ -363,10 +363,16 @@ var TSOS;
                                 _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
                                 break;
                             }
+                            else if ((temp_pcb.get_state() === "Running...") || (temp_pcb.get_state() === "Ready")) {
+                                _StdOut.putText("PID " + temp_pcb.get_ID() + " already executing or in ready queue");
+                                break;
+                            }
                             else {
                                 _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
                                 _PCBprogram[0] = parseInt(args[0]);
                                 _PCBprogram[1] = true;
+                                _Dispatcher.createQueue(temp_pcb.get_ID());
+                                rr = true;
                                 // Has this program already been loaded into the ready queue?
                                 if (_PCBready.length == 0) {
                                     console.log(_PCBresident);
@@ -409,7 +415,7 @@ var TSOS;
                 if (resident_pcb.get_state() === "Resident") {
                     resident_pcb.set_state("Ready");
                     _PCBready.push(resident_pcb);
-                    _Scheduler.createQueue(resident_pcb.get_ID());
+                    _Dispatcher.createQueue(resident_pcb.get_ID());
                 }
             }
             _StdOut.putText("Executing all programs");
@@ -421,21 +427,26 @@ var TSOS;
             if (args.length > 0) {
                 var pid_to_be_killed = args[0];
                 // If no programs running. No need to kill. Right...?
-                if (_PCBready.length == 0) {
+                if (_Dispatcher.is_empty()) {
                     _StdOut.putText("Why so aggressive? There are no programs to kill");
                 }
                 else {
+                    _PCBprogram[1] = false;
                     // iterate through PCBs 
                     for (let i = 0; i < _PCBready.length; i++) {
                         var temp_pcb;
                         temp_pcb = _PCBready[i];
                         // If PCB exists and is currently running; kill it
-                        if ((temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true)) {
-                            _PCBprogram[1] = false;
-                            _PCBprogram[2] = 0;
-                            document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                        if ((temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && ((temp_pcb.get_state() === "Running...") || (temp_pcb.get_state() === "Ready"))) {
+                            // _PCBprogram[1] = false;
+                            // _PCBprogram[2] = 0
+                            _Dispatcher.removeTarget(parseInt(pid_to_be_killed));
                             temp_pcb.set_state("Terminated");
-                            _StdOut.putText("Program Halted!");
+                            if (_Dispatcher.is_empty()) {
+                                document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                            }
+                            _StdOut.putText("PID " + pid_to_be_killed + " Killed!");
+                            _PCBprogram[1] = true;
                             break;
                         }
                         else {
@@ -450,32 +461,41 @@ var TSOS;
             }
         }
         shellkillAll(args) {
-            if (args.length > 0) {
-                var pid_to_be_killed = args[0];
-                // If no programs running. No need to kill. Right...?
-                if (_PCBready.length == 0) {
-                    _StdOut.putText("Why so aggressive? There are no programs to kill");
-                }
-                else {
-                    // iterate through PCBs 
-                    for (let i = 0; i < _PCBready.length; i++) {
-                        var temp_pcb;
-                        temp_pcb = _PCBready[i];
-                        // If PCB exists and is currently running; kill it
-                        if ((temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true)) {
-                            _PCBprogram[1] = false;
-                            _PCBprogram[2] = 0;
-                            document.getElementById('ready_queue').innerHTML = "No Programs Running";
-                            temp_pcb.set_state("Terminated");
-                            _StdOut.putText("Program Halted!");
-                            break;
-                        }
-                        else {
-                            _StdOut.putText("PID " + pid_to_be_killed + " either doesn't exist or isn't on the ready queue.");
-                            break;
-                        }
+            // If no programs running. No need to kill. Right...?
+            if (_Dispatcher.is_empty()) {
+                _StdOut.putText("Why so aggressive? There are no programs to kill");
+            }
+            else {
+                _PCBprogram[1] = false;
+                // iterate through PCBs 
+                for (let k = 0; k < _PCBready.length; k++) {
+                    var temp_pcb;
+                    temp_pcb = _PCBready[k];
+                    if ((temp_pcb.get_state() === "Ready") || (temp_pcb.get_state() === "Running...")) {
+                        temp_pcb.set_state("Terminated");
+                        _Dispatcher.remove();
+                        _Scheduler.countReset();
                     }
                 }
+                document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                _StdOut.putText("All Programs Halted!");
+                /**
+                for(let i = 0; i < _PCBready.length; i++) {
+                    var temp_pcb: PCB; temp_pcb = _PCBready[i];
+                    
+                    // If PCB exists and is currently running; kill it
+                    if ( (temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && (_PCBprogram[1] == true) ) {
+                        _PCBprogram[1] = false;
+                        _PCBprogram[2] = 0
+
+                        document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                        temp_pcb.set_state("Terminated");
+
+                        _StdOut.putText("All Programs Halted!");
+                        break;
+                    }
+                }
+                */
             }
         }
         shellOrder66(args) {

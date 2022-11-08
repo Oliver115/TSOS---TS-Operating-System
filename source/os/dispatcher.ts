@@ -23,6 +23,26 @@ module TSOS {
             this.simulatedReadyQueue.shift();
         }
 
+        removeTarget(target: number) {
+            var start_of_queue = this.simulatedReadyQueue[0];
+
+            // Search for the target 
+            for(let i = 0; i < this.simulatedReadyQueue.length; i++) {
+                this.updateQueue();
+                if (this.simulatedReadyQueue[0] == target) {
+                    this.remove();
+                    break;
+                }
+            }
+
+            // Put the ready queue back as it was
+            for (let k = 0; this.simulatedReadyQueue; k++) {
+                if (this.simulatedReadyQueue[0] == start_of_queue) {
+                    break;
+                }
+            }
+        }
+
         next() {
             return this.simulatedReadyQueue[0];
         }
@@ -36,6 +56,7 @@ module TSOS {
             }
         }
 
+        // Debug Purposes
         print() {
             console.log(this.simulatedReadyQueue);
         }

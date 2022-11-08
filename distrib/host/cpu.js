@@ -42,7 +42,6 @@ var TSOS;
             this.limit = 0;
         }
         cycle() {
-            _Scheduler.countReset();
             _Kernel.krnTrace('CPU cycle');
             if (_PCBprogram[2] == 0) {
                 for (let i = 0; i < _PCBready.length; i++) {
@@ -78,8 +77,8 @@ var TSOS;
                 else {
                     console.log("SWITCH");
                     this.saveState();
-                    _Scheduler.updateQueue();
-                    _PCBprogram[0] = _Scheduler.next();
+                    _Dispatcher.updateQueue();
+                    _PCBprogram[0] = _Dispatcher.next();
                     _PCBprogram[2] = 0;
                     _Scheduler.countReset();
                 }
@@ -279,7 +278,7 @@ var TSOS;
                         if (r_pcb.get_ID() == _PCBprogram[0]) {
                             //ready_pcb.set_ID(-1);
                             r_pcb.set_state("Terminated");
-                            _Scheduler.remove();
+                            _Dispatcher.remove();
                         }
                     }
                     // remove program from resident queue
@@ -291,8 +290,8 @@ var TSOS;
                             resident_pcb.set_state("Terminated");
                         }
                     }
-                    if (_Scheduler.is_empty() == false) {
-                        _PCBprogram[0] = _Scheduler.next();
+                    if (_Dispatcher.is_empty() == false) {
+                        _PCBprogram[0] = _Dispatcher.next();
                         _PCBprogram[2] = 0;
                         _Scheduler.countReset();
                     }
@@ -433,7 +432,7 @@ var TSOS;
                         if (r_pcb.get_ID() == _PCBprogram[0]) {
                             //ready_pcb.set_ID(-1);
                             r_pcb.set_state("Terminated");
-                            _Scheduler.remove();
+                            _Dispatcher.remove();
                         }
                     }
                     _PCBprogram[1] = false;

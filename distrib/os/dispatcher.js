@@ -17,6 +17,23 @@ var TSOS;
         remove() {
             this.simulatedReadyQueue.shift();
         }
+        removeTarget(target) {
+            var start_of_queue = this.simulatedReadyQueue[0];
+            // Search for the target 
+            for (let i = 0; i < this.simulatedReadyQueue.length; i++) {
+                this.updateQueue();
+                if (this.simulatedReadyQueue[0] == target) {
+                    this.remove();
+                    break;
+                }
+            }
+            // Put the ready queue back as it was
+            for (let k = 0; this.simulatedReadyQueue; k++) {
+                if (this.simulatedReadyQueue[0] == start_of_queue) {
+                    break;
+                }
+            }
+        }
         next() {
             return this.simulatedReadyQueue[0];
         }
@@ -28,6 +45,7 @@ var TSOS;
                 return false;
             }
         }
+        // Debug Purposes
         print() {
             console.log(this.simulatedReadyQueue);
         }
