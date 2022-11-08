@@ -37,7 +37,7 @@ var TSOS;
                     var pcb;
                     pcb = _PCBready[i];
                     if (pcb.get_state() === "Running...") {
-                        pcb.set_state("Resident");
+                        pcb.set_state("Terminated");
                         break;
                     }
                 }

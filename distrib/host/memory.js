@@ -20,7 +20,7 @@ var TSOS;
         }
         // Temporary method for debuggin
         show() {
-            //console.log(this.RAM);
+            console.log(this.RAM);
         }
         getLocation(location) {
             return this.hexLog(this.RAM[location], 2);

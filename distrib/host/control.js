@@ -66,9 +66,6 @@ var TSOS;
             document.getElementById("btnReset").disabled = false;
             document.getElementById("btnSS").disabled = false;
             document.getElementById("btnNext").disabled = true;
-            document.getElementById("btnRR").disabled = false;
-            document.getElementById("btnFCFS").disabled = false;
-            document.getElementById("btnP").disabled = false;
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
@@ -113,78 +110,6 @@ var TSOS;
         static hostBtnNext_click() {
             if ((_PCBprogram[1] == true)) {
                 _CPU.cycle();
-            }
-        }
-        static hostBtnRR_click() {
-            if ((rr == false) && (rr2 == 0)) {
-                rr = true;
-                fcfs = false;
-                priorityButton = false;
-                document.getElementById("btnRR").disabled = false;
-                document.getElementById("btnFCFS").disabled = true;
-                document.getElementById("btnP").disabled = true;
-                _StdOut.putText("This is the RR button: ON!"); // Test code 
-                _Console.advanceLine();
-            }
-            else {
-                if (rr2 == 1) {
-                    _StdOut.putText("This is the RR button: OFF!"); // Test code 
-                    _Console.advanceLine();
-                }
-                else {
-                    rr = false;
-                    fcfs = false;
-                    priorityButton = false;
-                    document.getElementById("btnRR").disabled = false;
-                    document.getElementById("btnFCFS").disabled = false;
-                    document.getElementById("btnP").disabled = false;
-                    _StdOut.putText("This is the RR button: OFF!"); // Test code 
-                    _Console.advanceLine();
-                }
-            }
-        }
-        static hostBtnFCFS_click() {
-            if ((fcfs == false)) {
-                fcfs = true;
-                rr = false;
-                priorityButton = false;
-                rr2 = 1;
-                document.getElementById("btnRR").disabled = true;
-                document.getElementById("btnFCFS").disabled = false;
-                document.getElementById("btnP").disabled = true;
-                _StdOut.putText("This is the FCFS button"); // Test code 
-                _Console.advanceLine();
-            }
-            else {
-                fcfs = false;
-                rr = false;
-                priorityButton = false;
-                rr2 = 0;
-                document.getElementById("btnRR").disabled = false;
-                document.getElementById("btnFCFS").disabled = false;
-                document.getElementById("btnP").disabled = false;
-            }
-        }
-        static hostBtnP_click() {
-            if ((priorityButton == false)) {
-                priorityButton = true;
-                rr = false;
-                fcfs = false;
-                rr2 = 1;
-                document.getElementById("btnRR").disabled = false;
-                document.getElementById("btnFCFS").disabled = true;
-                document.getElementById("btnP").disabled = false;
-                _StdOut.putText("This is the Priotity button"); // Test code 
-                _Console.advanceLine();
-            }
-            else {
-                priorityButton = false;
-                rr = false;
-                fcfs = false;
-                rr2 = 0;
-                document.getElementById("btnRR").disabled = false;
-                document.getElementById("btnFCFS").disabled = false;
-                document.getElementById("btnP").disabled = false;
             }
         }
     }

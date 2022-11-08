@@ -46,14 +46,16 @@ module TSOS {
 
         
         public cycle(): void {
+            _Scheduler.countReset();
             _Kernel.krnTrace('CPU cycle');
 
             if (_PCBprogram[2] == 0) {
                 for(let i = 0; i < _PCBready.length; i++) {
                     var ready_pcb: PCB; ready_pcb = _PCBready[i];
                     if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                        console.log("Now Running: " + _PCBprogram[0]);
                         ready_pcb.set_state("Running...");
-                        this.PC = ready_pcb.get_PC();
+                        this.PC = (ready_pcb.get_PC());
                         this.IR = ready_pcb.get_IR();
                         this.Acc = ready_pcb.get_Acc();
                         this.Xreg = ready_pcb.get_Xreg();
@@ -67,6 +69,7 @@ module TSOS {
                         _PCBprogram[2] = 1;
 
                         this.createReadyQueue();
+                        console.log("Base :" + this.base);
 
                         break;
                     }
@@ -74,9 +77,38 @@ module TSOS {
             }
 
             // Fetch-Decode-Execute Cycle in ONE CPU cycle
+            if (rr == true) {
+                if (_Scheduler.should_We_Context_Switch() == false) {
+                    this.cpuCycle();
+                    _Scheduler.scheduleCount();
+                }
+                else {
+                    console.log("SWITCH");
+                    this.saveState();
+                    _Scheduler.updateQueue();
+                    _PCBprogram[0] = _Scheduler.next();
+                    _PCBprogram[2] = 0;
+                    _Scheduler.countReset();
+                }
+            }
+            else {
+                this.cpuCycle();
+            }
+        }
+
+        cpuCycle() {
             this.fetch();
             this.decode();
             this.execute();
+        }
+
+        increasePC() {
+            if (this.PC == 0xFF) {
+                _StdOut.putText("Oh no!");
+            }
+            else {
+                this.PC++;
+            }
         }
 
         /**
@@ -84,7 +116,13 @@ module TSOS {
          * At the end, it changes the current state to 1
          */
         fetch() { // 0
-            _MemoryAccessor.readMMU(this.PC);
+            if ((this.PC + this.base) > this.limit) {
+                this.IR = 0;
+                _StdOut.putText("PID: " + _PCBprogram[0] + " has been killed for memory violation - MemSeg: " + this.memSeg);
+            }
+            else {
+                _MemoryAccessor.readMMU(this.PC + this.base);
+            }
         }
 
         /**
@@ -104,24 +142,25 @@ module TSOS {
          * @var temp_PC = variable used for temporarily saving the Program Counter while the CPU uses the Program Counter to communicate back and fourth with the MemoryAccessor
          */
         execute() { // 3
+            //console.log(this.hexLog(this.IR, 2));
             switch(this.hexLog(this.IR, 2)) {
 
                 // Load the accumulator with a constant
                 case "A9": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.Acc = _MemoryAccessor.getMDR_MMU();
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // Load the accumulator from accessor
                 case "AD": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
@@ -132,32 +171,35 @@ module TSOS {
                     this.Acc = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // Store the accumulator in accessor
                 case "8D":
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
                     this.writeBack();
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
+
+                    _OsShell.updateMemTable(1);
                     break;
+
 
                 // Add contents of an address to the accumulator and keeps the result in the accumulator
                 case "6D": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
@@ -169,27 +211,27 @@ module TSOS {
 
                     this.PC = temp_PC;
 
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // Load the Xreg register with a constant
                 case "A2": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // Load the Xreg register from accessor
                 case "AE": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
@@ -200,27 +242,27 @@ module TSOS {
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // Load the Y register with a constant
                 case "A0": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // Load the Y register from accessor
                 case "AC": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
@@ -231,22 +273,19 @@ module TSOS {
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
 
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // No operation
                 case "EA": 
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
                     break;
 
                 // Break - Stop System
                 case "00": 
                     console.log("END");
-                    console.log(_PCBresident);
-                    console.log(_PCBready);
-                    _PCBprogram[1] = false; // CPU is done with the program
                     _PCBprogram[2] = 0; // Set PCB setter to 0
 
                     this.createReadyQueue();
@@ -270,6 +309,7 @@ module TSOS {
                         if (r_pcb.get_ID() == _PCBprogram[0]) {
                             //ready_pcb.set_ID(-1);
                             r_pcb.set_state("Terminated");
+                            _Scheduler.remove();
                         }
                     }
                     // remove program from resident queue
@@ -281,16 +321,24 @@ module TSOS {
                             resident_pcb.set_state("Terminated");
                         }
                     }
+                    if (_Scheduler.is_empty() == false) {
+                        _PCBprogram[0] = _Scheduler.next();
+                        _PCBprogram[2] = 0;
+                        _Scheduler.countReset();
+                    }
+                    else {
+                        _PCBprogram[1] = false; // CPU is done with the program
+                    }
                     this.createReadyQueue();
                     break;
 
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
                 case "EC": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
@@ -301,42 +349,42 @@ module TSOS {
                     this.fetch();
 
                     if (_MemoryAccessor.getMDR_MMU() == this.Xreg) {
-                        this.Zflag = 0;
-                        this.PC = temp_PC;
-                        this.viewProgram(); this.createReadyQueue();
-                        this.PC++;
-                    }
-                    else {
                         this.Zflag = 1;
                         this.PC = temp_PC;
-                        this.viewProgram(); this.createReadyQueue();
-                        this.PC++;
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                        this.increasePC();
+                    }
+                    else {
+                        this.Zflag = 0;
+                        this.PC = temp_PC;
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                        this.increasePC();
                     }
                     break;
 
                 // Branch n bytes if Zflag is set to zero (0) 
                 case "D0": 
-                    if (this.Zflag == 1) {
-                        this.PC++;
+                    if (this.Zflag == 0) {
+                        this.increasePC();
                         this.fetch();
 
                         this.howMuchBranch(_MemoryAccessor.getMDR_MMU()); 
                         //this.PC = this.PC + branch;
-                        this.viewProgram(); this.createReadyQueue();
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
                     }
                     else {
-                        this.PC++; this.PC++;
-                        this.viewProgram(); this.createReadyQueue();
+                        this.increasePC(); this.increasePC();
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
                     }
                     break;
                     
                 // Increment the value of a byte
                 case "EE": 
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setLowOrderByte(_MemoryAccessor.getMDR_MMU());
                     
-                    this.PC++;
+                    this.increasePC();
                     this.fetch();
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
 
@@ -351,20 +399,22 @@ module TSOS {
 
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
-                    this.viewProgram(); this.createReadyQueue();
-                    this.PC++;
+                    this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                    this.increasePC();
+
+                    _OsShell.updateMemTable(1);
                     break;
 
                 // System Calls - 
                 case "FF": 
                     if (this.Xreg == 0x01) { // If there is a 0x01 in the Xreg register. Print the integer in the Y register
                         _StdOut.putText(String(this.Yreg));
-                        this.viewProgram(); this.createReadyQueue();
-                        this.PC++;
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
+                        this.increasePC();
                         break;
                     }
                     else {
-                        this.viewProgram(); this.createReadyQueue();
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
                     }
 
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
@@ -384,17 +434,43 @@ module TSOS {
                             else {
                                 //console.log("Printing: " + _MemoryAccessor.getMDR_MMU());
                                 _StdOut.putText(String.fromCharCode(_MemoryAccessor.getMDR_MMU()));
-                                this.PC++;
+                                this.increasePC();
                             }
                         }
-                        this.viewProgram(); this.createReadyQueue();
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
                         break;
                     }
                     else {
-                        this.viewProgram(); this.createReadyQueue();
+                        this.viewProgram(); this.createReadyQueue(); this.showCPU();
                     }
-            }
+                default:
+                    _StdOut.putText("Invalid op code detected! PID: " + _PCBprogram[0] + " will be killed!");
+                    var ready_pcb: PCB;
+                    for(let i = 0; i < _PCBready.length; i++) {
+                        ready_pcb = _PCBready[i];
+                        if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                            break;
+                        }
+                    }
+                    // Free up memory location
+                    _MemoryManager.freeLocation(ready_pcb.get_base(), ready_pcb.get_limit());
+                    // Flag location as available
+                    _MemoryManager.memoryLocationSetter(this.memSeg, true);
 
+                    // remove program from ready queue
+                    for(let i = 0; i < _PCBready.length; i++) {
+                        var r_pcb: PCB; r_pcb = _PCBready[i];
+
+                        if (r_pcb.get_ID() == _PCBprogram[0]) {
+                            //ready_pcb.set_ID(-1);
+                            r_pcb.set_state("Terminated");
+                            _Scheduler.remove();
+                        }
+                    }
+                    _PCBprogram[1] = false;
+                    this.createReadyQueue();
+                    break;
+            }
         } 
 
         /**
@@ -403,8 +479,14 @@ module TSOS {
          * @param accessor = MemoryAccessor that is connected to the CPU 
          */
         writeBack() { // 5
-            _MemoryAccessor.writeMMU(this.little_endian, this.Acc);
-            _Memory.show();
+            if (this.little_endian > 255) {
+                this.IR = 0;
+                _StdOut.putText("PID: " + _PCBprogram[0] + " has been killed for memory violation - MemSeg: " + this.memSeg);
+            }
+            else {
+                _MemoryAccessor.writeMMU(this.little_endian + this.base, this.Acc);
+                if (debug == true) { _Memory.show(); }
+            }
         } 
 
         /**
@@ -532,16 +614,15 @@ module TSOS {
             }
         }
         
-        
-
-        // Method will be adjusted when we implement the 3 sections of memory
+    
+        // Method that determines how much to branch
         howMuchBranch(branchNumber : number) {
             // Branch backwards
             if ((branchNumber + this.PC) >= 0xFF) {
                 this.PC = ((branchNumber + this.PC) - 255);
             }
             else {
-                this.PC = this.PC + branchNumber;
+                this.PC = this.PC + branchNumber + 1;
             }
         }
 
@@ -575,6 +656,29 @@ module TSOS {
        padLeft(text: string, padChar: string, size: number): string {
            return (String(padChar).repeat(size) + text).substr( (size * -1), size);
        }
+
+       saveState() {
+            for(let i = 0; i < _PCBready.length; i++) {
+                var local_pcb: PCB; local_pcb = _PCBready[i];
+
+                if (local_pcb.get_ID() == _PCBprogram[0]) {
+                    local_pcb.set_PC(this.PC);
+                    local_pcb.set_IR(this.IR);
+                    local_pcb.set_Acc(this.Acc);
+                    local_pcb.set_Xreg(this.Xreg);
+                    local_pcb.set_Yreg(this.Yreg);
+                    local_pcb.set_Zflag(this.Zflag);
+                    local_pcb.set_state("Ready"); 
+                }
+            }
+
+        }
+
+        showCPU() {
+            if (debug == true) {
+                console.log("PC: " + (this.PC + this.base) + " - IR: " + this.hexLog(this.IR, 2) + " - Acc: " + this.hexLog(this.Acc, 2) + " - X: " + this.hexLog(this.Xreg, 2) + " - Y: " + this.hexLog(this.Yreg, 2) + " - Flag: " + this.Zflag);
+            }
+        }
     }
 }
 

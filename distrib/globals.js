@@ -38,11 +38,12 @@ var _KernelInputQueue = null;
 var _KernelBuffers = null;
 var _MemoryManager = null;
 var _Scheduler = null;
+var _Dispatcher = null;
 var _PCB;
 var _PCBresident = []; // PCB resident queue
 var _PCBready = []; // PCB ready queue
 var _PCB_ID = -1;
-var _PCBprogram = [0, false, 0]; // [0] = PCB ID to be sent to CPU. [1] = should CPU keep running? [2] = Does PCB need to be loaded into CPU (0=NO. 1=YES)
+var _PCBprogram = [0, false, 0]; // [0] = PCB ID to be sent to CPU. [1] = should CPU keep running? [2] = Does PCB need to be loaded into CPU (1=NO. 0=YES)
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
@@ -55,9 +56,6 @@ var _SarcasticMode = false;
 var _krnKeyboardDriver = null;
 var singleStep = false;
 var rr = false;
-var rr2 = 0;
-var fcfs = false;
-var priorityButton = false;
 var _hardwareClockID = null;
 // For testing (and enrichment)...
 var Glados = null; // This is the function Glados() in glados-ip*.js http://alanclasses.github.io/TSOS/test/ .
@@ -69,4 +67,5 @@ var onDocumentLoad = function () {
 var stat_message = "I love Capybaras! Use the 'status' shell command to update this message.";
 // quantum (can be changed using the 'quantum' shell command)
 var global_quantum = 6;
+var debug = true;
 //# sourceMappingURL=globals.js.map

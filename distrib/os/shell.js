@@ -17,6 +17,9 @@ var TSOS;
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
         }
+        static tableCreateMemory(arg0) {
+            throw new Error("Method not implemented.");
+        }
         init() {
             var sc;
             tableCreateMemory(0);
@@ -356,7 +359,7 @@ var TSOS;
                         // Found correct PCB
                         if (temp_pcb.get_ID() == parseInt(args[0])) {
                             was_pcb_found = true; // Mark as found
-                            if (temp_pcb.get_stat() == true) {
+                            if (temp_pcb.get_state() === "Terminated") {
                                 _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
                                 break;
                             }
@@ -406,9 +409,12 @@ var TSOS;
                 if (resident_pcb.get_state() === "Resident") {
                     resident_pcb.set_state("Ready");
                     _PCBready.push(resident_pcb);
+                    _Scheduler.createQueue(resident_pcb.get_ID());
                 }
             }
             _StdOut.putText("Executing all programs");
+            rr = true;
+            _PCBprogram[1] = true;
         }
         // Kill themed commands here: 
         shellKill(args) {
@@ -428,7 +434,7 @@ var TSOS;
                             _PCBprogram[1] = false;
                             _PCBprogram[2] = 0;
                             document.getElementById('ready_queue').innerHTML = "No Programs Running";
-                            temp_pcb.set_state("Resident");
+                            temp_pcb.set_state("Terminated");
                             _StdOut.putText("Program Halted!");
                             break;
                         }
@@ -460,7 +466,7 @@ var TSOS;
                             _PCBprogram[1] = false;
                             _PCBprogram[2] = 0;
                             document.getElementById('ready_queue').innerHTML = "No Programs Running";
-                            temp_pcb.set_state("Resident");
+                            temp_pcb.set_state("Terminated");
                             _StdOut.putText("Program Halted!");
                             break;
                         }
@@ -497,7 +503,7 @@ var TSOS;
                 }
                 else {
                     global_quantum = quantum;
-                    _StdOut.putText("Quantum changed to: " + quantum);
+                    _StdOut.putText("Quantum changed to: " + quantum + " (Hint: look at the RR)");
                     var new_quantum = document.getElementById("q_badge");
                     new_quantum.innerHTML = String(quantum);
                 }
@@ -589,7 +595,7 @@ var TSOS;
                         _StdOut.putText("Kill a specific running program.");
                         break;
                     case "quantum":
-                        _StdOut.putText("Change the quantum used in RR");
+                        _StdOut.putText("Change the quantum used in RR (Hint: Look at the RR button to check the current quantum)");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -656,6 +662,34 @@ var TSOS;
             else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+        updateMemTable(table) {
+            if (table == 1) {
+                document.getElementById("tableMem").innerHTML = "";
+            }
+            let memTable = document.getElementById('tableMem');
+            let tbl = document.createElement('table');
+            tbl.style.width = '700px';
+            tbl.style.border = '1px solid black';
+            var marker = 0;
+            var memoryAdd = 0;
+            for (let i = 0; i < 0x60; i++) {
+                let tr = tbl.insertRow();
+                for (let j = 0; j < 9; j++) {
+                    let td = tr.insertCell();
+                    if (j < 1) {
+                        td.appendChild(document.createTextNode("0x" + _Memory.hexLog(marker, 3)));
+                        td.style.border = '3px solid black';
+                        marker = marker + 8;
+                    }
+                    else {
+                        td.appendChild(document.createTextNode("0x" + _Memory.getLocation(memoryAdd)));
+                        td.style.border = '1px solid black';
+                        memoryAdd = memoryAdd + 1;
+                    }
+                }
+            }
+            memTable.appendChild(tbl);
         }
     }
     TSOS.Shell = Shell;

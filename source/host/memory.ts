@@ -20,7 +20,7 @@ module TSOS {
 
         // Temporary method for debuggin
         public show(): void {
-            //console.log(this.RAM);
+            console.log(this.RAM);
         }
 
         public getLocation(location: number) {

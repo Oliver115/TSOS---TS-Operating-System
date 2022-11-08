@@ -193,18 +193,20 @@ module TSOS {
             function make_base() {
                 var base_image = new Image();
                 base_image.src = "../distrib/images/66.png";
+                //base_image.src = "../distrib/images/algo-party.gif";
                 base_image.onload = function() {
                     ctxt.drawImage(base_image, 0, 0, 900, 700); }
             }
         }
 
+        /** 
         public advanceLine(): void {
             this.currentXPosition = 0;
             /*
              * Font size measures from the baseline to the highest point in the font.
              * Font descent measures from the baseline to the lowest point in the font.
              * Font height margin is extra spacing between the lines.
-             */
+             
 
             this.currentYPosition += _DefaultFontSize + 
                                      _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
@@ -216,6 +218,29 @@ module TSOS {
                 _DrawingContext.clearRect(0, 0, 900, 700); // Since the canvas is 700 x 700
                 _DrawingContext.putImageData(screen, 0, -21);
                 this.currentYPosition = this.currentYPosition - 21;
+            }
+        } */
+
+        // This is what SamOS did, placed here for 
+        advanceLine() {
+            this.currentXPosition = 0;
+            /*
+             * Font size measures from the baseline to the highest point in the font.
+             * Font descent measures from the baseline to the lowest point in the font.
+             * Font height margin is extra spacing between the lines.
+             */
+            this.currentYPosition += _DefaultFontSize +
+                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                _FontHeightMargin;
+            this.currentXPosition = 0;
+            if (this.currentYPosition > _Canvas.height) {
+                var img = _DrawingContext.getImageData(0, 0, _Canvas.width, _Canvas.height);
+                this.clearScreen();
+                var imgOffset = -(_DefaultFontSize +
+                    _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                    _FontHeightMargin);
+                _DrawingContext.putImageData(img, 0, imgOffset);
+                this.currentYPosition = _Canvas.height - this.currentFontSize;
             }
         }
     }

@@ -48,11 +48,12 @@ var _KernelInputQueue: TSOS.Queue = null;
 var _KernelBuffers = null; 
 var _MemoryManager: any = null;
 var _Scheduler: any = null;
+var _Dispatcher: any = null;
 var _PCB: TSOS.PCB;
 var _PCBresident = [] // PCB resident queue
 var _PCBready = [] // PCB ready queue
 var _PCB_ID = -1;
-var _PCBprogram = [0, false, 0]; // [0] = PCB ID to be sent to CPU. [1] = should CPU keep running? [2] = Does PCB need to be loaded into CPU (0=NO. 1=YES)
+var _PCBprogram = [0, false, 0]; // [0] = PCB ID to be sent to CPU. [1] = should CPU keep running? [2] = Does PCB need to be loaded into CPU (1=NO. 0=YES)
 // Standard input and output
 var _StdIn:  TSOS.Console = null; 
 var _StdOut: TSOS.Console = null;
@@ -68,9 +69,7 @@ var _SarcasticMode: boolean = false;
 var _krnKeyboardDriver: TSOS.DeviceDriverKeyboard  = null;
 
 var singleStep: boolean = false;
-var rr: boolean = false; var rr2 = 0;
-var fcfs: boolean = false;
-var priorityButton: boolean = false;
+var rr: boolean = false;
 var _hardwareClockID: number = null;
 
 // For testing (and enrichment)...
@@ -86,3 +85,5 @@ var stat_message = "I love Capybaras! Use the 'status' shell command to update t
 
 // quantum (can be changed using the 'quantum' shell command)
 var global_quantum = 6;
+
+var debug = true;

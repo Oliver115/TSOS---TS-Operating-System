@@ -11,6 +11,9 @@
 
 module TSOS {
     export class Shell {
+        static tableCreateMemory(arg0: number) {
+            throw new Error("Method not implemented.");
+        }
         // Properties
         public promptStr = ">";
         public commandList = [];
@@ -454,7 +457,7 @@ module TSOS {
                         // Found correct PCB
                         if (temp_pcb.get_ID() == parseInt(args[0])) {
                             was_pcb_found = true; // Mark as found
-                            if (temp_pcb.get_stat() == true) {
+                            if (temp_pcb.get_state() === "Terminated") {
                                 _StdOut.putText("PID " + temp_pcb.get_ID() + " was not found in the resident queue.");
                                 break;
                             }
@@ -552,7 +555,7 @@ module TSOS {
         public shellkillAll(args: string[]) {
             if (args.length > 0) {
                 var pid_to_be_killed = args[0];
-
+ 
                 // If no programs running. No need to kill. Right...?
                 if (_PCBready.length == 0) {
                     _StdOut.putText("Why so aggressive? There are no programs to kill");
@@ -770,6 +773,40 @@ module TSOS {
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+
+        public updateMemTable(table: number) {
+            if (table == 1) {
+                document.getElementById("tableMem").innerHTML = "";
+            }
+        
+            let memTable = document.getElementById('tableMem'); 
+            let tbl  = document.createElement('table');
+            tbl.style.width  = '700px';
+            tbl.style.border = '1px solid black';
+        
+            var marker = 0;
+            var memoryAdd = 0;
+        
+            for(let i = 0; i < 0x60; i++){
+                let tr = tbl.insertRow();
+        
+                for(let j = 0; j < 9; j++) {
+                    let td = tr.insertCell();
+        
+                    if (j < 1) {
+                        td.appendChild(document.createTextNode("0x" + _Memory.hexLog(marker, 3)));
+                        td.style.border = '3px solid black';
+                        marker = marker + 8;
+                    }
+                    else {
+                        td.appendChild(document.createTextNode("0x" + _Memory.getLocation(memoryAdd)));
+                        td.style.border = '1px solid black';
+                        memoryAdd = memoryAdd + 1;
+                    }
+                }   
+            }
+            memTable.appendChild(tbl);
         }
     }
 }
