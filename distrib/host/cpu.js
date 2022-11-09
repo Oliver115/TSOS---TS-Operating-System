@@ -476,87 +476,209 @@ var TSOS;
         }
         // Create and Update Ready queue display
         createReadyQueue() {
+            _PCBprogram[1] = false;
             let readyTable = document.getElementById('ready_queue');
             document.getElementById('ready_queue').innerHTML = "";
-            let tbl = document.createElement('table');
-            tbl.style.width = '700px';
-            tbl.style.border = '1px solid black';
             for (let i = 0; i < _PCBready.length; i++) {
                 var ready_pcb;
                 ready_pcb = _PCBready[i];
+                let tbl = document.createElement('table');
+                tbl.style.width = '700px';
+                tbl.style.border = '1px solid black';
+                // Create table headers
+                let thead = tbl.createTHead();
+                let row = thead.insertRow();
+                var text;
+                for (let i = 0; i < 12; i++) {
+                    let th = document.createElement("th");
+                    switch (i) {
+                        case 0:
+                            text = document.createTextNode("PID");
+                            break;
+                        case 1:
+                            text = document.createTextNode("PC");
+                            break;
+                        case 2:
+                            text = document.createTextNode("IR");
+                            break;
+                        case 3:
+                            text = document.createTextNode("Acc");
+                            break;
+                        case 4:
+                            text = document.createTextNode("Xreg");
+                            break;
+                        case 5:
+                            text = document.createTextNode("Yreg");
+                            break;
+                        case 6:
+                            text = document.createTextNode("Zflag");
+                            break;
+                        case 7:
+                            text = document.createTextNode("Priority");
+                            break;
+                        case 8:
+                            text = document.createTextNode("State");
+                            break;
+                        case 9:
+                            text = document.createTextNode("Segment");
+                            break;
+                        case 10:
+                            text = document.createTextNode("Base");
+                            break;
+                        case 11:
+                            text = document.createTextNode("Limit");
+                            break;
+                    }
+                    th.appendChild(text);
+                    row.appendChild(th);
+                }
                 if ((ready_pcb.get_state() === "Ready") || (ready_pcb.get_state() === "Running...")) {
                     document.getElementById('ready_queue').innerHTML = "";
-                    let tr = tbl.insertRow();
-                    for (let j = 0; j < 12; j++) {
-                        let td = tr.insertCell();
-                        switch (j) {
-                            case 0:
-                                td.appendChild(document.createTextNode(String(ready_pcb.get_ID())));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 1:
-                                td.appendChild(document.createTextNode(String(this.PC)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 2:
-                                td.appendChild(document.createTextNode(this.hexLog(this.IR, 2)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 3:
-                                td.appendChild(document.createTextNode(this.hexLog(this.Acc, 2)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 4:
-                                td.appendChild(document.createTextNode(this.hexLog(this.Xreg, 2)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 5:
-                                td.appendChild(document.createTextNode(this.hexLog(this.Yreg, 2)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 6:
-                                td.appendChild(document.createTextNode(String(this.Zflag)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 7:
-                                td.appendChild(document.createTextNode("7")); // This will change for Final Project
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 8:
-                                td.appendChild(document.createTextNode(String(this.state)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 9:
-                                td.appendChild(document.createTextNode("Memory: " + String(this.memSeg)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            // Not sure if we need these
-                            case 10:
-                                td.appendChild(document.createTextNode(String(this.base)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
-                            case 11:
-                                td.appendChild(document.createTextNode(String(this.limit)));
-                                td.style.border = '1px solid black';
-                                td.style.width = '10px';
-                                break;
+                    if (ready_pcb.get_state() === "Running...") {
+                        let tr = tbl.insertRow();
+                        for (let j = 0; j < 12; j++) {
+                            let td = tr.insertCell();
+                            switch (j) {
+                                case 0:
+                                    td.appendChild(document.createTextNode(String(ready_pcb.get_ID())));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 1:
+                                    td.appendChild(document.createTextNode(String(this.PC)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 2:
+                                    td.appendChild(document.createTextNode(this.hexLog(this.IR, 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 3:
+                                    td.appendChild(document.createTextNode(this.hexLog(this.Acc, 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 4:
+                                    td.appendChild(document.createTextNode(this.hexLog(this.Xreg, 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 5:
+                                    td.appendChild(document.createTextNode(this.hexLog(this.Yreg, 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 6:
+                                    td.appendChild(document.createTextNode(String(this.Zflag)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 7:
+                                    td.appendChild(document.createTextNode("7")); // This will change for Final Project
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 8:
+                                    td.appendChild(document.createTextNode(String(this.state)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 9:
+                                    td.appendChild(document.createTextNode("Memory: " + String(this.memSeg)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                // Not sure if we need these
+                                case 10:
+                                    td.appendChild(document.createTextNode(String(this.base)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 11:
+                                    td.appendChild(document.createTextNode(String(this.limit)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                            }
+                        }
+                        readyTable.appendChild(tbl);
+                    }
+                    else {
+                        let tr = tbl.insertRow();
+                        for (let j = 0; j < 12; j++) {
+                            let td = tr.insertCell();
+                            switch (j) {
+                                case 0:
+                                    td.appendChild(document.createTextNode(String(ready_pcb.get_ID())));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 1:
+                                    td.appendChild(document.createTextNode(String(ready_pcb.get_PC())));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 2:
+                                    td.appendChild(document.createTextNode(this.hexLog(ready_pcb.get_IR(), 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 3:
+                                    td.appendChild(document.createTextNode(this.hexLog(ready_pcb.get_Acc(), 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 4:
+                                    td.appendChild(document.createTextNode(this.hexLog(ready_pcb.get_Xreg(), 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 5:
+                                    td.appendChild(document.createTextNode(this.hexLog(ready_pcb.get_Yreg(), 2)));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 6:
+                                    td.appendChild(document.createTextNode(String(ready_pcb.get_Zflag())));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 7:
+                                    td.appendChild(document.createTextNode("7")); // This will change for Final Project
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 8:
+                                    td.appendChild(document.createTextNode(ready_pcb.get_state()));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 9:
+                                    td.appendChild(document.createTextNode("Memory: " + String(ready_pcb.get_memSeg())));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                // Not sure if we need these
+                                case 10:
+                                    td.appendChild(document.createTextNode(String(ready_pcb.get_base())));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                                case 11:
+                                    td.appendChild(document.createTextNode(String(ready_pcb.get_limit())));
+                                    td.style.border = '1px solid black';
+                                    td.style.width = '10px';
+                                    break;
+                            }
                         }
                     }
                     readyTable.appendChild(tbl);
+                    _PCBprogram[1] = true;
                 }
                 else {
                     document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                    _PCBprogram[1] = true;
                 }
             }
         }

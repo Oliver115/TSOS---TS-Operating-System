@@ -263,6 +263,10 @@ var TSOS;
             for (let i = 0; i < 0x300; i++) {
                 _MemoryManager.writeImmediate(i, "0x00");
             }
+            _MemoryManager.freeLocation(0, 767);
+            _MemoryManager.memoryLocationSetter(0, true);
+            _MemoryManager.memoryLocationSetter(1, true);
+            _MemoryManager.memoryLocationSetter(2, true);
             tableCreateMemory(1);
             if (_PCBprogram[1]) {
                 _StdOut.putText("All Programs killed");
@@ -441,6 +445,8 @@ var TSOS;
                                 temp_pcb.set_state("Terminated");
                                 _Dispatcher.removeTarget(pid_to_be_killed);
                                 _StdOut.putText("PID " + pid_to_be_killed + " Killed!");
+                                _MemoryManager.memoryLocationSetter(pid_to_be_killed, true);
+                                tableCreateMemory(1);
                                 was_found = true;
                                 break;
                             }
@@ -482,6 +488,9 @@ var TSOS;
                         temp_pcb.set_state("Terminated");
                         _Dispatcher.remove();
                         _Scheduler.countReset();
+                        _MemoryManager.freeLocation(temp_pcb.get_base(), temp_pcb.get_limit());
+                        _MemoryManager.memoryLocationSetter(temp_pcb.get_ID(), true);
+                        tableCreateMemory(1);
                     }
                 }
                 document.getElementById('ready_queue').innerHTML = "No Programs Running";

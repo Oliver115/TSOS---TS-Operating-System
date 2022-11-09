@@ -59,6 +59,10 @@ module TSOS {
                                 _Dispatcher.removeTarget(pid_to_be_killed);
                                 _StdOut.putText("PID " + pid_to_be_killed + " Killed!");
 
+                                _MemoryManager.freeLocation(temp_pcb.get_base(), temp_pcb.get_limit())
+                                _MemoryManager.memoryLocationSetter(pid_to_be_killed, true);
+                                tableCreateMemory(1);
+
                                 was_found = true;
                                 break;
                             }
