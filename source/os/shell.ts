@@ -472,7 +472,6 @@ module TSOS {
                                 
                                 // Has this program already been loaded into the ready queue?
                                 if (_PCBready.length == 0) {
-                                    console.log(_PCBresident);
                                     temp_pcb.set_state("Ready");
                                     _PCBready.push(temp_pcb);
                                 }
@@ -524,7 +523,7 @@ module TSOS {
         // Kill themed commands here: 
         public shellKill(args: string[]) {
             if (args.length > 0) {
-                var pid_to_be_killed = args[0];
+                var pid_to_be_killed = parseInt(args[0]);
 
                 // If no programs running. No need to kill. Right...?
                 if (_Dispatcher.is_empty()) {
@@ -532,30 +531,37 @@ module TSOS {
                 } 
                 else {
                     _PCBprogram[1] = false;
-                    // iterate through PCBs 
-                    for(let i = 0; i < _PCBready.length; i++) {
-                        var temp_pcb: PCB; temp_pcb = _PCBready[i];
-                        // If PCB exists and is currently running; kill it
-                        if ( (temp_pcb.get_ID() == parseInt(pid_to_be_killed)) && ((temp_pcb.get_state() === "Running...") || (temp_pcb.get_state() === "Ready")) ) {
-                           // _PCBprogram[1] = false;
-                           // _PCBprogram[2] = 0
 
-                            _Dispatcher.removeTarget(parseInt(pid_to_be_killed));
-                            temp_pcb.set_state("Terminated");
+                    var was_found = false;
+                    // iterate through PCBs to find the desired one
+                    for (let i = 0; i < _PCBready.length; i++) {
+                        var temp_pcb = _PCBready[i];
 
-                            if (_Dispatcher.is_empty()) {
-                                document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                        // If it exists and is running or in the ready queue: Kill it!
+                        if ( (temp_pcb.get_ID() == pid_to_be_killed) ) {
+                            if ( (temp_pcb.get_state() === "Running...") || (temp_pcb.get_state() === "Ready") ) {
+                                temp_pcb.set_state("Terminated");
+                                _Dispatcher.removeTarget(pid_to_be_killed);
+                                _StdOut.putText("PID " + pid_to_be_killed + " Killed!");
+
+                                was_found = true;
+                                break;
                             }
-
-                            _StdOut.putText("PID " + pid_to_be_killed + " Killed!");
-                            _PCBprogram[1] = true;
-                            break;
-                        }
-                        else {
-                            _StdOut.putText("PID " + pid_to_be_killed + " either doesn't exist or isn't on the ready queue.");
-                            break;
+                            else {
+                                _StdOut.putText("PID " + pid_to_be_killed + " was not found on the ready queue.");
+                                _PCBprogram[1] = true;
+                                break;
+                            }
                         }
                     }
+                    if (was_found == false) {
+                        _StdOut.putText("PID " + pid_to_be_killed + " was not found on the ready queue.");
+                        _PCBprogram[1] = true;
+                    }
+                }
+                if (_Dispatcher.is_empty() == false) {
+                    console.log("HERE");
+                    _PCBprogram[1] = true;
                 }
             } 
             else {

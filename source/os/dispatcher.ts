@@ -23,31 +23,40 @@ module TSOS {
             this.simulatedReadyQueue.shift();
         }
 
+
         removeTarget(target: number) {
             var start_of_queue = this.simulatedReadyQueue[0];
 
             // Search for the target 
             for(let i = 0; i < this.simulatedReadyQueue.length; i++) {
-                this.updateQueue();
                 if (this.simulatedReadyQueue[0] == target) {
                     this.remove();
                     break;
                 }
+                else {
+                    this.updateQueue();
+                }
             }
 
             // Put the ready queue back as it was
-            for (let k = 0; this.simulatedReadyQueue; k++) {
+            for (let k = 0; k < this.simulatedReadyQueue.length; k++) {
                 if (this.simulatedReadyQueue[0] == start_of_queue) {
                     break;
                 }
+                else {
+                    this.updateQueue();
+                }
             }
         }
+        
 
         next() {
             return this.simulatedReadyQueue[0];
         }
 
         is_empty() {
+            //console.log(this.simulatedReadyQueue.length);
+            //console.log("Check: " + this.simulatedReadyQueue);
             if (this.simulatedReadyQueue.length == 0) {
                 return true;
             }
@@ -59,6 +68,9 @@ module TSOS {
         // Debug Purposes
         print() {
             console.log(this.simulatedReadyQueue);
+        }
+        printlen() {
+            console.log(this.simulatedReadyQueue.length);
         }
     }
 }

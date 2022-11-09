@@ -40,11 +40,10 @@ module TSOS {
                 _PCBprogram[1] = false;
                 for (let i = 0; i < _PCBready.length; i++) {
                     var pcb: PCB; pcb = _PCBready[i];
-
-                    //if ((pcb.get_state() === "Running...") || (pcb.get_state() === "Ready")) {
+                    
                     if (pcb.get_ID() == _PCBprogram[0]) {
                         _StdOut.putText(" PID " + _PCBprogram[0] + " Terminated!");
-                        _Dispatcher.removeTarget(pcb.get_ID());
+                        _Dispatcher.remove();
                         pcb.set_state("Terminated");
                         break;
                     }

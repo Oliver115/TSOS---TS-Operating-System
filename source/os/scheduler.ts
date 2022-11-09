@@ -11,7 +11,7 @@ module TSOS {
         }
 
         should_We_Context_Switch() {
-            if (this.quantum_count == global_quantum) {
+            if (this.quantum_count >= global_quantum) {
                 return true;
             }
             else {

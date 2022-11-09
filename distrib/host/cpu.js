@@ -50,7 +50,7 @@ var TSOS;
                     if (ready_pcb.get_ID() == _PCBprogram[0]) {
                         console.log("Now Running: " + _PCBprogram[0]);
                         ready_pcb.set_state("Running...");
-                        this.PC = (ready_pcb.get_PC());
+                        this.PC = ready_pcb.get_PC();
                         this.IR = ready_pcb.get_IR();
                         this.Acc = ready_pcb.get_Acc();
                         this.Xreg = ready_pcb.get_Xreg();
@@ -63,7 +63,6 @@ var TSOS;
                         this.limit = ready_pcb.get_limit();
                         _PCBprogram[2] = 1;
                         this.createReadyQueue();
-                        console.log("Base :" + this.base);
                         break;
                     }
                 }
@@ -73,6 +72,10 @@ var TSOS;
                 if (_Scheduler.should_We_Context_Switch() == false) {
                     this.cpuCycle();
                     _Scheduler.scheduleCount();
+                }
+                else if (_Dispatcher.is_empty()) {
+                    this.createReadyQueue();
+                    _PCBprogram[1] = false; // CPU is done with the program
                 }
                 else {
                     console.log("SWITCH");
@@ -272,24 +275,9 @@ var TSOS;
                     // Flag location as available
                     _MemoryManager.memoryLocationSetter(this.memSeg, true);
                     // remove program from ready queue
-                    for (let i = 0; i < _PCBready.length; i++) {
-                        var r_pcb;
-                        r_pcb = _PCBready[i];
-                        if (r_pcb.get_ID() == _PCBprogram[0]) {
-                            //ready_pcb.set_ID(-1);
-                            r_pcb.set_state("Terminated");
-                            _Dispatcher.remove();
-                        }
-                    }
-                    // remove program from resident queue
-                    for (let i = 0; i < _PCBresident.length; i++) {
-                        var resident_pcb;
-                        resident_pcb = _PCBresident[i];
-                        if (resident_pcb.get_ID() == _PCBprogram[0]) {
-                            //resident_pcb.set_ID(-1);
-                            resident_pcb.set_state("Terminated");
-                        }
-                    }
+                    ready_pcb.set_state("Terminated");
+                    var kill_id = ready_pcb.get_ID();
+                    _Dispatcher.removeTarget(kill_id);
                     if (_Dispatcher.is_empty() == false) {
                         _PCBprogram[0] = _Dispatcher.next();
                         _PCBprogram[2] = 0;
