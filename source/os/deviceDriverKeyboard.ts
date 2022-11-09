@@ -37,14 +37,60 @@ module TSOS {
 
             // Ctrl-C
             if (keyCode == 17 && _PCBprogram[1] == true) {
+
+                var pid_to_be_killed = _Dispatcher.next();
+
+                // If no programs running. No need to kill. Right...?
+                if (_Dispatcher.is_empty()) {
+                    _StdOut.putText("Why so aggressive? There are no programs to kill");
+                } 
+                else {
+                    _PCBprogram[1] = false;
+
+                    var was_found = false;
+                    // iterate through PCBs to find the desired one
+                    for (let i = 0; i < _PCBready.length; i++) {
+                        var temp_pcb = _PCBready[i];
+
+                        // If it exists and is running or in the ready queue: Kill it!
+                        if ( (temp_pcb.get_ID() == pid_to_be_killed) ) {
+                            if ( (temp_pcb.get_state() === "Running...") || (temp_pcb.get_state() === "Ready") ) {
+                                temp_pcb.set_state("Terminated");
+                                _Dispatcher.removeTarget(pid_to_be_killed);
+                                _StdOut.putText("PID " + pid_to_be_killed + " Killed!");
+
+                                was_found = true;
+                                break;
+                            }
+                            else {
+                                _StdOut.putText("PID " + pid_to_be_killed + " was not found on the ready queue.");
+                                _PCBprogram[1] = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (was_found == false) {
+                        _StdOut.putText("PID " + pid_to_be_killed + " was not found on the ready queue.");
+                        _PCBprogram[1] = true;
+                    }
+                }
+                
+                if (_Dispatcher.is_empty() == false) {
+                    _PCBprogram[1] = true;
+                }
+                else {
+                    document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                }
+
+                /** 
                 _PCBprogram[1] = false;
                 for (let i = 0; i < _PCBready.length; i++) {
                     var pcb: PCB; pcb = _PCBready[i];
                     
                     if (pcb.get_ID() == _PCBprogram[0]) {
                         _StdOut.putText(" PID " + _PCBprogram[0] + " Terminated!");
-                        _Dispatcher.remove();
                         pcb.set_state("Terminated");
+                        _Dispatcher.removeTarget(pcb.get_ID());
                         break;
                     }
                 }
@@ -54,6 +100,7 @@ module TSOS {
                 else {
                     _PCBprogram[1] = true;
                 }
+                */
             }
 
             // Check to see if we even want to deal with the key that was pressed.

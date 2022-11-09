@@ -560,8 +560,10 @@ module TSOS {
                     }
                 }
                 if (_Dispatcher.is_empty() == false) {
-                    console.log("HERE");
                     _PCBprogram[1] = true;
+                }
+                else {
+                    document.getElementById('ready_queue').innerHTML = "No Programs Running";
                 }
             } 
             else {

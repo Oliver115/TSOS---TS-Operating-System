@@ -609,7 +609,9 @@ var TSOS;
                     local_pcb.set_Xreg(this.Xreg);
                     local_pcb.set_Yreg(this.Yreg);
                     local_pcb.set_Zflag(this.Zflag);
-                    local_pcb.set_state("Ready");
+                    if (local_pcb.get_state() === "Running...") {
+                        local_pcb.set_state("Ready");
+                    }
                 }
             }
         }
