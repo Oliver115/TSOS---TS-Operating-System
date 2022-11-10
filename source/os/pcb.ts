@@ -47,5 +47,50 @@ module TSOS {
         set_base(newBase: number) { this.base = newBase; }
         set_limit(newLimit: number) { this.limit = newLimit; }
         set_priority(newP: number) { this.priority = newP; }
+
+        // Turnaround and Wait Time trackers
+        update_time() {
+            if (this.state === "Running...") {
+                if (this.ID == 0) {
+                    global_times[0] = global_times[0] + 1
+                }
+                else {
+                    global_times[(this.ID * 2)] = global_times[(this.ID * 2)] + 1;
+                }
+            }
+            else if (this.state === "Ready") {
+                if (this.ID == 0) {
+                    global_times[0] = global_times[0] + 1;
+                    global_times[1] = global_times[1] + 1;
+                }
+                else {
+                    global_times[(this.ID * 2)] = global_times[(this.ID * 2)] + 1;
+                    global_times[(this.ID * 2) + 1] = global_times[(this.ID * 2) + 1] + 1;
+                }
+            }
+        }
+
+        createEntry() {
+            global_times.push(0);
+            global_times.push(0);
+        }
+
+        get_turn() { 
+            if (this.ID == 0) {
+                return global_times[0];
+            }
+            else {
+                return global_times[(this.ID * 2)];
+            }
+        }
+
+        get_wait() { 
+            if (this.ID == 0) {
+                return global_times[1];
+            }
+            else {
+                return global_times[(this.ID * 2) + 1];
+            }
+        }
     } 
 } 

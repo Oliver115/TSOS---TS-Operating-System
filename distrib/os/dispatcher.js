@@ -43,8 +43,6 @@ var TSOS;
             return this.simulatedReadyQueue[0];
         }
         is_empty() {
-            //console.log(this.simulatedReadyQueue.length);
-            //console.log("Check: " + this.simulatedReadyQueue);
             if (this.simulatedReadyQueue.length == 0) {
                 return true;
             }

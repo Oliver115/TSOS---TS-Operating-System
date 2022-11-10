@@ -84,6 +84,7 @@ var TSOS;
                     _PCBprogram[0] = _Dispatcher.next();
                     _PCBprogram[2] = 0;
                     _Scheduler.countReset();
+                    console.log(global_times);
                 }
             }
             else {
@@ -91,6 +92,11 @@ var TSOS;
             }
         }
         cpuCycle() {
+            for (let i = 0; i < _PCBready.length; i++) {
+                var time_pcb;
+                time_pcb = _PCBready[i];
+                time_pcb.update_time();
+            }
             this.fetch();
             this.decode();
             this.execute();
@@ -267,6 +273,11 @@ var TSOS;
                     for (let i = 0; i < _PCBready.length; i++) {
                         ready_pcb = _PCBready[i];
                         if (ready_pcb.get_ID() == _PCBprogram[0]) {
+                            _Console.advanceLine();
+                            _StdOut.putText("PID " + ready_pcb.get_ID() + " - Turnaround Time: " + ready_pcb.get_turn());
+                            _Console.advanceLine();
+                            _StdOut.putText("PID " + ready_pcb.get_ID() + " - Wait Time: " + ready_pcb.get_wait());
+                            _Console.advanceLine();
                             break;
                         }
                     }
@@ -284,6 +295,7 @@ var TSOS;
                         _Scheduler.countReset();
                     }
                     else {
+                        _Scheduler.countReset();
                         _PCBprogram[1] = false; // CPU is done with the program
                     }
                     this.createReadyQueue();
@@ -675,9 +687,12 @@ var TSOS;
                     _PCBprogram[1] = true;
                 }
                 else {
-                    document.getElementById('ready_queue').innerHTML = "No Programs Running";
                     _PCBprogram[1] = true;
                 }
+            }
+            if (_Dispatcher.is_empty()) {
+                document.getElementById('ready_queue').innerHTML = "No Programs Running";
+                _PCBprogram[1] = false;
             }
         }
         // Method that determines how much to branch

@@ -455,7 +455,7 @@ module TSOS {
                 }
                 else {
                     // Iterate through PCBs to find respective PCB ID
-                    for(let i = 0; i < _PCBresident.length; i++) {
+                    for (let i = 0; i < _PCBresident.length; i++) {
                         var temp_pcb: PCB; temp_pcb = _PCBresident[i];
                         var was_pcb_found = false;
                         
@@ -474,11 +474,13 @@ module TSOS {
                                 _StdOut.putText("Executing Program with PID: " + temp_pcb.get_ID());
                                 _PCBprogram[0] = parseInt(args[0]); _PCBprogram[1] = true;
                                 _Dispatcher.createQueue(temp_pcb.get_ID()); rr = true;
+                                temp_pcb.createEntry();
                                 
                                 // Has this program already been loaded into the ready queue?
                                 if (_PCBready.length == 0) {
                                     temp_pcb.set_state("Ready");
                                     _PCBready.push(temp_pcb);
+                                    break;
                                 }
                                 else {
                                     var does_it_exist = false;
@@ -518,6 +520,7 @@ module TSOS {
                     resident_pcb.set_state("Ready");
                     _PCBready.push(resident_pcb);
                     _Dispatcher.createQueue(resident_pcb.get_ID());
+                    resident_pcb.createEntry();
                 }
             }
             _StdOut.putText("Executing all programs");

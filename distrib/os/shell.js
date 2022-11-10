@@ -377,10 +377,12 @@ var TSOS;
                                 _PCBprogram[1] = true;
                                 _Dispatcher.createQueue(temp_pcb.get_ID());
                                 rr = true;
+                                temp_pcb.createEntry();
                                 // Has this program already been loaded into the ready queue?
                                 if (_PCBready.length == 0) {
                                     temp_pcb.set_state("Ready");
                                     _PCBready.push(temp_pcb);
+                                    break;
                                 }
                                 else {
                                     var does_it_exist = false;
@@ -419,6 +421,7 @@ var TSOS;
                     resident_pcb.set_state("Ready");
                     _PCBready.push(resident_pcb);
                     _Dispatcher.createQueue(resident_pcb.get_ID());
+                    resident_pcb.createEntry();
                 }
             }
             _StdOut.putText("Executing all programs");
