@@ -160,13 +160,25 @@ module TSOS {
             // Quantum
             sc = new ShellCommand(this.shellQuantum,
                 "quantum",
-                "-  set the Round Robin quantum");
+                "- set the Round Robin quantum");
             this.commandList[this.commandList.length] = sc;
 
             // Ps
             sc = new ShellCommand(this.shellPs,
                 "ps",
-                "-  display the state of all processes");
+                "- display the state of all processes");
+            this.commandList[this.commandList.length] = sc;
+
+            // getSchedule
+            sc = new ShellCommand(this.shellgetSchedule,
+                "getschedule",
+                "- return the current scheduling algorithm");
+            this.commandList[this.commandList.length] = sc;
+
+            // setSchedule
+            sc = new ShellCommand(this.shellsetSchedule,
+                "setschedule",
+                "- set a new scheduling algorithm (there are only two: RR and FCFS)");
             this.commandList[this.commandList.length] = sc;
 
             // Display the initial prompt.
@@ -642,23 +654,29 @@ module TSOS {
             if (args.length > 0) {
                 var quantum = parseInt(args[0]);
 
-                if (quantum < 0) {
-                    _StdOut.putText("Quantum can't be negative because time travel isn't possible yet...");
-                }
-                else if (quantum == global_quantum) {
-                    _StdOut.putText("Quantum is already " + global_quantum);
-                }
-                else if ((quantum >= 0) && (quantum <= 1 )) {
-                    _StdOut.putText("Not allowed.");
-                }
-                else if (quantum > 99) {
-                    _StdOut.putText("My OS, my rules. Quantum can't be larger than 99");
+                if (fcfs) {
+                    _StdOut.putText("Cannot change quantum while FCFS is the scheduling algorithm");
                 }
                 else {
-                    global_quantum = quantum;
-                    _StdOut.putText("Quantum changed to: " + quantum + " (Hint: look at the RR)");
-                    var new_quantum = document.getElementById("q_badge");
-                        new_quantum.innerHTML = String(quantum);
+                    if (quantum < 0) {
+                        _StdOut.putText("Quantum can't be negative because time travel isn't possible yet...");
+                    }
+                    else if (quantum == global_quantum) {
+                        _StdOut.putText("Quantum is already " + global_quantum);
+                    }
+                    else if ((quantum >= 0) && (quantum <= 1 )) {
+                        _StdOut.putText("Not allowed.");
+                    }
+                    else if (quantum > 99) {
+                        _StdOut.putText("My OS, my rules. Quantum can't be larger than 99");
+                    }
+                    else {
+                        global_quantum = quantum;
+
+                        _StdOut.putText("Quantum changed to: " + quantum + " (Hint: look at the RR)");
+                        var new_quantum = document.getElementById("q_badge");
+                            new_quantum.innerHTML = String(quantum);
+                    }
                 }
             }
             else {
@@ -744,14 +762,29 @@ module TSOS {
                     case "run":
                         _StdOut.putText("Run program with specified PID.");
                         break;
+                    case "runall":
+                        _StdOut.putText("Run all programs.");
+                        break;
                     case "clearmem":
                         _StdOut.putText("Clear all segments of memory.");
                         break;
                     case "kill":
                         _StdOut.putText("Kill a specific running program.");
                         break;
+                    case "killall":
+                        _StdOut.putText("Kill all running programs.");
+                        break;
+                    case "ps":
+                        _StdOut.putText("Display all processesses.");
+                        break;
                     case "quantum":
-                        _StdOut.putText("Change the quantum used in RR (Hint: Look at the RR button to check the current quantum)");
+                        _StdOut.putText("Change the quantum used in RR (Hint: Look at the RR button to check the current quantum).");
+                        break;
+                    case "setschedule":
+                        _StdOut.putText("Set a new scheduling algorithm.");
+                        break;
+                    case "getschedule":
+                        _StdOut.putText("Show current scheduling algorithm in use.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -806,6 +839,49 @@ module TSOS {
                 }
             } else {
                 _StdOut.putText("Usage: status <message>  Please enter a message.");
+            }
+        }
+
+        public shellsetSchedule(args: string[]) {
+            if (args.length > 0) {
+
+                var schedule_algo = args[0].toUpperCase();
+
+                if (schedule_algo == "RR") {
+                    _StdOut.putText("Scheduling algorithm set to: Round Robin (RR)");
+                    fcfs = false;
+                    global_quantum = 6;
+
+                    // change button and badge
+                    var new_quantum = document.getElementById("algo_button");
+                            new_quantum.innerHTML = "RR";
+                    var new_quantum = document.getElementById("q_badge");
+                            new_quantum.innerHTML = String(global_quantum);
+                }
+                else if (schedule_algo == "FCFS") {
+                    _StdOut.putText("Scheduling algorithm set to: First Come, First Served (FCFS)");
+                    fcfs = true;
+                    global_quantum = Number.MAX_SAFE_INTEGER;
+
+                    // change button and badge
+                    var new_quantum = document.getElementById("algo_button");
+                            new_quantum.innerHTML = "FCFS";
+                    var new_quantum = document.getElementById("q_badge");
+                            new_quantum.innerHTML = "∞";
+                }
+            }
+            else {
+                _StdOut.putText("Usage: setschedule <new scheduling algo>");
+            }
+
+        }
+
+        public shellgetSchedule(args: string) {
+            if (fcfs) {
+                _StdOut.putText("Current scheduling algorithm: First Come, First Served (FCFS)");
+            }
+            else {
+                _StdOut.putText("Current scheduling algorithm: Round Robin (RR)");
             }
         }
         
