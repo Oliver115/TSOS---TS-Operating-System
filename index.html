@@ -14,6 +14,7 @@
    <!-- Host (Virtual Machine / Hardware Simulation) Routines -->
    <script type="text/javascript" src="distrib/host/control.js"></script>
    <script type="text/javascript" src="distrib/host/devices.js"></script>
+   <script type="text/javascript" src="distrib/host/disk.js"></script>
    <script type="text/javascript" src="distrib/host/cpu.js"></script>
    <script type="text/javascript" src="distrib/host/memory.js"></script>
    <script type="text/javascript" src="distrib/host/memoryAccessor.js"></script>
@@ -25,6 +26,7 @@
    <script type="text/javascript" src="distrib/os/console.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriver.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriverKeyboard.js"></script>
+   <script type="text/javascript" src="distrib/os/deviceDriverDisk.js"></script>
    <script type="text/javascript" src="distrib/os/queue.js"></script>
    <script type="text/javascript" src="distrib/os/shellCommand.js"></script>
    <script type="text/javascript" src="distrib/os/userCommand.js"></script>
@@ -99,7 +101,7 @@
              type="button"
              name="btnRR"
              class="normal_buttonRR">
-             <span>RR</span>
+             <span id = "algo_button">RR</span>
              <span id = "q_badge" class="badge">6</span>
       </a>
    </div>
@@ -166,9 +168,17 @@
       </div>
    </div>
 
+   <div> 
+      <h2 id="diskHead" style="margin-top: -220px; margin-left: 800px;"> Disk (Disk hasn't been formatted) </h2>
+   </div>
+   <div id="divDisk" style="margin-left: 2px;">
+      <div id="tableDisk">
+      </div>
+   </div>
+
    <div id="divTables">
-      <table style="margin-top: -5px; margin-left: 920px;" id="tableCPU">
-         <h2 style="margin-top: -440px; margin-left: 1150px;">CPU</h2>
+      <table style="margin-top: 0px; margin-left: 1350px;" id="tableCPU">
+         <h2 style="margin-top: -580px; margin-left: 1570px;">CPU</h2>
          <tr>
             <td>PC</td>
             <td>IR</td>
@@ -188,9 +198,9 @@
       </table>
    </div>
 
-   <div id = "PCB" style="margin-top: 20px; margin-left: 920px;">
-      <h2 style="margin-top: 35px; margin-left: 180px;">Ready Queue</h2>
-      <div id = "ready_queue">
+   <div id = "PCB" style="margin-top: -150px; margin-left: 920px;">
+      <h2 style="margin-top: 170px; margin-left: 10px;">Ready Queue</h2>
+      <div id = "ready_queue"> No Programs Running
       </div>
    </div>
 

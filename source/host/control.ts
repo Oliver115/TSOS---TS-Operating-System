@@ -92,6 +92,7 @@ module TSOS {
             _CPU.init();       //       There's more to do, like dealing with scheduling and such, but this would be a start. Pretty cool.
             _Memory = new Memory();
             _Memory.init();
+            _Disk = new Disk();
             _MemoryAccessor = new MemoryAccessor();
             _MemoryAccessor.init();
             

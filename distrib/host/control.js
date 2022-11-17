@@ -73,6 +73,7 @@ var TSOS;
             _CPU.init(); //       There's more to do, like dealing with scheduling and such, but this would be a start. Pretty cool.
             _Memory = new TSOS.Memory();
             _Memory.init();
+            _Disk = new TSOS.Disk();
             _MemoryAccessor = new TSOS.MemoryAccessor();
             _MemoryAccessor.init();
             // ... then set the host clock pulse ...

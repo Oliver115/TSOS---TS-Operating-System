@@ -181,6 +181,12 @@ module TSOS {
                 "- set a new scheduling algorithm (there are only two: RR and FCFS)");
             this.commandList[this.commandList.length] = sc;
 
+            // format
+            sc = new ShellCommand(this.shellFormat,
+                "format",
+                "- initialize all TSBs in disk");
+            this.commandList[this.commandList.length] = sc;
+
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -873,7 +879,6 @@ module TSOS {
             else {
                 _StdOut.putText("Usage: setschedule <new scheduling algo>");
             }
-
         }
 
         public shellgetSchedule(args: string) {
@@ -883,6 +888,11 @@ module TSOS {
             else {
                 _StdOut.putText("Current scheduling algorithm: Round Robin (RR)");
             }
+        }
+
+        // Disk commands 
+        public shellFormat(args: string) {
+            _krnDiskDriver.format();
         }
         
         public shellPrompt(args: string[]) {

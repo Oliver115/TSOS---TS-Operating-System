@@ -83,6 +83,7 @@ module TSOS {
                 else if (_Dispatcher.is_empty()) {
                     this.createReadyQueue();
                     _PCBprogram[1] = false; // CPU is done with the program
+                    _Scheduler.countReset();
                 }
                 else {
                     console.log("SWITCH");
@@ -91,8 +92,6 @@ module TSOS {
                     _PCBprogram[0] = _Dispatcher.next();
                     _PCBprogram[2] = 0;
                     _Scheduler.countReset();
-
-                    console.log(global_times);
                 }
             }
             else {
@@ -303,9 +302,7 @@ module TSOS {
                         ready_pcb = _PCBready[i];
                         if (ready_pcb.get_ID() == _PCBprogram[0]) {
                             _Console.advanceLine();
-                            _StdOut.putText("PID " + ready_pcb.get_ID() + " - Turnaround Time: " + ready_pcb.get_turn());
-                            _Console.advanceLine();
-                            _StdOut.putText("PID " + ready_pcb.get_ID() + " - Wait Time: " + ready_pcb.get_wait());
+                            _StdOut.putText("PID " + ready_pcb.get_ID() + " - Turnaround Time: " + ready_pcb.get_turn() + " - Wait Time: " + ready_pcb.get_wait());
                             _Console.advanceLine();
                             break;
                         }
@@ -328,6 +325,8 @@ module TSOS {
                     else {
                         _Scheduler.countReset();
                         _PCBprogram[1] = false; // CPU is done with the program
+                        this.showCPU();
+                        _StdOut.putText("All Programs Completed");
                     }
                     this.createReadyQueue();
                     break;

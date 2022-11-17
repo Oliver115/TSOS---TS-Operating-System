@@ -12,7 +12,7 @@
 // Global CONSTANTS (TypeScript 1.5 introduced const. Very cool.)
 //
 const APP_NAME: string    = "Revilo";   // 'cause Bob and I were at a loss for a better name.
-const APP_VERSION: string = "0.10";   // What did you expect?
+const APP_VERSION: string = "0.30";   // What did you expect?
 
 const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds) so 1000 = 1 second.
 
@@ -27,6 +27,7 @@ const KEYBOARD_IRQ: number = 1;
 //
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 var _Memory: TSOS.Memory; 
+var _Disk: TSOS.Disk;
 var _MemoryAccessor: TSOS.MemoryAccessor;
 
 var _OSclock: number = 0;  // Page 23.
@@ -67,9 +68,10 @@ var _SarcasticMode: boolean = false;
 
 // Global Device Driver Objects - page 12
 var _krnKeyboardDriver: TSOS.DeviceDriverKeyboard  = null;
+var _krnDiskDriver: TSOS.DeviceDriverDisk = null;
 
 var singleStep: boolean = false;
-var rr: boolean = false;
+var rr: boolean = false; var fcfs: boolean = false;
 var _hardwareClockID: number = null;
 
 // For testing (and enrichment)...

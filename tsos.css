@@ -208,6 +208,30 @@ footer {
   width: 35%;
 }
 
+#divDisk {
+  position:relative;
+}
+#tableDisk {
+  height: 170px;
+  width: 990px;
+  overflow: auto;  
+  margin-top: 9px;
+  margin-left: 800px;
+}
+#divDisk table {
+  width: 100%;
+}
+#divDisk table * {
+  color: black;
+}
+#divDisk table thead th .text {
+  position: absolute;   
+  top: -20px;
+  z-index: 2;
+  height: 30px;
+  width: 100%;
+}
+
 #PCB {
   position:relative;
 }
