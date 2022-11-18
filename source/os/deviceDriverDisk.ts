@@ -65,6 +65,31 @@
             tbl.style.width  = '700px';
             tbl.style.border = '1px solid black';
 
+            // Create table headers
+            let thead = tbl.createTHead();
+            let row = thead.insertRow();
+            var text;
+                for (let i = 0; i < 4; i++) {
+                    let th = document.createElement("th");
+                    switch(i) {
+                        case 0:
+                            text = document.createTextNode("Key");
+                            break;
+                        case 1:
+                            text = document.createTextNode("Available");
+                            break;
+                        case 2:
+                            text = document.createTextNode("TSB");
+                            break;
+                        case 3:
+                            text = document.createTextNode("Data");
+                            break;
+                    }
+                    th.appendChild(text);
+                    row.appendChild(th);
+                }
+
+            // Rest of Table
             for(let t = 0; t < 4; t++) {
                 for(let s = 0; s < 8; s++) {
                     for(let b = 0; b < 8; b++) {
@@ -78,7 +103,7 @@
                                 case 0:
                                     // TSB id 
                                     td.appendChild(document.createTextNode(t + "," + s + "," + b));
-                                    td.style.border = '3px solid black';
+                                    td.style.border = '1px solid black';
                                     td.style.width = '10px';
                                     break;
                                 case 1:

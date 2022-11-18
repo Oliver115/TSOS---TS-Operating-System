@@ -213,7 +213,7 @@ footer {
 }
 #tableDisk {
   height: 170px;
-  width: 990px;
+  width: 750px;
   overflow: auto;  
   margin-top: 9px;
   margin-left: 800px;
@@ -225,7 +225,7 @@ footer {
   color: black;
 }
 #divDisk table thead th .text {
-  position: absolute;   
+  position: relative;   
   top: -20px;
   z-index: 2;
   height: 30px;
