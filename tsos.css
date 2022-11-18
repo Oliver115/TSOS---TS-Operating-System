@@ -162,7 +162,7 @@ h3 {
   text-align: center;
 }
 footer {
-  margin-top: 100px;
+  margin-top: 350px;
 }
 
 #tableCPU, td, th {
@@ -188,7 +188,7 @@ footer {
   position:relative;
 }
 #tableMem {
-  height: 170px;
+  height: 171px;
   width: 720px;
   overflow: auto;  
   margin-top: 10px;
@@ -212,11 +212,11 @@ footer {
   position:relative;
 }
 #tableDisk {
-  height: 170px;
+  height: 180px;
   width: 750px;
   overflow: auto;  
   margin-top: 9px;
-  margin-left: 800px;
+  margin-left: 14px;
 }
 #divDisk table {
   width: 100%;
@@ -225,7 +225,7 @@ footer {
   color: black;
 }
 #divDisk table thead th .text {
-  position: relative;   
+  position: absolute;   
   top: -20px;
   z-index: 2;
   height: 30px;
