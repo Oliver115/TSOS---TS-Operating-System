@@ -9,6 +9,8 @@
     // Extends DeviceDriver
     export class DeviceDriverDisk extends DeviceDriver {
 
+        format_flag = false;
+
         constructor() {
             // Override the base method pointers.
 
@@ -24,6 +26,15 @@
             // Initialization routine for this, the kernel-mode Keyboard Device Driver.
             this.status = "loaded";
             // More?
+        }
+
+        is_format() {
+            if (this.format_flag) {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         format() {
@@ -43,12 +54,21 @@
                             value[j] = "~";
                         }
 
+                        // could re-write this method to use a string instead of an array... but nah
+                        var data = "";
                         if ((t == 0) && (s == 0) && (b == 0)) {
                             value[0] = 1;
-                            sessionStorage.setItem(key, String(value));
+                            data = String(value).replaceAll(',', '');
+                            sessionStorage.setItem(key, data);
+                        }
+                        else if (t > 0) {
+                            value[1] = "-"; value[2] = "-"; value[3] = "-";
+                            data = String(value).replaceAll(',', '');
+                            sessionStorage.setItem(key, data);
                         }
                         else {
-                            sessionStorage.setItem(key, String(value));
+                            data = String(value).replaceAll(',', '');
+                            sessionStorage.setItem(key, data);
                         }
                     }
                 }
@@ -57,9 +77,13 @@
                             diskView.innerHTML = "Disk";
             _StdOut.putText("Disk Formatted");
             this.updateDiskView();
+
+            this.format_flag = true;
         }
 
         updateDiskView() {
+            document.getElementById("tableDisk").innerHTML = "";
+
             let diskTable = document.getElementById('tableDisk'); 
             let tbl  = document.createElement('table');
             tbl.style.width  = '700px';
@@ -114,17 +138,17 @@
                                     break;
                                 case 2:
                                     // TSB
-                                    var tsb = (String(sessionStorage.getItem(t + "" + s + "" + b)[2]) + String(sessionStorage.getItem(t + "" + s + "" + b)[4]) + String(sessionStorage.getItem(t + "" + s + "" + b)[6]));
+                                    var tsb = (String(sessionStorage.getItem(t + "" + s + "" + b)[1]) + String(sessionStorage.getItem(t + "" + s + "" + b)[2]) + 
+                                               String(sessionStorage.getItem(t + "" + s + "" + b)[3]));
                                     td.appendChild(document.createTextNode(tsb));
                                     td.style.border = '1px solid black';
                                     td.style.width = '10px';
                                     break;
+                                    // Data
                                 case 3:
                                     var diskData = "";
-                                    for(let k = 8; k < 128; k++) {
-                                        if (k % 2 == 0) {
-                                            diskData = diskData + sessionStorage.getItem(t + "" + s + "" + b)[k];
-                                        }
+                                    for(let k = 4; k < 64; k++) {
+                                        diskData = diskData + sessionStorage.getItem(t + "" + s + "" + b)[k];
                                     }
 
                                     td.appendChild(document.createTextNode(diskData));
@@ -137,6 +161,75 @@
                 }
             }
             diskTable.appendChild(tbl);
+        }
+
+        findNext_DIR() {
+            // track will always be 0. Thus, track is not needed here
+            // sector 
+            for(let s = 0; s < _Disk.sector; s++) {
+                // block
+                for(let b = 0; b < _Disk.block; b++) {
+
+                    // Is this location free?
+                    if (sessionStorage.getItem("0" + s +  "" + b)[0] === "0") {
+                        return ("0" + s + "" + b);
+                    }
+                }
+            } 
+        }
+
+        findNext_DATA() {
+            // track
+            for(let t = 1; t < _Disk.track; t++) {
+                // sector
+                for(let s = 0; s < _Disk.sector; s++) {
+                    // block
+                    for(let b = 0; b < _Disk.block; b++) {
+                        // Is this location free?
+                        if (sessionStorage.getItem(t + "" + s + "" + b)[0] === "0") {
+                            return (t + "" + s + "" + b);
+                        }
+                    }
+                } 
+            } 
+        }
+
+        createFile(filename: string) {
+            var new_data = "";
+            for(let i = 4; i < 64; i++) {
+                if (filename.length > (i - 4)) {
+                    new_data = new_data + filename.charCodeAt(i - 4).toString(16);
+                }
+                else {
+                    new_data = new_data + "~";
+                }
+            }
+            // check if filename already exists
+            if (this.checkFilename(new_data) == 0) {
+                _StdOut.putText("Filename already exists");
+            }
+            else {
+                new_data = ("1" + this.findNext_DATA() + new_data);
+                sessionStorage.setItem(this.findNext_DIR(), new_data);
+                this.updateDiskView();
+
+                _StdOut.putText("File with name '" + filename + "' created");
+            }
+        }
+        checkFilename(filename: string) {
+            var flag;
+            for(let s = 0; s < _Disk.sector; s++) {
+                // block
+                for(let b = 0; b < _Disk.block; b++) {
+                    // Is this location free?
+                    if (sessionStorage.getItem("0" + s +  "" + b)[0] === "1") {
+                        flag = filename.localeCompare(sessionStorage.getItem("0" + s + "" + b).substring(4));
+                        if (flag == 0) {
+                            return 0
+                        }
+                    }
+                }
+            } 
         }
     }
 }
