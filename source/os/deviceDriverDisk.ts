@@ -37,6 +37,14 @@
             }
         }
 
+        nuke(location: string) {
+            var value = "0---";
+            for(let i = 4; i < 64; i++) {
+                value = value + "~";
+            }
+            sessionStorage.setItem(location, value);
+        }
+
         format() {
             // track
             for(let t = 0; t < _Disk.track; t++) {
@@ -194,30 +202,44 @@
             } 
         }
 
-        createFile(filename: string) {
-            var new_data = "";
+        encode(text: string) {
+            var encoded_data = "";
             for(let i = 4; i < 64; i++) {
-                if (filename.length > (i - 4)) {
-                    new_data = new_data + filename.charCodeAt(i - 4).toString(16);
+                if (text.length > (i - 4)) {
+                    // ABC to ASCII to Hex
+                    encoded_data = encoded_data + text.charCodeAt(i - 4).toString(16);
                 }
                 else {
-                    new_data = new_data + "~";
+                    encoded_data = encoded_data + "~";
                 }
             }
+            return encoded_data;
+        }
+
+        createFile(filename: string) {
+            var new_data = this.encode(filename);
+
             // check if filename already exists
-            if (this.checkFilename(new_data) == 0) {
+            if (this.checkFilename(new_data, 0) === "0") {
                 _StdOut.putText("Filename already exists");
             }
             else {
                 new_data = ("1" + this.findNext_DATA() + new_data);
                 sessionStorage.setItem(this.findNext_DIR(), new_data);
+
+                // Flag DATA location as used
+                var data = sessionStorage.getItem(this.findNext_DATA());
+                data = data.replace("0", "1");
+                sessionStorage.setItem(this.findNext_DATA(), data);
+
                 this.updateDiskView();
 
                 _StdOut.putText("File with name '" + filename + "' created");
             }
         }
-        checkFilename(filename: string) {
-            var flag;
+
+        checkFilename(filename: string, returnLocation) {
+            var flag = -1;
             for(let s = 0; s < _Disk.sector; s++) {
                 // block
                 for(let b = 0; b < _Disk.block; b++) {
@@ -225,11 +247,43 @@
                     if (sessionStorage.getItem("0" + s +  "" + b)[0] === "1") {
                         flag = filename.localeCompare(sessionStorage.getItem("0" + s + "" + b).substring(4));
                         if (flag == 0) {
-                            return 0
+                            if (returnLocation == 0) {
+                                return "0";
+                            }
+                            if (returnLocation == 1) {
+                                return (sessionStorage.getItem("0" + s + "" + b)[1] + sessionStorage.getItem("0" + s + "" + b)[2] + 
+                                sessionStorage.getItem("0" + s + "" + b)[3]);
+                            }
                         }
                     }
                 }
             } 
+            if (flag == -1) {
+                return "1";
+            }
+        }
+
+        write(name: string, text: string) {
+            var encoded_name = this.encode(name);
+
+            // check if file exists
+            if (this.checkFilename(encoded_name, 0) === "1") {
+                _StdOut.putText("File " + name + " was not found");
+            }
+            else {
+                var encoded_text = "";
+                for(let k = 0; k < text.length; k++) {
+                    encoded_text = encoded_text + text.charCodeAt(k).toString(16);
+                }
+
+                var fileLocation = this.checkFilename(encoded_name, 1);
+                // nuke section of disk for new text
+                this.nuke(fileLocation);
+
+                // write text to location in DATA
+                sessionStorage.setItem(String(fileLocation), ("1---" + this.encode(text)));
+                this.updateDiskView();
+            }
         }
     }
 }

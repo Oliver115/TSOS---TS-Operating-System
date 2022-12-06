@@ -193,6 +193,12 @@ module TSOS {
                 "- create the File filename");
             this.commandList[this.commandList.length] = sc;
 
+            // write
+            sc = new ShellCommand(this.shellWrite,
+                "write",
+                "- write data to a file");
+            this.commandList[this.commandList.length] = sc;
+
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -799,7 +805,13 @@ module TSOS {
                         _StdOut.putText("Show current scheduling algorithm in use.");
                         break;
                     case "create":
-                        _StdOut.putText("create a new File in the disk and give it a name");
+                        _StdOut.putText("create a new File in the disk and give it a name.");
+                        break;
+                    case "write":
+                        _StdOut.putText("write data to a specified file.");
+                        break;
+                    case "format":
+                        _StdOut.putText("Initialize the disk.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -924,6 +936,37 @@ module TSOS {
                 }
                 else {
                     _StdOut.putText("Usage: create <filename>");
+                }
+            }
+        }
+
+        public shellWrite(args: string[]) {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else if (args.length < 2) {
+                _StdOut.putText('Usage: write <filename> "<text>"');
+            }
+            else {
+                var data;
+                for(let i = 1; i < args.length; i++) {
+                    if (i == 1) {
+                        data = String(args[i]);
+                    }
+                    else { 
+                        data = data + " " + String(args[i]);
+                    }
+                }
+                if ((data.charCodeAt(0) == 34) && (data.charCodeAt(data.length - 1) == 34)) {
+                    // remove quotes
+                    data = data.replaceAll('"', '');
+
+                    // write to disk
+                    _krnDiskDriver.write(String(args[0]), data);
+                    _StdOut.putText("File '" + args[0] + "' has been updated" );
+                }
+                else {
+                    _StdOut.putText('Usage: write <filename> "<text>" - (Tip: Make sure to use quotes)');
                 }
             }
         }
