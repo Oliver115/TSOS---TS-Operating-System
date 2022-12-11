@@ -205,6 +205,12 @@ module TSOS {
                 "- read and display contents of a file");
             this.commandList[this.commandList.length] = sc;
 
+            // delete
+            sc = new ShellCommand(this.shellDelete,
+                "delete",
+                "- remove filename from the storage");
+            this.commandList[this.commandList.length] = sc;
+
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -822,6 +828,9 @@ module TSOS {
                     case "read":
                         _StdOut.putText("Read and display the contents of a file.");
                         break;
+                    case "delete":
+                        _StdOut.putText("Remove filename from the storage.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -986,7 +995,15 @@ module TSOS {
             else { 
                 _krnDiskDriver.read(args[0]);
             }
-            
+        }
+
+        public shellDelete(args: string[]) {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else { 
+                _krnDiskDriver.delete(args[0]);
+            }
         }
         
         public shellPrompt(args: string[]) {

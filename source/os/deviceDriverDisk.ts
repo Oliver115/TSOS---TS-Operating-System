@@ -38,7 +38,7 @@
         }
 
         nuke(location: string) {
-            var value = "1---";
+            var value = "0---";
             for(let i = 4; i < 64; i++) {
                 value = value + "~";
             }
@@ -238,6 +238,12 @@
                 _StdOut.putText("File with name '" + filename + "' created");
             }
         }
+        /**
+         * @param returnLocation 0: looking if file exists (should return 0 if found).
+         *        returnLocation 1: looking for location in DATA of file (should return the location in DATA "1--").
+         *        returnLocation 2: looking for location in DIR of file (should return location in DIR "0--").
+         * @returns 1 if File was not founds anywhere
+         */
 
         checkFilename(filename: string, returnLocation) {
             var flag = -1;
@@ -253,9 +259,13 @@
                                 return "0";
                             }
                             if (returnLocation == 1) {
-                                // reaturn location of where file is located
+                                // return location of where file is located
                                 return (sessionStorage.getItem("0" + s + "" + b)[1] + sessionStorage.getItem("0" + s + "" + b)[2] + 
                                 sessionStorage.getItem("0" + s + "" + b)[3]);
+                            }
+                            if (returnLocation == 2) {
+                                // return location of file in DIR 
+                                return ("0" + s + "" + b);
                             }
                         }
                     }
@@ -339,6 +349,7 @@
                 _StdOut.putText(fileData);
             }
         }
+
         decodeRead(ubicacion: string) {
             var file_text = sessionStorage.getItem(ubicacion).substring(4);
             var next_location = sessionStorage.getItem(ubicacion).substring(1, 4);
@@ -354,6 +365,37 @@
                     }
                 }
                 return [decoded_text, next_location];
+        }
+
+        delete(file_to_kill: string) {
+
+            var encoded_kill = this.encode(file_to_kill);
+            // check if file exists
+            if (this.checkFilename(encoded_kill, 0) === "1") {
+                _StdOut.putText("File " + file_to_kill + " was not found");
+            }
+            else {
+                // Get location of file on Disk 
+                var fileLocation = this.checkFilename(encoded_kill, 1);
+                // delete filename in DIR
+                this.nuke(this.checkFilename(encoded_kill, 2));
+
+                var flag = true;
+                var toNuke;
+                while (flag) {
+                    if (this.decodeRead(fileLocation)[1] != "---") {
+                        toNuke = fileLocation;
+                        fileLocation = this.decodeRead(fileLocation)[1];
+                        this.nuke(toNuke);
+                    }
+                    else {
+                        this.nuke(fileLocation);
+                        flag = false;
+                    }
+                }
+                this.updateDiskView();
+                _StdOut.putText("File '" + file_to_kill + "' was deleted along with its data");
+            }
         }
     }
 }
