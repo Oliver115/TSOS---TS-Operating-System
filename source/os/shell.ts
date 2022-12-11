@@ -199,6 +199,12 @@ module TSOS {
                 "- write data to a file");
             this.commandList[this.commandList.length] = sc;
 
+            // read
+            sc = new ShellCommand(this.shellRead,
+                "read",
+                "- read and display contents of a file");
+            this.commandList[this.commandList.length] = sc;
+
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -813,6 +819,9 @@ module TSOS {
                     case "format":
                         _StdOut.putText("Initialize the disk.");
                         break;
+                    case "read":
+                        _StdOut.putText("Read and display the contents of a file.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -963,12 +972,21 @@ module TSOS {
 
                     // write to disk
                     _krnDiskDriver.write(String(args[0]), data);
-                    _StdOut.putText("File '" + args[0] + "' has been updated" );
                 }
                 else {
                     _StdOut.putText('Usage: write <filename> "<text>" - (Tip: Make sure to use quotes)');
                 }
             }
+        }
+
+        public shellRead(args: string[]) {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else { 
+                _krnDiskDriver.read(args[0]);
+            }
+            
         }
         
         public shellPrompt(args: string[]) {

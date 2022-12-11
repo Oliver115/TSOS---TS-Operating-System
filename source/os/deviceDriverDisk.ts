@@ -262,9 +262,7 @@
                 }
             } 
             // Not found
-            if (flag == -1) {
-                return "1";
-            }
+            return "1";
         }
 
         write(name: string, text: string) {
@@ -293,6 +291,7 @@
                             temp_text = text.substring(start, (text.length - 1));
                             sessionStorage.setItem(this.findNext_DATA(), ("1---" + this.encode(temp_text)));
                             this.updateDiskView(); 
+                            _StdOut.putText("File '" + name + "' has been updated" );
                         }
                     }
                 }
@@ -305,6 +304,7 @@
                     // write text to location in DATA
                     sessionStorage.setItem(fileLocation, ("1---" + this.encode(text)));
                     this.updateDiskView(); 
+                    _StdOut.putText("File '" + name + "' has been updated" );
                 }
             }
         }
