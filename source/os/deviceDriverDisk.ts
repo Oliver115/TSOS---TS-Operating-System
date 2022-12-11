@@ -38,7 +38,7 @@
         }
 
         nuke(location: string) {
-            var value = "0---";
+            var value = "1---";
             for(let i = 4; i < 64; i++) {
                 value = value + "~";
             }
@@ -204,6 +204,7 @@
 
         encode(text: string) {
             var encoded_data = "";
+
             for(let i = 4; i < 64; i++) {
                 if (text.length > (i - 4)) {
                     // ABC to ASCII to Hex
@@ -213,7 +214,7 @@
                     encoded_data = encoded_data + "~";
                 }
             }
-            return encoded_data;
+            return encoded_data; 
         }
 
         createFile(filename: string) {
@@ -248,9 +249,11 @@
                         flag = filename.localeCompare(sessionStorage.getItem("0" + s + "" + b).substring(4));
                         if (flag == 0) {
                             if (returnLocation == 0) {
+                                // File does exist
                                 return "0";
                             }
                             if (returnLocation == 1) {
+                                // reaturn location of where file is located
                                 return (sessionStorage.getItem("0" + s + "" + b)[1] + sessionStorage.getItem("0" + s + "" + b)[2] + 
                                 sessionStorage.getItem("0" + s + "" + b)[3]);
                             }
@@ -258,6 +261,7 @@
                     }
                 }
             } 
+            // Not found
             if (flag == -1) {
                 return "1";
             }
@@ -271,19 +275,85 @@
                 _StdOut.putText("File " + name + " was not found");
             }
             else {
-                var encoded_text = "";
-                for(let k = 0; k < text.length; k++) {
-                    encoded_text = encoded_text + text.charCodeAt(k).toString(16);
-                }
-
+                // Get location of file on Disk 
                 var fileLocation = this.checkFilename(encoded_name, 1);
-                // nuke section of disk for new text
-                this.nuke(fileLocation);
 
-                // write text to location in DATA
-                sessionStorage.setItem(String(fileLocation), ("1---" + this.encode(text)));
-                this.updateDiskView();
+                // check to see if 
+                if (text.length > 59) {
+                    var temp_text = ""; var start = 0; var end = 59;
+                    for (let i = -1; i <= (Math.floor(59 / (text.length - 1))); i++) {
+
+                        if (end < (text.length - 1)) {
+                            temp_text = text.substring(start, end);
+                            start = start + 59; end = end + 59;
+
+                            sessionStorage.setItem(fileLocation, ("1" + this.findNext_DATA() + this.encode(temp_text)));
+                        } 
+                        else {
+                            temp_text = text.substring(start, (text.length - 1));
+                            sessionStorage.setItem(this.findNext_DATA(), ("1---" + this.encode(temp_text)));
+                            this.updateDiskView(); 
+                        }
+                    }
+                }
+                // means that text or data fits in one single location
+                else {
+                    var encoded_text = "";
+                    for(let k = 0; k < text.length; k++) {
+                        encoded_text = encoded_text + text.charCodeAt(k).toString(16);
+                    }
+                    // write text to location in DATA
+                    sessionStorage.setItem(fileLocation, ("1---" + this.encode(text)));
+                    this.updateDiskView(); 
+                }
             }
+        }
+
+        read(name: string) {
+            var inside_name = this.encode(name);
+
+            // check if file exists
+            if (this.checkFilename(inside_name, 0) === "1") {
+                _StdOut.putText("File " + name + " was not found");
+            }
+            // File does exists - go an read its contents 
+            else {
+                // flag for while loop
+                var flag = true;
+
+                var location = this.checkFilename(inside_name, 1);
+                var fileData = ""
+
+                while (flag) {
+                    if (this.decodeRead(location)[1] != "---") {
+
+                        fileData = fileData + this.decodeRead(location)[0];
+                        location = this.decodeRead(location)[1];
+                    }
+                    else {
+                        fileData = fileData + this.decodeRead(location)[0];
+                        location = this.decodeRead(location)[1];
+                        flag = false;
+                    }
+                }
+                _StdOut.putText(fileData);
+            }
+        }
+        decodeRead(ubicacion: string) {
+            var file_text = sessionStorage.getItem(ubicacion).substring(4);
+            var next_location = sessionStorage.getItem(ubicacion).substring(1, 4);
+
+            var decoded_text = "";
+                for(let i = 0; i < file_text.length; i++) {
+
+                    if (file_text.charAt(i) != "~") {
+                        let lol = file_text.charAt(i) + file_text.charAt(i + 1);
+
+                        decoded_text = decoded_text + String.fromCharCode(parseInt(lol, 16));
+                        i = i + 1;
+                    }
+                }
+                return [decoded_text, next_location];
         }
     }
 }
