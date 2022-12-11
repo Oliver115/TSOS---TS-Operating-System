@@ -110,6 +110,21 @@ var TSOS;
             // write
             sc = new TSOS.ShellCommand(this.shellWrite, "write", "- write data to a file");
             this.commandList[this.commandList.length] = sc;
+            // read
+            sc = new TSOS.ShellCommand(this.shellRead, "read", "- read and display contents of a file");
+            this.commandList[this.commandList.length] = sc;
+            // delete
+            sc = new TSOS.ShellCommand(this.shellDelete, "delete", "- remove filename from the storage");
+            this.commandList[this.commandList.length] = sc;
+            // rename
+            sc = new TSOS.ShellCommand(this.shellRename, "rename", "- rename a file");
+            this.commandList[this.commandList.length] = sc;
+            // ls
+            sc = new TSOS.ShellCommand(this.shellLs, "ls", "- list the files currently on the disk");
+            this.commandList[this.commandList.length] = sc;
+            // copy
+            sc = new TSOS.ShellCommand(this.shellCopy, "copy", "- create a copy of a file");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         }
@@ -680,6 +695,21 @@ var TSOS;
                     case "format":
                         _StdOut.putText("Initialize the disk.");
                         break;
+                    case "read":
+                        _StdOut.putText("Read and display the contents of a file.");
+                        break;
+                    case "delete":
+                        _StdOut.putText("Remove filename from the storage.");
+                        break;
+                    case "rename":
+                        _StdOut.putText("Rename a file.");
+                        break;
+                    case "ls":
+                        _StdOut.putText("List the files currently stored on the disk.");
+                        break;
+                    case "copy":
+                        _StdOut.putText("Create a copy of a file.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -805,7 +835,7 @@ var TSOS;
             if (_krnDiskDriver.is_format() == false) {
                 _StdOut.putText("Disk not formatted!");
             }
-            else if (args.length < 2) {
+            else if ((args.length < 2)) {
                 _StdOut.putText('Usage: write <filename> "<text>"');
             }
             else {
@@ -822,12 +852,63 @@ var TSOS;
                     // remove quotes
                     data = data.replaceAll('"', '');
                     // write to disk
-                    _krnDiskDriver.write(String(args[0]), data);
-                    _StdOut.putText("File '" + args[0] + "' has been updated");
+                    _krnDiskDriver.write(String(args[0]), data, false);
                 }
                 else {
                     _StdOut.putText('Usage: write <filename> "<text>" - (Tip: Make sure to use quotes)');
                 }
+            }
+        }
+        shellRead(args) {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else if ((args.length > 1) || (args.length < 1)) {
+                _StdOut.putText("Usage: read <filename>");
+            }
+            else {
+                _krnDiskDriver.read(args[0]);
+            }
+        }
+        shellDelete(args) {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else if ((args.length > 1) || (args.length < 1)) {
+                _StdOut.putText("Usage: delete <filename>");
+            }
+            else {
+                _krnDiskDriver.delete(args[0]);
+            }
+        }
+        shellRename(args) {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else if ((args.length < 2) || (args.length > 2)) {
+                _StdOut.putText("Usage: rename <current filename> <old filename>");
+            }
+            else {
+                _krnDiskDriver.rename(args[0], args[1]);
+            }
+        }
+        shellLs() {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else {
+                _krnDiskDriver.ls();
+            }
+        }
+        shellCopy(args) {
+            if (_krnDiskDriver.is_format() == false) {
+                _StdOut.putText("Disk not formatted!");
+            }
+            else if ((args.length > 1) || (args.length < 1)) {
+                _StdOut.putText("Usage: copy <file to copy>");
+            }
+            else {
+                _krnDiskDriver.copy(args[0]);
             }
         }
         shellPrompt(args) {
