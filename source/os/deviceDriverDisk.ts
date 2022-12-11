@@ -228,7 +228,7 @@
                 new_data = ("1" + this.findNext_DATA() + new_data);
                 sessionStorage.setItem(this.findNext_DIR(), new_data);
 
-                // Flag DATA location as used
+                // Flag DATA location as 'unavailable'
                 var data = sessionStorage.getItem(this.findNext_DATA());
                 data = data.replace("0", "1");
                 sessionStorage.setItem(this.findNext_DATA(), data);
@@ -275,7 +275,7 @@
             return "1";
         }
 
-        write(name: string, text: string) {
+        write(name: string, text: string, isItCopy: boolean) {
             var encoded_name = this.encode(name);
 
             // check if file exists
@@ -301,7 +301,9 @@
                             temp_text = text.substring(start, (text.length - 1));
                             sessionStorage.setItem(this.findNext_DATA(), ("1---" + this.encode(temp_text)));
                             this.updateDiskView(); 
-                            _StdOut.putText("File '" + name + "' has been updated" );
+                            if (isItCopy == false) {
+                                _StdOut.putText("File '" + name + "' has been updated" );
+                            }
                         }
                     }
                 }
@@ -314,7 +316,9 @@
                     // write text to location in DATA
                     sessionStorage.setItem(fileLocation, ("1---" + this.encode(text)));
                     this.updateDiskView(); 
-                    _StdOut.putText("File '" + name + "' has been updated" );
+                    if (isItCopy == false) {
+                        _StdOut.putText("File '" + name + "' has been updated" );
+                    }
                 }
             }
         }
@@ -395,6 +399,99 @@
                 }
                 this.updateDiskView();
                 _StdOut.putText("File '" + file_to_kill + "' was deleted along with its data");
+            }
+        }
+
+        rename(oldname: string, newname: string) {
+
+            var old = this.encode(oldname);
+
+            if (this.checkFilename(old, 0) === "1") {
+                _StdOut.putText("File " + oldname + " was not found");
+            }
+            else {
+                var newLocation = this.checkFilename(old, 2);
+                var new_name = sessionStorage.getItem(newLocation)[0] + sessionStorage.getItem(newLocation)[1] + 
+                sessionStorage.getItem(newLocation)[2] + sessionStorage.getItem(newLocation)[3] + this.encode(newname)
+
+                sessionStorage.setItem(newLocation, new_name);
+            }
+            _StdOut.putText(oldname + " was renamed to: " + newname);
+            this.updateDiskView();
+        }
+
+        ls() {
+            // count files in case there aren't any
+            var count = 0;
+
+            for(let s = 0; s < _Disk.sector; s++) {
+                // block
+                for(let b = 0; b < _Disk.block; b++) {
+                    // Does this location have a filename?
+                    if ((sessionStorage.getItem("0" + s +  "" + b)[0] === "1")) {
+                        if ((s == 0) && (b == 0)) {
+                            // do nothing
+                        }
+                        else {
+                            if (count == 0) {
+                                _StdOut.putText("Files on Disk: ");
+                                _StdOut.advanceLine();
+                                _StdOut.putText("- " + this.decodeRead("0" + s +  "" + b)[0]);
+                                _StdOut.advanceLine();
+                                count++;
+                            }
+                            else {
+                                _StdOut.putText("- " + this.decodeRead("0" + s +  "" + b)[0]);
+                                _StdOut.advanceLine();
+                                count++;
+                            }
+                        }
+                    }
+                }
+            } 
+            if (count == 0) {
+                _StdOut.putText("No files on disk :(")
+            }
+        }
+
+        copy(file_to_copy: string) {
+
+            var copy = this.encode(file_to_copy);
+
+            // Does a copy already exist?
+            if (this.checkFilename((this.encode((file_to_copy + "Copy"))), 0) === "0") {
+                _StdOut.putText("A copy of '" + file_to_copy + "' already exists.");
+            }
+            // Does a the file exist?
+            else if (this.checkFilename(copy, 0) === "1") {
+                _StdOut.putText("File " + file_to_copy + " was not found");
+            }
+            else {
+                var file = file_to_copy + "Copy";
+                // create file in DIR
+                this.createFile(file);
+
+                // Read contents of file 
+                var flag = true;
+
+                var location = this.checkFilename(copy, 1);
+                var fileData = ""
+
+                while (flag) {
+                    if (this.decodeRead(location)[1] != "---") {
+                        fileData = fileData + this.decodeRead(location)[0];
+                        location = this.decodeRead(location)[1];
+                    }
+                    else {
+                        fileData = fileData + this.decodeRead(location)[0];
+                        location = this.decodeRead(location)[1];
+                        flag = false;
+                    }
+                }
+
+                console.log(fileData);
+                // place contents of file in new location in DATA
+                this.write(file, fileData, true);  
             }
         }
     }
