@@ -736,7 +736,12 @@ var TSOS;
                                 td.style.width = '10px';
                                 break;
                             case 8:
-                                td.appendChild(document.createTextNode(String(this.state)));
+                                if (this.memSeg == 13) {
+                                    td.appendChild(document.createTextNode("On Disk"));
+                                }
+                                else {
+                                    td.appendChild(document.createTextNode(String(this.state)));
+                                }
                                 td.style.border = '1px solid black';
                                 td.style.width = '10px';
                                 break;
@@ -812,7 +817,12 @@ var TSOS;
                                 td.style.width = '10px';
                                 break;
                             case 8:
-                                td.appendChild(document.createTextNode(ready_pcb.get_state()));
+                                if (ready_pcb.get_memSeg() == 13) {
+                                    td.appendChild(document.createTextNode("On Disk"));
+                                }
+                                else {
+                                    td.appendChild(document.createTextNode(ready_pcb.get_state()));
+                                }
                                 td.style.border = '1px solid black';
                                 td.style.width = '10px';
                                 break;
