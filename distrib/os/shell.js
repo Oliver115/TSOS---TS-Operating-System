@@ -307,11 +307,11 @@ var TSOS;
                 _StdOut.putText("All Memory partitions cleared. Memory has no friends now...");
             }
         }
-        shellLoad(args) {
+        shellLoad() {
             // Check if memory locations are available
             if (_MemoryManager.memoryLocationAvailable() < 4) {
                 let user_input;
-                user_input = document.getElementById('taProgramInput').value;
+                user_input = document.getElementById('taProgramInput').value; // throw error but still works ¯\_(ツ)_/¯
                 user_input = user_input.toUpperCase();
                 user_input = user_input.replaceAll(" ", "");
                 // Check Hex Code
@@ -333,7 +333,7 @@ var TSOS;
                         _PCB_ID += 1;
                         _StdOut.putText("Input loaded successfully at Memory Segment " + _MemoryManager.memoryLocationAvailable() + " with Process ID: " + _PCB_ID);
                         var user_text_area = document.getElementById('taProgramInput');
-                        user_text_area.value = "";
+                        user_text_area.value = ""; // throw error but still works ¯\_(ツ)_/¯
                         // load hex code into memory
                         const hex_for_appending = "0x";
                         var program = [];
@@ -375,8 +375,44 @@ var TSOS;
                     _StdOut.putText("Hex Code not valid.");
                 }
             }
+            // =========================== LOAD INTO DISK ============================
             else {
-                _StdOut.putText("Memory is finito");
+                if (_krnDiskDriver.is_format() == false) {
+                    _StdOut.putText("Memory full. Disk not formatted - cannot load programs into disk");
+                }
+                else {
+                    // similar to loading program into memory but with a few mods to fit disk
+                    let user_input;
+                    user_input = document.getElementById('taProgramInput').value; // throw error but still works ¯\_(ツ)_/¯
+                    user_input = user_input.toUpperCase();
+                    user_input = user_input.replaceAll(" ", "");
+                    // Check Hex Code
+                    var validHex = user_input => {
+                        const legend = '0123456789ABCDEF';
+                        for (let i = 0; i < user_input.length; i++) {
+                            if (legend.includes(user_input[i])) {
+                                continue;
+                            }
+                            return false;
+                        }
+                        return true;
+                    };
+                    if (user_input == "") {
+                        _StdOut.putText("Hex Code not valid.");
+                    }
+                    else {
+                        _PCB_ID += 1;
+                        _StdOut.putText("Input loaded successfully on Disk with Process ID: " + _PCB_ID);
+                        var user_text_area = document.getElementById('taProgramInput');
+                        user_text_area.value = ""; // throw error but still works ¯\_(ツ)_/¯
+                        if (validHex(user_input)) {
+                            // load hex code into disk
+                            _krnDiskDriver.createFromMem(("pid" + String(_PCB_ID)), user_input);
+                            var newPCB = new TSOS.PCB(_PCB_ID, 0, 0, 0, 0, 0, 0, false, "Disk", 13, 0, 0, 7);
+                            _PCBresident.push(newPCB);
+                        }
+                    }
+                }
             }
         }
         shellRun(args) {
@@ -443,11 +479,11 @@ var TSOS;
                 _StdOut.putText("Usage: run <PID>  Please supply a valid PID.");
             }
         }
-        shellrunAll(args) {
+        shellrunAll() {
             for (let i = 0; i < _PCBresident.length; i++) {
                 var resident_pcb;
                 resident_pcb = _PCBresident[i];
-                if (resident_pcb.get_state() === "Resident") {
+                if ((resident_pcb.get_state() === "Resident") || (resident_pcb.get_state() == "Disk")) {
                     resident_pcb.set_state("Ready");
                     _PCBready.push(resident_pcb);
                     _Dispatcher.createQueue(resident_pcb.get_ID());
@@ -805,15 +841,20 @@ var TSOS;
             }
         }
         // Disk commands 
-        shellFormat(args) {
-            _krnDiskDriver.format();
+        shellFormat() {
+            if (_krnDiskDriver.is_format() == true) {
+                _StdOut.putText("Disk already formatted!");
+            }
+            else {
+                _krnDiskDriver.format();
+            }
         }
         shellCreate(args) {
             if (_krnDiskDriver.is_format() == false) {
                 _StdOut.putText("Disk not formatted!");
             }
             else {
-                if (args.length > 0) {
+                if ((args.length > 0)) {
                     // Make sure filename is correct length
                     if (args[0].length > 56) {
                         _StdOut.putText("Filename too big. Please use a name under 60 characters");
@@ -851,6 +892,7 @@ var TSOS;
                 if ((data.charCodeAt(0) == 34) && (data.charCodeAt(data.length - 1) == 34)) {
                     // remove quotes
                     data = data.replaceAll('"', '');
+                    console.log(data);
                     // write to disk
                     _krnDiskDriver.write(String(args[0]), data, false);
                 }
@@ -878,7 +920,7 @@ var TSOS;
                 _StdOut.putText("Usage: delete <filename>");
             }
             else {
-                _krnDiskDriver.delete(args[0]);
+                _krnDiskDriver.delete(args[0], true);
             }
         }
         shellRename(args) {

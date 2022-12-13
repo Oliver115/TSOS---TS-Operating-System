@@ -23,7 +23,6 @@ module TSOS {
             this.simulatedReadyQueue.shift();
         }
 
-
         removeTarget(target: number) {
             var start_of_queue = this.simulatedReadyQueue[0];
 
@@ -49,7 +48,6 @@ module TSOS {
             }
         }
         
-
         next() {
             return this.simulatedReadyQueue[0];
         }
@@ -61,6 +59,11 @@ module TSOS {
             else {
                 return false;
             }
+        }
+
+        // most recently used
+        mru() {
+            return this.simulatedReadyQueue[this.simulatedReadyQueue.length - 1];
         }
 
         // Debug Purposes

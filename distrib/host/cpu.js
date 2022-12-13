@@ -48,22 +48,139 @@ var TSOS;
                     var ready_pcb;
                     ready_pcb = _PCBready[i];
                     if (ready_pcb.get_ID() == _PCBprogram[0]) {
-                        console.log("Now Running: " + _PCBprogram[0]);
-                        ready_pcb.set_state("Running...");
-                        this.PC = ready_pcb.get_PC();
-                        this.IR = ready_pcb.get_IR();
-                        this.Acc = ready_pcb.get_Acc();
-                        this.Xreg = ready_pcb.get_Xreg();
-                        this.Yreg = ready_pcb.get_Yreg();
-                        this.Zflag = ready_pcb.get_Zflag();
-                        this.isExecuting = ready_pcb.get_stat();
-                        this.state = ready_pcb.get_state();
-                        this.memSeg = ready_pcb.get_memSeg();
-                        this.base = ready_pcb.get_base();
-                        this.limit = ready_pcb.get_limit();
-                        _PCBprogram[2] = 1;
-                        this.createReadyQueue();
-                        break;
+                        if (ready_pcb.get_memSeg() == 13) {
+                            console.log("Disk");
+                            var dataForDisk = "";
+                            var base = 0;
+                            var limit = 0;
+                            // If there is space in memory, no need for swapping
+                            if (_MemoryManager.memoryLocationAvailable() == 7) {
+                                // grab most recently used PID and put it in disk
+                                var mruProgram = _Dispatcher.mru();
+                                var mruMemoryLocation;
+                                for (let j = 0; j < _PCBready.length; j++) {
+                                    var mruPCB;
+                                    mruPCB = _PCBready[j];
+                                    if (mruPCB.get_ID() == mruProgram) {
+                                        mruMemoryLocation = mruPCB.get_memSeg();
+                                        break;
+                                    }
+                                }
+                                switch (mruMemoryLocation) {
+                                    case 0:
+                                        for (let m = 0x000; m < 0x100; m++) {
+                                            dataForDisk = dataForDisk + String(_Memory.getLocation(m));
+                                        }
+                                        //dataForDisk = String(_Memory.RAM.slice(0x000, 0x100)).replaceAll(",", "");
+                                        base = 0;
+                                        limit = 255;
+                                        break;
+                                    case 1:
+                                        for (let m = 0x100; m < 0x200; m++) {
+                                            dataForDisk = dataForDisk + String(_Memory.getLocation(m));
+                                        }
+                                        //dataForDisk = String(_Memory.RAM.slice(0x100, 0x200)).replaceAll(",", "");
+                                        base = 256;
+                                        limit = 511;
+                                        break;
+                                    case 2:
+                                        for (let m = 0x200; m < 0x300; m++) {
+                                            dataForDisk = dataForDisk + String(_Memory.getLocation(m));
+                                        }
+                                        //dataForDisk = String(_Memory.RAM.slice(0x200, 0x300)).replaceAll(",", "");
+                                        base = 512;
+                                        limit = 767;
+                                        break;
+                                    default:
+                                        _StdOut.putText("Error while swapping! BSOD Incoming...");
+                                        _Console.BSOD();
+                                        break;
+                                }
+                                // load data from memory segment into disk
+                                _krnDiskDriver.createFromMem(("pid" + String(_Dispatcher.mru())), dataForDisk);
+                                // Nuke memory location
+                                //_MemoryManager.memoryLocationSetter(mruMemoryLocation, true);
+                                _MemoryManager.freeLocation(base, limit);
+                            }
+                            else {
+                                mruMemoryLocation = _MemoryManager.memoryLocationAvailable();
+                                switch (mruMemoryLocation) {
+                                    case 0:
+                                        base = 0;
+                                        limit = 255;
+                                        break;
+                                    case 1:
+                                        base = 256;
+                                        limit = 511;
+                                        break;
+                                    case 2:
+                                        base = 512;
+                                        limit = 767;
+                                        break;
+                                    default:
+                                        _StdOut.putText("Error while loading disk into memory BSOD Incoming...");
+                                        _Console.BSOD();
+                                        break;
+                                }
+                            }
+                            var newData = _krnDiskDriver.readForMem("pid" + String(ready_pcb.get_ID()));
+                            for (let k = 0; k < newData.length; k++) {
+                                _MemoryManager.writeImmediate((k + base), newData[k]);
+                            }
+                            //_MemoryManager.memoryLocationSetter(mruMemoryLocation, false);
+                            _OsShell.updateMemTable(1);
+                            _krnDiskDriver.delete("pid" + String(ready_pcb.get_ID()), false);
+                            _krnDiskDriver.updateDiskView();
+                            // correct states and memory locations
+                            if (_MemoryManager.memoryLocationAvailable() == 7) {
+                                mruPCB.set_memSeg(13);
+                                mruPCB.set_state("Ready");
+                                mruPCB.set_base(0);
+                                mruPCB.set_limit(0);
+                                ready_pcb.set_memSeg(mruMemoryLocation);
+                            }
+                            else {
+                                ready_pcb.set_memSeg(mruMemoryLocation);
+                                _MemoryManager.memoryLocationSetter(mruMemoryLocation, false);
+                            }
+                            //_MemoryManager.memoryLocationSetter(mruMemoryLocation, false);
+                            ready_pcb.set_base(base);
+                            ready_pcb.set_limit(limit);
+                            console.log("Now Running: " + _PCBprogram[0]);
+                            ready_pcb.set_state("Running...");
+                            this.PC = ready_pcb.get_PC();
+                            this.IR = ready_pcb.get_IR();
+                            this.Acc = ready_pcb.get_Acc();
+                            this.Xreg = ready_pcb.get_Xreg();
+                            this.Yreg = ready_pcb.get_Yreg();
+                            this.Zflag = ready_pcb.get_Zflag();
+                            this.isExecuting = ready_pcb.get_stat();
+                            this.state = ready_pcb.get_state();
+                            this.memSeg = ready_pcb.get_memSeg();
+                            this.base = ready_pcb.get_base();
+                            this.limit = ready_pcb.get_limit();
+                            _PCBprogram[2] = 1;
+                            this.createReadyQueue();
+                            break;
+                        }
+                        else {
+                            console.log("Now Running: " + _PCBprogram[0]);
+                            ready_pcb.set_state("Running...");
+                            this.PC = ready_pcb.get_PC();
+                            this.IR = ready_pcb.get_IR();
+                            this.Acc = ready_pcb.get_Acc();
+                            this.Xreg = ready_pcb.get_Xreg();
+                            this.Yreg = ready_pcb.get_Yreg();
+                            this.Zflag = ready_pcb.get_Zflag();
+                            this.isExecuting = ready_pcb.get_stat();
+                            this.state = ready_pcb.get_state();
+                            this.memSeg = ready_pcb.get_memSeg();
+                            this.base = ready_pcb.get_base();
+                            this.limit = ready_pcb.get_limit();
+                            _PCBprogram[2] = 1;
+                            this.createReadyQueue();
+                            break;
+                        }
                     }
                 }
             }
@@ -85,6 +202,7 @@ var TSOS;
                     _PCBprogram[0] = _Dispatcher.next();
                     _PCBprogram[2] = 0;
                     _Scheduler.countReset();
+                    _Dispatcher.print();
                 }
             }
             else {
@@ -115,6 +233,9 @@ var TSOS;
          */
         fetch() {
             if ((this.PC + this.base) > this.limit) {
+                console.log(this.PC);
+                console.log(this.base);
+                console.log(this.limit);
                 this.IR = 0;
                 _StdOut.putText("PID: " + _PCBprogram[0] + " has been killed for memory violation - MemSeg: " + this.memSeg);
             }
@@ -139,6 +260,7 @@ var TSOS;
          */
         execute() {
             //console.log(this.hexLog(this.IR, 2));
+            console.log(this.hexLog(this.IR, 2));
             switch (this.hexLog(this.IR, 2)) {
                 // Load the accumulator with a constant
                 case "A9":
@@ -160,9 +282,11 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     var temp_PC = this.PC;
                     this.PC = this.little_endian;
+                    console.log("AD: " + this.PC);
                     this.fetch();
                     this.Acc = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
+                    console.log("AD: " + this.PC);
                     this.viewProgram();
                     this.createReadyQueue();
                     this.showCPU();
@@ -182,6 +306,7 @@ var TSOS;
                     this.showCPU();
                     this.increasePC();
                     _OsShell.updateMemTable(1);
+                    console.log("COUNT: " + this.PC);
                     break;
                 // Add contents of an address to the accumulator and keeps the result in the accumulator
                 case "6D":
@@ -193,9 +318,11 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
+                    console.log("6D: " + this.PC);
                     this.fetch();
                     this.Acc = (this.Acc + _MemoryAccessor.getMDR_MMU());
                     this.PC = temp_PC;
+                    console.log("6D: " + this.PC);
                     this.viewProgram();
                     this.createReadyQueue();
                     this.showCPU();
@@ -221,9 +348,11 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
+                    console.log("AE: " + this.PC);
                     this.fetch();
                     this.Xreg = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
+                    console.log("AE: " + this.PC);
                     this.viewProgram();
                     this.createReadyQueue();
                     this.showCPU();
@@ -249,9 +378,11 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
+                    console.log("AC: " + this.PC);
                     this.fetch();
                     this.Yreg = _MemoryAccessor.getMDR_MMU();
                     this.PC = temp_PC;
+                    console.log("AD: " + this.PC);
                     this.viewProgram();
                     this.createReadyQueue();
                     this.showCPU();
@@ -273,9 +404,9 @@ var TSOS;
                     for (let i = 0; i < _PCBready.length; i++) {
                         ready_pcb = _PCBready[i];
                         if (ready_pcb.get_ID() == _PCBprogram[0]) {
-                            _Console.advanceLine();
-                            _StdOut.putText("PID " + ready_pcb.get_ID() + " - Turnaround Time: " + ready_pcb.get_turn() + " - Wait Time: " + ready_pcb.get_wait());
-                            _Console.advanceLine();
+                            //_Console.advanceLine();
+                            //_StdOut.putText("PID " + ready_pcb.get_ID() + " - Turnaround Time: " + ready_pcb.get_turn() + " - Wait Time: " + ready_pcb.get_wait());
+                            //_Console.advanceLine();
                             break;
                         }
                     }
@@ -283,6 +414,9 @@ var TSOS;
                     _MemoryManager.freeLocation(ready_pcb.get_base(), ready_pcb.get_limit());
                     // Flag location as available
                     _MemoryManager.memoryLocationSetter(this.memSeg, true);
+                    console.log("Finished and OUT: " + this.memSeg);
+                    console.log("Location: " + _MemoryManager.memoryLocationAvailable());
+                    _OsShell.updateMemTable(1);
                     // remove program from ready queue
                     ready_pcb.set_state("Terminated");
                     var kill_id = ready_pcb.get_ID();
@@ -293,12 +427,15 @@ var TSOS;
                         _Scheduler.countReset();
                     }
                     else {
+                        console.log("Everything is out: " + _Dispatcher.print());
                         _Scheduler.countReset();
                         _PCBprogram[1] = false; // CPU is done with the program
                         this.showCPU();
+                        _StdOut.advanceLine();
                         _StdOut.putText("All Programs Completed");
                     }
                     this.createReadyQueue();
+                    _OsShell.updateMemTable(1);
                     break;
                 // Compare a byte in accessor to the Xreg register. Sets the Zflag to zero (0) if the byte in accessor and the Xreg register are equal
                 case "EC":
@@ -310,11 +447,14 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
-                    this.PC = this.little_endian;
+                    console.log("EC: " + this.PC);
+                    //this.PC = this.little_endian;
+                    console.log("EC: " + this.PC);
                     this.fetch();
                     if (_MemoryAccessor.getMDR_MMU() == this.Xreg) {
                         this.Zflag = 1;
                         this.PC = temp_PC;
+                        console.log("ECi: " + this.PC);
                         this.viewProgram();
                         this.createReadyQueue();
                         this.showCPU();
@@ -323,6 +463,7 @@ var TSOS;
                     else {
                         this.Zflag = 0;
                         this.PC = temp_PC;
+                        console.log("ECe: " + this.PC);
                         this.viewProgram();
                         this.createReadyQueue();
                         this.showCPU();
@@ -335,6 +476,7 @@ var TSOS;
                         this.increasePC();
                         this.fetch();
                         this.howMuchBranch(_MemoryAccessor.getMDR_MMU());
+                        console.log(_MemoryAccessor.getMDR_MMU());
                         //this.PC = this.PC + branch;
                         this.viewProgram();
                         this.createReadyQueue();
@@ -358,12 +500,14 @@ var TSOS;
                     this.little_endian = _MemoryAccessor.setHighOrderByte(_MemoryAccessor.getMDR_MMU(), this.little_endian);
                     temp_PC = this.PC;
                     this.PC = this.little_endian;
+                    console.log("EE: " + this.PC);
                     this.fetch();
                     var tempAcc = this.Acc;
                     this.Acc = (_MemoryAccessor.getMDR_MMU() + 0x01);
                     this.writeBack();
                     this.Acc = tempAcc;
                     this.PC = temp_PC;
+                    console.log("EE: " + this.PC);
                     this.viewProgram();
                     this.createReadyQueue();
                     this.showCPU();
@@ -388,11 +532,13 @@ var TSOS;
                     if (this.Xreg == 0x02) { // If there is a 0x02 in the Xreg register. Print the 0x00 terminated string stored at address in the Y register
                         temp_PC = this.PC;
                         this.PC = _MemoryAccessor.setLowOrderByte(this.Yreg);
+                        console.log("FF2: " + this.PC);
                         var continueString = 1;
                         while (continueString == 1) {
                             this.fetch();
                             if (_MemoryAccessor.getMDR_MMU() == 0x00) {
                                 this.PC = temp_PC + 1;
+                                console.log("FF2i: " + this.PC);
                                 continueString = 0;
                                 break;
                             }
@@ -595,7 +741,12 @@ var TSOS;
                                 td.style.width = '10px';
                                 break;
                             case 9:
-                                td.appendChild(document.createTextNode("Memory: " + String(this.memSeg)));
+                                if (this.memSeg == 13) {
+                                    td.appendChild(document.createTextNode("Disk"));
+                                }
+                                else {
+                                    td.appendChild(document.createTextNode("Memory: " + String(this.memSeg)));
+                                }
                                 td.style.border = '1px solid black';
                                 td.style.width = '10px';
                                 break;
@@ -666,7 +817,12 @@ var TSOS;
                                 td.style.width = '10px';
                                 break;
                             case 9:
-                                td.appendChild(document.createTextNode("Memory: " + String(ready_pcb.get_memSeg())));
+                                if (ready_pcb.get_memSeg() == 13) {
+                                    td.appendChild(document.createTextNode("Disk"));
+                                }
+                                else {
+                                    td.appendChild(document.createTextNode("Memory: " + String(ready_pcb.get_memSeg())));
+                                }
                                 td.style.border = '1px solid black';
                                 td.style.width = '10px';
                                 break;
@@ -698,11 +854,15 @@ var TSOS;
         // Method that determines how much to branch
         howMuchBranch(branchNumber) {
             // Branch backwards
+            console.log("Inside branch PC: " + this.PC);
+            console.log("Inside branch num: " + branchNumber);
             if ((branchNumber + this.PC) >= 0xFF) {
                 this.PC = ((branchNumber + this.PC) - 255);
+                console.log("Branchi: " + this.PC);
             }
             else {
                 this.PC = this.PC + branchNumber + 1;
+                console.log("Branche: " + this.PC);
             }
         }
         /**
@@ -744,6 +904,9 @@ var TSOS;
                     local_pcb.set_Xreg(this.Xreg);
                     local_pcb.set_Yreg(this.Yreg);
                     local_pcb.set_Zflag(this.Zflag);
+                    local_pcb.set_base(this.base);
+                    local_pcb.set_limit(this.limit);
+                    local_pcb.set_memSeg(this.memSeg);
                     if (local_pcb.get_state() === "Running...") {
                         local_pcb.set_state("Ready");
                     }

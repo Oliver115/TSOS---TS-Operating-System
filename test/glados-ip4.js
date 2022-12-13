@@ -57,7 +57,7 @@ function Glados() {
       _KernelInputQueue.enqueue('s');
       _KernelInputQueue.enqueue(' ');
       _KernelInputQueue.enqueue('F');
-      _KernelInputQueue.enqueue('i');
+      _KernelInputQueue.enqueue('0');
       _KernelInputQueue.enqueue('N');
       _KernelInputQueue.enqueue('a');
       _KernelInputQueue.enqueue('L');

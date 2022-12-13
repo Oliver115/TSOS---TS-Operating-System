@@ -199,13 +199,14 @@ module TSOS {
             }
         }
 
-        /** 
+        
         public advanceLine(): void {
             this.currentXPosition = 0;
             /*
              * Font size measures from the baseline to the highest point in the font.
              * Font descent measures from the baseline to the lowest point in the font.
              * Font height margin is extra spacing between the lines.
+             */
              
 
             this.currentYPosition += _DefaultFontSize + 
@@ -219,16 +220,17 @@ module TSOS {
                 _DrawingContext.putImageData(screen, 0, -21);
                 this.currentYPosition = this.currentYPosition - 21;
             }
-        } */
+        } 
 
         // This is what SamOS did, placed here for 
+        /** 
         advanceLine() {
             this.currentXPosition = 0;
             /*
              * Font size measures from the baseline to the highest point in the font.
              * Font descent measures from the baseline to the lowest point in the font.
              * Font height margin is extra spacing between the lines.
-             */
+             
             this.currentYPosition += _DefaultFontSize +
                 _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
                 _FontHeightMargin;
@@ -243,5 +245,6 @@ module TSOS {
                 this.currentYPosition = _Canvas.height - this.currentFontSize;
             }
         }
+        */
     }
  }

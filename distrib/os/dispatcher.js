@@ -50,6 +50,10 @@ var TSOS;
                 return false;
             }
         }
+        // most recently used
+        mru() {
+            return this.simulatedReadyQueue[this.simulatedReadyQueue.length - 1];
+        }
         // Debug Purposes
         print() {
             console.log(this.simulatedReadyQueue);

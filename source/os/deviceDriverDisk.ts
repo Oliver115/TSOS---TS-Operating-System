@@ -217,6 +217,7 @@
             return encoded_data; 
         }
 
+
         createFile(filename: string) {
             var new_data = this.encode(filename);
 
@@ -286,20 +287,26 @@
                 // Get location of file on Disk 
                 var fileLocation = this.checkFilename(encoded_name, 1);
 
-                // check to see if 
-                if (text.length > 59) {
-                    var temp_text = ""; var start = 0; var end = 59;
-                    for (let i = -1; i <= (Math.floor(59 / (text.length - 1))); i++) {
+                // check to see if more that one segment is needed
+                if (text.length > 60) {
+                    var temp_text = ""; var start = 0; var end = 60;
+                    for (let i = -1; i <= (Math.floor(text.length / 60)); i++) {
 
                         if (end < (text.length - 1)) {
                             temp_text = text.substring(start, end);
-                            start = start + 59; end = end + 59;
+                            start = start + 60; end = end + 60;
 
                             sessionStorage.setItem(fileLocation, ("1" + this.findNext_DATA() + this.encode(temp_text)));
+                            fileLocation = this.findNext_DATA();
+
+                            // Flag DATA location as 'unavailable'
+                            var data = sessionStorage.getItem(this.findNext_DATA());
+                            data = data.replace("0", "1");
+                            sessionStorage.setItem(this.findNext_DATA(), data);
                         } 
                         else {
                             temp_text = text.substring(start, (text.length - 1));
-                            sessionStorage.setItem(this.findNext_DATA(), ("1---" + this.encode(temp_text)));
+                            sessionStorage.setItem(fileLocation, ("1---" + this.encode(temp_text)));
                             this.updateDiskView(); 
                             if (isItCopy == false) {
                                 _StdOut.putText("File '" + name + "' has been updated" );
@@ -371,7 +378,7 @@
                 return [decoded_text, next_location];
         }
 
-        delete(file_to_kill: string) {
+        delete(file_to_kill: string, msg: boolean) {
 
             var encoded_kill = this.encode(file_to_kill);
             // check if file exists
@@ -398,7 +405,9 @@
                     }
                 }
                 this.updateDiskView();
-                _StdOut.putText("File '" + file_to_kill + "' was deleted along with its data");
+                if (msg) {
+                    _StdOut.putText("File '" + file_to_kill + "' was deleted along with its data");
+                }
             }
         }
 
@@ -488,11 +497,125 @@
                         flag = false;
                     }
                 }
-
-                console.log(fileData);
                 // place contents of file in new location in DATA
                 this.write(file, fileData, true);  
             }
+        }
+
+        encodeFromMem(data: string) {
+            var encoded_data = data;
+
+            for(let i = (data.length - 1); i < 60; i++) {
+                encoded_data = encoded_data + "~";
+            }
+            //console.log(encoded_data);
+            return encoded_data;
+        }
+
+        createFromMem(pid: string, data: string) {
+            console.log("Into Disk: " + pid);
+            data = data.toLowerCase();
+            var encodedPID = this.encode(pid);
+
+            // Add pid to DIR (create File)
+            var pidLocation = ("1" + this.findNext_DATA() + encodedPID);
+            sessionStorage.setItem(this.findNext_DIR(), pidLocation);
+
+            // Set data loaction as unavailable
+            var temp = sessionStorage.getItem(this.findNext_DATA());
+                temp = temp.replace("0", "1");
+                sessionStorage.setItem(this.findNext_DATA(), temp);
+
+            this.updateDiskView();
+
+            // (Write)
+            // Get location of file on Disk 
+            var fileLocation = this.checkFilename(encodedPID, 1);
+
+            // check to see if more that one segment is needed
+            if (data.length > 60) {
+                var temp_text = ""; var start = 0; var end = 60;
+                for (let i = 0; i <= (Math.floor(data.length / 60)); i++) {
+
+                    if (end < (data.length - 1)) {
+                        //console.log("Long");
+                        temp_text = data.substring(start, end);
+                        start = start + 60; end = end + 60;
+
+                        sessionStorage.setItem(fileLocation, ("1" + this.findNext_DATA() + this.encodeFromMem(temp_text)));
+                        fileLocation = this.findNext_DATA();
+
+                        // Flag DATA location as 'unavailable'
+                        var door = sessionStorage.getItem(this.findNext_DATA());
+                        door = door.replace("0", "1");
+                        sessionStorage.setItem(this.findNext_DATA(), door);
+                    } 
+                    else {
+                        //console.log("Short");
+                        temp_text = data.substring(start, (data.length));
+                        sessionStorage.setItem(fileLocation, ("1---" + this.encodeFromMem(temp_text)));
+                        this.updateDiskView(); 
+                    }
+                }
+            }
+            // means that text or data fits in one single location
+            else {
+                // write data to location in DATA
+                sessionStorage.setItem(fileLocation, ("1---" + this.encodeFromMem(data)));
+                this.updateDiskView(); 
+            }
+            this.updateDiskView();
+        }
+        
+        // Only used for swapping
+        decodeReadForMemory(ubicacion: string) {
+            var file_text = sessionStorage.getItem(ubicacion).substring(4);
+            var next_location = sessionStorage.getItem(ubicacion).substring(1, 4);
+
+            var lol = "";
+                for(let i = 0; i < file_text.length; i++) {
+                    if (file_text.charAt(i) != "~") {
+                        lol = lol + file_text.charAt(i);
+                    }
+                }
+                return [lol, next_location];
+        }
+
+        readForMem(pid: string) {
+            console.log("Out of Disk: " + pid);
+            var pidEncoded = this.encode(pid);
+
+            var pidLocation = this.checkFilename(pidEncoded, 1);
+
+            var flag = true;
+            var fileData = ""
+
+            while (flag) {
+                if (this.decodeReadForMemory(pidLocation)[1] != "---") {
+                    fileData = fileData + this.decodeReadForMemory(pidLocation)[0];
+                    pidLocation = this.decodeReadForMemory(pidLocation)[1];
+
+                }
+                else {
+                    fileData = fileData + this.decodeReadForMemory(pidLocation)[0];
+                    pidLocation = this.decodeReadForMemory(pidLocation)[1];
+                    flag = false;
+                }
+            }
+
+            fileData = fileData.replaceAll(" ", "");
+            // load hex code into memory
+            const hex_for_appending = "0x"
+            var program = [];
+            for(let j = 0; j < fileData.length; j++) {
+                var temp_var = parseInt((hex_for_appending + fileData.charAt(j) + fileData.charAt(j + 1)), 16);
+                program.push(temp_var);
+                j++;
+            }
+
+            this.updateDiskView();
+
+            return program;
         }
     }
 }
