@@ -5,7 +5,7 @@ Initial and base code was developed by Alan and then enhanced by alums Bob Nisco
 Project Description: 
 Browser-based Operating System in TypeScript 
 
-# For Mean OS Professor
+# For OS Professor
 The 'main' branch acts as a development branch
 
 - For iProject1 use the 'iProject 1 - Unicorn' branch for grading
