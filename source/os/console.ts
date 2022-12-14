@@ -197,6 +197,13 @@ module TSOS {
                 base_image.onload = function() {
                     ctxt.drawImage(base_image, 0, 0, 900, 700); }
             }
+
+            Control.hostLog("Emergency halt", "host");
+            Control.hostLog("Attempting Kernel shutdown.", "host");
+            // Call the OS shutdown routine.
+            _Kernel.krnShutdown();
+            // Stop the interval that's simulating our clock pulse.
+            clearInterval(_hardwareClockID);
         }
 
         

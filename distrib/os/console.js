@@ -180,6 +180,12 @@ var TSOS;
                     ctxt.drawImage(base_image, 0, 0, 900, 700);
                 };
             }
+            TSOS.Control.hostLog("Emergency halt", "host");
+            TSOS.Control.hostLog("Attempting Kernel shutdown.", "host");
+            // Call the OS shutdown routine.
+            _Kernel.krnShutdown();
+            // Stop the interval that's simulating our clock pulse.
+            clearInterval(_hardwareClockID);
         }
         advanceLine() {
             this.currentXPosition = 0;
