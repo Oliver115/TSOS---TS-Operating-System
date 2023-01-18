@@ -1,17 +1,9 @@
-# Operating Systems - Semester Project
-
-Initial and base code was developed by Alan and then enhanced by alums Bob Nisco and Rebecca Murphy over the years.
+# TSOS TypeScript Operating System
 
 Project Description: 
-Browser-based Operating System in TypeScript 
+Browser-based Operating System in TypeScript develped by Oliver Wilson
 
-# For OS Professor
-The 'main' branch acts as a development branch
-
-- For iProject1 use the 'iProject 1 - Unicorn' branch for grading
-- For iProject2 use the 'iProject 2 - Cabybara' branch for grading
-- For iProject3 use the 'iProject 3 - Condor' branch for grading
-- For iProjectFinal use the 'iProjectF - Foxtrot' branch for grading
+For latest version use 'iProjectF - Foxtrot' branch
 
 # Contributors and Collaborators
 
