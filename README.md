@@ -7,6 +7,10 @@ Also created a Virtual 6502 that is based on this OS: https://github.com/Oliver1
 
 For latest version use 'iProjectF - Foxtrot' branch
 
+# How to run
+
+Download project and run the 'index.html' in a browser
+
 # Contributors and Collaborators
 
 - Oliver Wilson <oliver.wilson1@marist.edu>
